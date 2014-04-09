@@ -1,0 +1,747 @@
+%{
+
+#include "Ast.h"
+#include "ParserUtil.h"
+#include "Error.h"
+
+using namespace std;
+
+extern int verbosity;
+extern int yylex();
+extern void yyerror(const char *s);
+int offSet;
+extern const OpNode::OpInfo opInfo[];
+
+%}
+
+%union{
+  unsigned int 		 uVal;
+  double             dVal;
+  char*              cVal;
+  vector<string>*    strVector;
+  Value*             valVal;
+
+  ExprNode*          exprVal;
+  vector<ExprNode*>* exprList;
+  RefExprNode*       refexpVal;
+
+  ClassEntry*        classEntry;
+  Type*              typeVal;
+  vector<Type*>*     typeList; 
+
+  EventEntry*        eventEntry;                        
+  VariableEntry*     variableEntry;
+  FunctionEntry*     functionEntry;
+
+  BasePatNode*       patVal;
+  PrimitivePatNode*  primPatVal;
+  StmtNode*          stmtVal;
+  list<StmtNode*>*   stmtList;
+  IfNode*            ifVal;
+  CompoundStmtNode*  compoundStmtVal;
+  RuleNode*          ruleNode;
+
+  vector<RuleNode*>* transList;
+  
+  vector<Type*>*     formalTypeVal;
+  const OpNode::OpInfo*    funIval;
+
+// below is what I add
+
+  vector<VariableEntry*>*   variableList;
+};
+
+/* Operators */
+
+%token TOK_LEX_ERROR TOK_PAT_STAR TOK_PAT_OR TOK_PAT_NOT
+%token TOK_PLUS TOK_MINUS TOK_UMINUS TOK_MULT TOK_DIV TOK_MOD 
+%token TOK_BITAND TOK_BITOR TOK_BITNOT TOK_BITXOR TOK_SHL TOK_SHR 
+%token TOK_GT TOK_LT TOK_GE TOK_LE TOK_EQ  TOK_NE TOK_AND TOK_OR TOK_NOT 
+%token TOK_COMMA TOK_ASSIGN TOK_SEMICOLON TOK_COLON TOK_ARROW
+%token TOK_LBRACE TOK_RBRACE TOK_LPAREN TOK_RPAREN
+
+/* Key words */
+
+%token TOK_IF TOK_ELSE TOK_CLASS TOK_RETURN TOK_EVENT TOK_ANY TOK_PRINT 
+%token TOK_UINTNUM TOK_DOUBLENUM TOK_VOID TOK_STRING TOK_STRCONST 
+%token TOK_INT TOK_UNSIGNED TOK_BOOL TOK_BYTE TOK_DOUBLE TOK_SHORT
+%token TOK_TRUE TOK_FALSE TOK_IDENT
+
+/******************************** Type Info ********************************/
+/* Uncomment types below as you start adding rules.
+   They are commented right now to prevent compile errors. 
+*/
+%type <functionEntry> function_header function_decl
+%type <variableEntry> variable_decl formal_param vname            //delete variable_decl1 here, add vname here
+%type <typeList> formal_param_list formal_param_plus formalparamlistpp 
+%type <eventEntry> event_decl_hdr event_decl
+%type <patVal> event_pattern 
+%type <primPatVal> event primitive_pat 
+%type <typeVal> type baseType 
+%type <exprList> expr_list expr_plus funcinvolistpp
+%type <exprVal> expr function_invocation asg_stmt
+%type <refexpVal> ref_expr
+%type <ruleNode> rule
+//%type <strVector> id_list id_plus                                //haven't found their usage
+      
+%type <cVal> TOK_IDENT TOK_PRINT TOK_ANY
+//%type <funIval> ev_or_fun
+%type <uVal> TOK_UINTNUM 
+%type <dVal> TOK_DOUBLENUM 
+%type <cVal> TOK_STRCONST
+
+%type <valVal> literal
+%type <classEntry> class_decl
+%type <stmtList> stmt_plus
+%type <stmtVal> stmt rule_body1 ret_stmt                           //delete simple_stmt here
+%type <compoundStmtVal> fun_rest funcbody                         //delete compoundStmt here
+%type <ifVal>  if_then_else_stmt 
+
+// below is the type I add
+%type <variableList> vlist evenparamlistpp evenparamlist
+
+/*********************   Precedence and Associativity    ********************/
+
+%nonassoc TOK_ASSIGN
+
+%left  TOK_PAT_OR 
+%left  TOK_COLON
+%left  TOK_PAT_STAR
+%right TOK_PAT_NOT
+
+%left  TOK_OR
+%left  TOK_AND
+%right TOK_NOT
+
+%nonassoc TOK_EQ TOK_NE TOK_GT TOK_LT TOK_GE TOK_LE
+
+%left  TOK_BITOR TOK_BITXOR
+%left  TOK_BITAND
+%right TOK_BITNOT 
+%left  TOK_SHL TOK_SHR
+
+%right TOK_DOUBLE_COLON
+
+%left  TOK_PLUS TOK_MINUS
+%left  TOK_MULT TOK_DIV TOK_MOD
+%right TOK_UMINUS 
+
+%left  TOK_LBRACK
+%left  TOK_DOT
+
+/**************************************************************************/
+
+%start specification
+%%
+
+
+specification: 
+ifc_decl_star                                     
+{ 
+    errMsg("Must contain at least one rule"); 
+}
+|ifc_decl_star rule_list                          
+{
+    
+}
+;
+
+ifc_decl_star:
+/* empty */                                       
+{
+  
+}
+|ifc_decl_star ifc_decl                           
+{
+    
+}
+|ifc_decl_star error TOK_SEMICOLON                
+{
+    errMsg("Syntax error, expecting a declaration");  
+}
+;
+
+rule_list:
+rule                                              
+{
+  
+}
+|rule_list rule                                   
+{
+  
+}
+;
+
+rule:
+event_pattern TOK_ARROW rule_body1
+{
+    stm.leaveScope();
+    GlobalEntry* gloen = (GlobalEntry*)stm.currentScope();
+    BlockEntry *t = new BlockEntry("Block", yylinenum, yycolumnno, yyfilename);
+    $$ = new RuleNode(t, $1, $3, yylinenum, yycolumnno, yyfilename);  
+    gloen->addRule($$);
+}
+|event_pattern TOK_ARROW rule_body1 TOK_SEMICOLON              
+{
+    stm.leaveScope();
+    GlobalEntry* gloen = (GlobalEntry*)stm.currentScope();
+    BlockEntry *t = new BlockEntry("Block", yylinenum, yycolumnno, yyfilename);
+    $$ = new RuleNode(t, $1, $3, yylinenum, yycolumnno, yyfilename); 
+    gloen->addRule($$);
+}                                       
+;
+
+ifc_decl:
+TOK_SEMICOLON                                     
+{
+  
+}
+|function_decl                                    
+{
+  
+}
+|variable_decl                                    
+{
+  
+}
+|event_decl                                       
+{
+  
+}
+|class_decl                                       
+{
+    
+}                                     
+;
+
+class_decl:
+TOK_CLASS TOK_IDENT                              
+{ 
+    $$ = new ClassEntry($2, yylinenum, yycolumnno, yyfilename); 
+    stm.insert($$);
+}
+;
+
+event_pattern:
+primitive_pat                                     
+{
+    $$ = $1;
+}
+|TOK_LPAREN event_pattern TOK_RPAREN              
+{
+    $$ = $2;
+}
+|event_pattern TOK_COLON event_pattern            
+{
+    $$ = new PatNode(BasePatNode::PatNodeKind::SEQ, $1, $3, yylinenum, yycolumnno, yyfilename);
+}
+|event_pattern TOK_PAT_OR event_pattern           
+{
+    $$ = new PatNode(BasePatNode::PatNodeKind::OR, $1, $3, yylinenum, yycolumnno, yyfilename);
+}
+|event_pattern TOK_PAT_STAR                       
+{
+    $$ = new PatNode(BasePatNode::PatNodeKind::STAR, $1, NULL, yylinenum, yycolumnno, yyfilename);
+}
+|TOK_NOT event_pattern                            
+{
+    $$ = new PatNode(BasePatNode::PatNodeKind::NEG, $2, NULL, yylinenum, yycolumnno, yyfilename);
+}
+;
+
+rule_body1:
+stmt                                              
+{
+    $$ = $1;
+}
+;
+
+function_decl:
+function_header formalparamlistpp funcbody        
+{
+    $$ = $1;
+    stm.leaveScope();
+    Type* func_Type = new Type($2, $$->type());
+    $$->type(func_Type);
+    if ($3 != NULL)
+    {
+        $$->body($3);
+    }
+    stm.insert($$);
+}
+;
+
+variable_decl:
+type vlist TOK_SEMICOLON                          
+{
+    VariableEntry *t;
+    int x = $2->size();
+    for (int i = 0; i < x; i++)
+    {
+        t = $2->at(i);
+        t->type($1);
+        stm.insert(t);
+    }
+}
+;
+
+vlist:                                                           
+vname                                             
+{
+    $$ = new vector<VariableEntry*>;
+    $$->push_back($1);
+}
+|vlist TOK_COMMA vname                            
+{
+    //$$ = $1;                                //should be like this
+    $$->push_back($3);
+}
+;
+
+vname:
+TOK_IDENT                                         
+{
+    $$ = new VariableEntry($1, VariableEntry::VarKind::GLOBAL_VAR, NULL, NULL, yylinenum, yycolumnno, yyfilename);
+}
+|TOK_IDENT TOK_ASSIGN expr                        
+{
+    $$ = new VariableEntry($1, VariableEntry::VarKind::GLOBAL_VAR, NULL, $3, yylinenum, yycolumnno, yyfilename);
+}
+;
+
+event_decl:
+event_decl_hdr formalparamlistpp                  
+{
+    $$ = $1;
+    Type* event_type = new Type($2, Type::EVENT);
+    stm.leaveScope();
+    $$->type(event_type);
+    stm.insert($$);
+}
+;
+
+event_decl_hdr:
+TOK_EVENT TOK_IDENT                               
+{
+    $$ = new EventEntry($2, yylinenum, yycolumnno, yyfilename);
+    stm.enterScope($$);
+}
+;
+
+primitive_pat:
+event                                             
+{
+    $$ = $1;
+}
+|event TOK_BITOR expr                             
+{
+    $$ = $1;
+    $$->cond($3);
+}
+;
+
+event:
+TOK_ANY                                           
+{
+    EventEntry* e = (EventEntry*)stm.lookUp($1);
+    $$ = new PrimitivePatNode(e, NULL, NULL, yylinenum, yycolumnno, yyfilename);
+}
+|TOK_IDENT evenparamlistpp                        
+{
+    EventEntry* e = (EventEntry*)stm.lookUpInScope($1, SymTabEntry::Kind::GLOBAL_KIND);
+    //BlockEntry* b = new BlockEntry($1, yylinenum, yycolumnno, yyfilename);
+    //stm.enterScope(b);
+    $$ = new PrimitivePatNode(e, $2, NULL, yylinenum, yycolumnno, yyfilename);
+}                       
+;
+
+evenparamlistpp:
+TOK_LPAREN evenparamlist TOK_RPAREN               
+{
+    $$ = $2;
+}
+;
+
+evenparamlist:                           
+/* empty */                                       
+{ 
+    $$ = NULL;
+}
+|TOK_IDENT                                        
+{
+    $$ = new vector<VariableEntry*>;
+    $$->push_back(new VariableEntry($1, VariableEntry::VarKind::PARAM_VAR, NULL, NULL, yylinenum, yycolumnno, yyfilename));
+}
+|evenparamlist TOK_COMMA TOK_IDENT                
+{
+    //$$ = $1;
+    $$->push_back(new VariableEntry($3, VariableEntry::VarKind::PARAM_VAR, NULL, NULL, yylinenum, yycolumnno, yyfilename));
+}
+;
+
+stmt:
+TOK_SEMICOLON                                     
+{
+    $$ = NULL;
+}
+|function_invocation                              
+{
+    $$ = new ExprStmtNode($1, yylinenum, yycolumnno, yyfilename);
+}
+|asg_stmt                                         
+{
+    $$ = new ExprStmtNode($1, yylinenum, yycolumnno, yyfilename);
+}
+|TOK_LBRACE stmt_plus TOK_RBRACE                  
+{
+    $$ = new CompoundStmtNode($2, yylinenum, yycolumnno, yyfilename);
+}
+|if_then_else_stmt                                
+{
+    $$ = $1;
+}
+|ret_stmt                                         
+{
+    $$ = $1;
+}                                   
+;
+
+ret_stmt:                                  //need to search here
+TOK_RETURN expr                                   
+{
+    
+}
+|TOK_RETURN TOK_SEMICOLON                         
+{
+  
+}
+;
+
+stmt_plus:
+stmt                                              
+{
+    
+    $$ = new list<StmtNode*>;
+    if ($1 != NULL)$$->push_back($1);
+}
+|stmt_plus stmt                                   
+{
+    $$ = $1;
+    if ($2 != NULL) $$->push_back($2);
+}
+;
+
+if_then_else_stmt:
+TOK_IF expr stmt TOK_ELSE stmt          
+{
+    $$ = new IfNode($2, $3, $5, yylinenum, yycolumnno, yyfilename);
+}
+|TOK_IF expr stmt                            
+{
+    $$ = new IfNode($2, $3, NULL, yylinenum, yycolumnno, yyfilename);
+}
+;
+
+asg_stmt:
+ref_expr TOK_ASSIGN expr                          
+{
+    $$ = new OpNode(OpNode::OpCode::ASSIGN, $1, $3, yylinenum, yycolumnno, yyfilename);
+}
+;
+
+ref_expr:
+TOK_IDENT                                         
+{
+    SymTabEntry* e = stm.lookUp($1);
+    $$ = new RefExprNode($1, e, yylinenum, yycolumnno, yyfilename);
+}
+;
+
+function_invocation:
+TOK_IDENT funcinvolistpp                          
+{
+    SymTabEntry* fEntry = stm.lookUpInScope($1, SymTabEntry::Kind::GLOBAL_KIND);
+    $$ = new InvocationNode((const SymTabEntry*)fEntry, $2, yylinenum, yycolumnno, yyfilename);
+}
+;
+
+funcinvolistpp: 
+TOK_LPAREN expr_list TOK_RPAREN                   
+{
+    $$ = $2;
+}
+;
+
+expr_list:
+/* empty */                                       
+{
+    $$ = NULL; 
+}
+|expr_plus                                        
+{
+    $$ = $1;
+}
+;
+
+expr_plus:
+expr                                              
+{
+    $$ = new vector<ExprNode*>;
+    $$->push_back($1);
+}
+|expr_plus TOK_COMMA expr                         
+{
+    //$$ = $1;
+    $$->push_back($3);
+}
+;
+
+function_header:
+type TOK_IDENT                                    
+{
+
+    $$ = new FunctionEntry($2, $1, yylinenum, yycolumnno, yyfilename);
+    stm.enterScope($$);
+}
+;
+
+formalparamlistpp: 
+TOK_LPAREN formal_param_list TOK_RPAREN           
+{ 
+    $$ = $2;
+}
+;
+
+funcbody:
+/* empty */                                       
+{
+    $$ = NULL;
+}
+|TOK_LBRACE fun_rest TOK_RBRACE                   
+{
+    $$ = $2;
+}   
+;
+
+fun_rest:
+stmt_plus                                         
+{
+    $$ = new CompoundStmtNode($1, yylinenum, yycolumnno, yyfilename);
+}
+|variable_decl stmt_plus                          
+{
+    $$ = new CompoundStmtNode($2, yylinenum, yycolumnno, yyfilename);
+}
+;
+
+expr:
+literal                                           
+{
+    $$ = new ValueNode($1, yylinenum, yycolumnno, yyfilename);
+}
+|ref_expr                                         
+{
+    $$ = $1;
+}
+|asg_stmt                                         
+{
+    $$ = $1;
+}
+|function_invocation                              
+{
+    $$ = $1;
+}
+|TOK_BITNOT expr                                  
+{
+    $$ = new OpNode(OpNode::OpCode::BITNOT, $2, NULL, yylinenum, yycolumnno, yyfilename);
+}
+|TOK_MINUS expr                                   
+{
+    $$ = new OpNode(OpNode::OpCode::UMINUS, $2, NULL, yylinenum, yycolumnno, yyfilename);
+}                 
+|TOK_LPAREN expr TOK_RPAREN                       
+{
+    $$ = $2;
+}  
+|TOK_NOT expr                                     
+{
+    $$ = new OpNode(OpNode::OpCode::NOT, $2, NULL, yylinenum, yycolumnno, yyfilename);
+}      
+|expr TOK_BITXOR expr                             
+{
+    $$ = new OpNode(OpNode::OpCode::BITXOR, $1, $3, yylinenum, yycolumnno, yyfilename);
+}   
+|expr TOK_SHL expr                                
+{
+    $$ = new OpNode(OpNode::OpCode::SHL, $1, $3, yylinenum, yycolumnno, yyfilename);
+}   
+|expr TOK_LE expr                                 
+{
+    $$ = new OpNode(OpNode::OpCode::LE, $1, $3, yylinenum, yycolumnno, yyfilename);
+} 
+|expr TOK_LT expr                                 
+{
+    $$ = new OpNode(OpNode::OpCode::LT, $1, $3, yylinenum, yycolumnno, yyfilename);
+} 
+|expr TOK_EQ  expr                                
+{
+    $$ = new OpNode(OpNode::OpCode::EQ, $1, $3, yylinenum, yycolumnno, yyfilename);
+} 
+|expr TOK_GE  expr                                
+{
+    $$ = new OpNode(OpNode::OpCode::GE, $1, $3, yylinenum, yycolumnno, yyfilename);
+} 
+|expr TOK_SHR expr                                
+{
+    $$ = new OpNode(OpNode::OpCode::SHR, $1, $3, yylinenum, yycolumnno, yyfilename);
+}   
+|expr TOK_GT  expr                                
+{
+    $$ = new OpNode(OpNode::OpCode::GT, $1, $3, yylinenum, yycolumnno, yyfilename);
+} 
+|expr TOK_OR expr                                 
+{
+    $$ = new OpNode(OpNode::OpCode::OR, $1, $3, yylinenum, yycolumnno, yyfilename);
+} 
+|expr TOK_BITOR expr                              
+{
+    $$ = new OpNode(OpNode::OpCode::BITOR, $1, $3, yylinenum, yycolumnno, yyfilename);
+}   
+|expr TOK_MINUS expr                              
+{
+    $$ = new OpNode(OpNode::OpCode::MINUS, $1, $3, yylinenum, yycolumnno, yyfilename);
+}   
+|expr TOK_NE expr                                 
+{
+    $$ = new OpNode(OpNode::OpCode::NE, $1, $3, yylinenum, yycolumnno, yyfilename);
+  
+} 
+|expr TOK_DIV expr                                
+{
+    $$ = new OpNode(OpNode::OpCode::DIV, $1, $3, yylinenum, yycolumnno, yyfilename);
+
+}   
+|expr TOK_MULT expr                               
+{
+    $$ = new OpNode(OpNode::OpCode::MULT, $1, $3, yylinenum, yycolumnno, yyfilename);
+
+}   
+|expr TOK_BITAND expr                             
+{
+    $$ = new OpNode(OpNode::OpCode::BITAND, $1, $3, yylinenum, yycolumnno, yyfilename);
+
+}   
+|expr TOK_AND expr                                
+{
+    $$ = new OpNode(OpNode::OpCode::AND, $1, $3, yylinenum, yycolumnno, yyfilename);
+
+}   
+|expr TOK_MOD expr                                
+{
+    $$ = new OpNode(OpNode::OpCode::MOD, $1, $3, yylinenum, yycolumnno, yyfilename);
+
+}   
+|expr TOK_PLUS expr                               
+{
+    $$ = new OpNode(OpNode::OpCode::PLUS, $1, $3, yylinenum, yycolumnno, yyfilename);
+}
+;
+
+literal:
+TOK_UINTNUM                                       
+{ 
+    $$ = new Value($1, Type::UINT); 
+}
+|TOK_DOUBLENUM                                    
+{ 
+    $$ = new Value($1);             
+}
+|TOK_STRCONST                                     
+{   
+    $$ = new Value($1);             
+}
+|TOK_TRUE                                         
+{   
+    $$ = new Value(true);           
+}
+|TOK_FALSE                                        
+{ 
+    $$ = new Value(false);          
+}
+;
+
+formal_param_list:
+/* empty */                                       
+{
+    $$ = NULL;
+}
+|formal_param_plus                                
+{
+    $$ = $1;
+}
+;
+
+formal_param_plus:
+formal_param                                      
+{
+    $$ = new vector<Type*>;
+    $$->push_back($1->type());
+}
+|formal_param_plus TOK_COMMA formal_param         
+{
+    //$$ = $1;
+    $$->push_back($3->type());
+}
+;
+
+formal_param:
+type TOK_IDENT                                    
+{
+    $$ = new VariableEntry($2, VariableEntry::VarKind::PARAM_VAR, $1, NULL, yylinenum, yycolumnno, yyfilename);
+    stm.insert($$);
+}
+;
+
+type:
+baseType                                          
+{
+    $$ = $1; 
+}
+|TOK_UNSIGNED baseType                            
+{ 
+    $$ = $2; 
+}
+|TOK_IDENT                                        
+{
+    SymTabEntry* e = stm.lookUp($1);
+    $$ = new Type(e, Type::TypeTag::CLASS);
+}
+;
+
+baseType:
+TOK_INT                                           
+{ 
+    $$ = new Type(Type::INT);     
+}               
+|TOK_BOOL                                         
+{   
+    $$ = new Type(Type::BOOL);    
+}
+|TOK_DOUBLE                                       
+{   
+    $$ = new Type(Type::DOUBLE);  
+}
+|TOK_VOID                                         
+{ 
+    $$ = new Type(Type::VOID);    
+}
+|TOK_STRING                                       
+{ 
+    $$ = new Type(Type::STRING); 
+}
+|TOK_BYTE                                         
+{   
+    $$ = new Type(Type::BYTE);    
+}
+;
+%%
