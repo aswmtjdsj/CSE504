@@ -148,3 +148,11 @@ void
 Type::print(ostream& os, int indent) const {
   os << fullName();
 }
+
+bool Type::isSubType(Type* t) {
+  cout << tag_ << " " << t->tag() << endl;
+  if(tag_ < t->tag())
+    return true;
+  else
+    return false;
+}

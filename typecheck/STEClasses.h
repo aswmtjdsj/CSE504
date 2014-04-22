@@ -32,7 +32,8 @@ class GlobalEntry: public SymTabEntry {
   void addRule(RuleNode* re) { rules_.push_back(re);};
 
   void print(ostream&, int indent=0) const;
-  const Type* typeCheck();
+
+  Type* typeCheck();
   void typePrint(ostream&, int indent=0) const;
 
  private:
@@ -45,8 +46,6 @@ class BlockEntry: public SymTabEntry {
     SymTabEntry(name, SymTabEntry::Kind::BLOCK_KIND, line, column, file, (Type*)&Type::voidType) {};
   ~BlockEntry() {};
   void print(ostream& out, int indent=0) const; 
-  const Type* typeCheck();
-  void typePrint(ostream&, int indent=0) const;
 };
 
 class RuleBlockEntry: public BlockEntry {
@@ -60,9 +59,6 @@ class RuleBlockEntry: public BlockEntry {
   Following classes add more significant functionality to that
   provided by SymTabEntry.
 ****************************************************************/
-
-
-
 
 class VariableEntry: public SymTabEntry {
  public:
@@ -90,8 +86,9 @@ class VariableEntry: public SymTabEntry {
 
   void print(ostream& os, int indent=0) const;
 
-  const Type* typeCheck();
-  void typePrint(ostream&, int indent=0) const;
+  Type* typeCheck();
+  void typePrint(ostream& os, int indent=0) const;
+
  private:
   VarKind vkind_;
   int offSet_;
@@ -105,8 +102,6 @@ class ClassEntry: public SymTabEntry {
   ~ClassEntry() {};
 
   void print(ostream& os, int indent) const;
-  const Type* typeCheck();
-  void typePrint(ostream&, int indent=0) const;
 };
 
 class FunctionEntry: public SymTabEntry {
@@ -123,8 +118,7 @@ class FunctionEntry: public SymTabEntry {
   void body(CompoundStmtNode* n) { body_ = n;};
 
   void print(ostream& os, int indent) const;
-  const Type* typeCheck();
-  void typePrint(ostream&, int indent=0) const;
+
  private:
   CompoundStmtNode* body_;
 };
@@ -136,8 +130,6 @@ class EventEntry: public SymTabEntry {
   ~EventEntry() {};
 
   void print(ostream& out, int indent=0) const; 
-  const Type* typeCheck();
-  void typePrint(ostream&, int indent=0) const;
 };  
 
 #endif

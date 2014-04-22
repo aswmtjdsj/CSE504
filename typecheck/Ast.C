@@ -2,6 +2,63 @@
 #include "ParserUtil.h"					
 
 
+
+Type* ValueNode::typeCheck() {
+  return type();
+}
+
+Type* RefExprNode::typeCheck() {
+  return type();
+}
+Type* OpNode::typeCheck() {
+  bool biOp = false;
+  bool uOp = false;
+  ExprNode *arg1, *arg2;
+  Type *t_arg1, *t_arg2;
+  if(arity() == 2) {
+    arg1 = arg(0);
+    arg2 = arg(1);
+    if(arg1 != NULL) t_arg1 = arg1->typeCheck();
+    if(arg2 != NULL) t_arg2 = arg2->typeCheck();
+    biOp = true;
+  }
+  if(arity() == 1) {
+    arg1 = arg(0);
+    if(arg1 != NULL) t_arg1 = arg1->typeCheck();
+    uOp = true;
+  }
+
+  if(opCode() == OpCode::PLUS && biOp == true) {
+    
+  }
+
+  //UMINUS, PLUS, MINUS, MULT, DIV, MOD, 
+  //EQ, NE, GT, LT, GE, LE,
+  //AND, OR, NOT, 
+  //BITNOT, BITAND, BITOR, BITXOR, SHL, SHR,
+  //ASSIGN, PRINT, INVALID
+
+  //UMINUS
+  if(opCode() == OpCode::UMINUS && uOp == true) {
+    if(t_arg1->tag() == Type::UINT) {
+      Type *t = new Type(Type::INT);
+      arg1->coercedType(t);
+      type((Type*)t);
+    }
+    return type();
+  }
+
+  return NULL;
+}
+
+Type* RuleNode::typeCheck() {
+  return NULL;
+} 
+
+void OpNode::typePrint(ostream& out, int indent) const{
+
+}
+
 AstNode::AstNode(NodeType nt, int line, int column, string file):
   ProgramElem(NULL, line, column, file) 
 {
@@ -339,14 +396,14 @@ extern const OpNode::OpInfo opInfo[] = {
 OpNode::OpNode(OpCode op, ExprNode* a1, ExprNode* a2, 
 			   int ln, int col, string file):
   ExprNode(ExprNode::ExprNodeType::OP_NODE, NULL, ln,col,file) {
-  opCode_ = op;
-  if (a1 != NULL) {
-	arity_ = 1;
-	arg_.push_back(a1);
-	if (a2 != NULL) {
-	  arity_++;
-	  arg_.push_back(a2);
-	}
+    opCode_ = op;
+    if (a1 != NULL) {
+	   arity_ = 1;
+	   arg_.push_back(a1);
+	   if (a2 != NULL) {
+	     arity_++;
+	     arg_.push_back(a2);
+	   }
   }
 }
 

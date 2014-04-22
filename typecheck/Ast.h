@@ -65,8 +65,9 @@ class AstNode: public ProgramElem {
 
   NodeType nodeType() const { return nodeType_;}
 
-  const Type* typeCheck() {return NULL;};
-  void typePrint(ostream& os, int indent=0) const {;}
+  virtual Type* typeCheck() { return NULL; };
+  virtual void typePrint(ostream& os, int indent=0) const {};
+
   virtual void print(ostream& os, int indent=0) const=0;
   virtual EFSA* codeGen() {return NULL;};
 
@@ -137,6 +138,8 @@ class RefExprNode: public ExprNode {
 
   void print(ostream& os, int indent=0) const;
 
+  Type* typeCheck();
+  
  private:
   string ext_;
   const SymTabEntry* sym_;
@@ -192,6 +195,9 @@ class OpNode: public ExprNode {
     { return &arg_; }
 
   void print(ostream& os, int indent=0) const;  
+
+  Type* typeCheck();
+  void typePrint(ostream& os, int indent=0) const;
   
  private: 
   unsigned int arity_;
@@ -213,6 +219,7 @@ class ValueNode: public ExprNode {
 
   void print(ostream& os, int indent=0) const;
 
+  Type* typeCheck();
  private:
   /* val_ field is already included in ExprNode, so no new data members */
 };
@@ -493,6 +500,7 @@ class RuleNode: public AstNode {
 
   void print(ostream& os, int indent=0) const;
 
+  Type* typeCheck();
  private:
   BlockEntry    *rste_;
   BasePatNode *pat_;

@@ -81,7 +81,7 @@ class Type {
   Type(vector<Type*>* argt, Type* rt);       // For functions
   Type(const Type& t) {operator=(t);};
   ~Type() {};
-  
+
   const Type& operator=(const Type&);
   // Assignment does a deep copy for all fields except typeDesc_, which is
   // is a SymTabEntry* and has a reference semantics. (Note SymTabEntry
@@ -133,6 +133,8 @@ class Type {
   };
 
   void print(ostream &os, int indent=0) const;
+
+  bool isSubType(Type* t);
 };
 
 inline ostream& operator<< (ostream& os, const Type& tt) {

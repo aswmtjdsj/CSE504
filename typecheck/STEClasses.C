@@ -2,6 +2,73 @@
 #include "Value.h"
 #include "ParserUtil.h"
 
+Type* GlobalEntry::typeCheck() {
+	SymTab::iterator st_iter = symTab()->begin();
+	for(; st_iter != symTab()->end(); ++st_iter) {
+		if((*st_iter)->name() != "any")
+			(*st_iter)->typeCheck();
+	}
+	vector<RuleNode*>::iterator ru_iter = rules_.begin();
+	for(; ru_iter != rules_.end(); ++ru_iter) {
+		(*ru_iter)->typeCheck();
+	}
+	return NULL;
+}
+
+void GlobalEntry::typePrint(ostream& out, int indent) const {
+	SymTab::const_iterator st_iter = symTab()->begin();
+	for(; st_iter != symTab()->end(); ++st_iter) {
+		if((*st_iter)->name() != "any")
+			(*st_iter)->typePrint(out, indent);
+	}
+	vector<RuleNode*>::const_iterator ru_iter = rules_.begin();
+	for(; ru_iter != rules_.end(); ++ru_iter) {
+		(*ru_iter)->typePrint(out, indent);
+	}
+}
+
+Type* VariableEntry::typeCheck() {
+	Type* t_init;
+	if(initVal()) {
+		t_init = initVal()->typeCheck();
+	}
+	if(t_init) {
+		if(t_init->fullName() == type()->fullName()) { // same type
+			cout << t_init->fullName() << endl;
+			cout << type()->fullName() << endl;
+		}
+		else if(t_init->isSubType(type())) { // super type
+			cout << t_init->fullName() << endl;
+			//initVal()->coercedType(type());
+		}
+		else
+			errMsg("assignment wrong", line(), column(), file().c_str());
+	}
+	return NULL;
+}
+
+void VariableEntry::typePrint(ostream& os, int indent) const {
+	cout << "sb" << endl;
+}
+
+
+
+
+
+
+
+
+
+
+
+void GlobalEntry::print(ostream& out, int indent) const{};
+void EventEntry::print(ostream& out, int indent) const{};
+void BlockEntry::print(ostream& out, int indent) const{};
+void ClassEntry::print(ostream& out, int indent) const{};
+void FunctionEntry::print(ostream& out, int indent) const{};
+void VariableEntry::print(ostream& out, int indent) const{};
+
+/*
 void GlobalEntry::print(ostream& out, int indent) const
 {
 	SymTab::const_iterator iter = symTab()->begin();
@@ -15,29 +82,6 @@ void GlobalEntry::print(ostream& out, int indent) const
 	{
 		(*iter1)->print(out, indent);
 		out << endl;
-	}
-}
-const Type* GlobalEntry::typeCheck()
-{
-	if (symTab() != NULL)
-	{
-		//SymTab::iterator iter;
-		for (SymTab::iterator iter = symTab()->begin(); iter != symTab()->end(); ++iter)
-		{
-			if ((*iter)->name() != "any") cout << "this is an checked item!" << endl;
-		}
-	}
-	return NULL;
-}
-
-void GlobalEntry::typePrint(ostream& out, int indent) const
-{
-	if (symTab() != NULL)
-	{
-		//for (SymTab::iterator iter = symTab()->begin(); iter != symTab()->end(); ++iter)
-		//{
-		//	if ((*iter)->name() != "any") (*iter)->typePrint(out, indent);
-		//}
 	}
 }
 
@@ -55,30 +99,9 @@ void EventEntry::print(ostream& out, int indent) const
 	out << ");" << endl;
 }
 
-const Type* EventEntry::typeCheck()
-{
-	return NULL;
-}
-
-
-void EventEntry::typePrint(ostream&, int indent) const
-{
-	;
-}
-
 void BlockEntry::print(ostream& out, int indent) const
 {
 
-}
-
-const Type* BlockEntry::typeCheck()
-{
-	return NULL;
-}
-
-void BlockEntry::typePrint(ostream&, int indent) const
-{
-	;
 }
 
 void ClassEntry::print(ostream& out, int indent) const
@@ -86,16 +109,6 @@ void ClassEntry::print(ostream& out, int indent) const
 	out << "class " << name() << ";";
 	out << endl;
 
-}
-
-const Type* ClassEntry::typeCheck()
-{
-	return NULL;
-}
-
-void ClassEntry::typePrint(ostream&, int indent) const
-{
-	;
 }
 
 void FunctionEntry::print(ostream& out, int indent) const
@@ -128,16 +141,6 @@ void FunctionEntry::print(ostream& out, int indent) const
 
 }
 
-void FunctionEntry::typePrint(ostream&, int indent) const
-{
-	;
-}
-
-const Type* FunctionEntry::typeCheck()
-{
-	return NULL;
-}
-
 void VariableEntry::print(ostream& out, int indent) const
 {
 	if (initVal())
@@ -148,18 +151,4 @@ void VariableEntry::print(ostream& out, int indent) const
 	}
 	else out << type()->name() << " " << name() << ";" << endl;
 }
-
-const Type* VariableEntry::typeCheck()
-{
-	const Type *te=NULL;
-    if (initVal()) {
-		te = initVal()->typeCheck();
-	}
-	//const Type* ty = initVal()->typeCheck();
-	return NULL;
-}
-
-void VariableEntry::typePrint(ostream&, int indent) const
-{
-	;
-}
+*/

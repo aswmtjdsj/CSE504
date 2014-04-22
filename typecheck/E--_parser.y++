@@ -709,7 +709,8 @@ baseType
 }
 |TOK_UNSIGNED baseType                            
 { 
-    $$ = $2; 
+    if(($2)->tag() == Type::INT)
+    $$ = new Type(Type::UINT);
 }
 |TOK_IDENT                                        
 {
