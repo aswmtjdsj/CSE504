@@ -17,6 +17,29 @@ void GlobalEntry::print(ostream& out, int indent) const
 		out << endl;
 	}
 }
+const Type* GlobalEntry::typeCheck()
+{
+	if (symTab() != NULL)
+	{
+		//SymTab::iterator iter;
+		for (SymTab::iterator iter = symTab()->begin(); iter != symTab()->end(); ++iter)
+		{
+			if ((*iter)->name() != "any") cout << "this is an checked item!" << endl;
+		}
+	}
+	return NULL;
+}
+
+void GlobalEntry::typePrint(ostream& out, int indent) const
+{
+	if (symTab() != NULL)
+	{
+		//for (SymTab::iterator iter = symTab()->begin(); iter != symTab()->end(); ++iter)
+		//{
+		//	if ((*iter)->name() != "any") (*iter)->typePrint(out, indent);
+		//}
+	}
+}
 
 void EventEntry::print(ostream& out, int indent) const
 {
@@ -32,9 +55,30 @@ void EventEntry::print(ostream& out, int indent) const
 	out << ");" << endl;
 }
 
+const Type* EventEntry::typeCheck()
+{
+	return NULL;
+}
+
+
+void EventEntry::typePrint(ostream&, int indent) const
+{
+	;
+}
+
 void BlockEntry::print(ostream& out, int indent) const
 {
 
+}
+
+const Type* BlockEntry::typeCheck()
+{
+	return NULL;
+}
+
+void BlockEntry::typePrint(ostream&, int indent) const
+{
+	;
 }
 
 void ClassEntry::print(ostream& out, int indent) const
@@ -42,6 +86,16 @@ void ClassEntry::print(ostream& out, int indent) const
 	out << "class " << name() << ";";
 	out << endl;
 
+}
+
+const Type* ClassEntry::typeCheck()
+{
+	return NULL;
+}
+
+void ClassEntry::typePrint(ostream&, int indent) const
+{
+	;
 }
 
 void FunctionEntry::print(ostream& out, int indent) const
@@ -74,6 +128,16 @@ void FunctionEntry::print(ostream& out, int indent) const
 
 }
 
+void FunctionEntry::typePrint(ostream&, int indent) const
+{
+	;
+}
+
+const Type* FunctionEntry::typeCheck()
+{
+	return NULL;
+}
+
 void VariableEntry::print(ostream& out, int indent) const
 {
 	if (initVal())
@@ -83,4 +147,19 @@ void VariableEntry::print(ostream& out, int indent) const
 		out << ";" << endl;
 	}
 	else out << type()->name() << " " << name() << ";" << endl;
+}
+
+const Type* VariableEntry::typeCheck()
+{
+	const Type *te=NULL;
+    if (initVal()) {
+		te = initVal()->typeCheck();
+	}
+	//const Type* ty = initVal()->typeCheck();
+	return NULL;
+}
+
+void VariableEntry::typePrint(ostream&, int indent) const
+{
+	;
 }
