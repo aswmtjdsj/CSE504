@@ -64,6 +64,19 @@ Value::print(ostream& os, int indent) const {
 	else internalErr("Value::print: unsupported value type");
   }
 }
+void 
+Value::typePrint(ostream& os, int indent) const {
+  Type::TypeTag t;
+  switch (t = type_->tag()) {
+    case Type::BOOL:    { os << "bool"; break;          }
+    case Type::STRING:  { os << "string"; break;        }
+    case Type::BYTE:    { os << "byte"; break;          }
+    case Type::UINT:    { os << "unsigned int"; break;  }
+    case Type::INT:     { os << "int"; break;           }
+    case Type::DOUBLE:  { os << "double"; break;        }
+    default: break;
+  }
+}
 
 string 
 Value::sval() const {

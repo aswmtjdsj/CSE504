@@ -148,11 +148,23 @@ void
 Type::print(ostream& os, int indent) const {
   os << fullName();
 }
+void 
+Type::typePrint(ostream& os, int indent) const {
+  os << fullName();
+}
 
-bool Type::isSubType(Type* t) {
-  cout << tag_ << " " << t->tag() << endl;
-  if(tag_ < t->tag())
+bool Type::isSubType(const Type* t) const {
+  //cout << t->tag() << " " << tag_ << endl;
+  if(isString(t->tag()) && isString(tag_))
     return true;
+  else if(isBool(t->tag()) && isBool(tag_))
+    return true;
+  else if(isNumeric(t->tag()) && isNumeric(tag_)) {
+    if(tag_ < t->tag())
+      return true;
+    else
+      return false;
+  }
   else
     return false;
 }

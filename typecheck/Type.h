@@ -133,8 +133,8 @@ class Type {
   };
 
   void print(ostream &os, int indent=0) const;
-
-  bool isSubType(Type* t);
+  void typePrint(ostream &os, int indent=0) const;
+  bool isSubType(const Type* t) const;
 };
 
 inline ostream& operator<< (ostream& os, const Type& tt) {

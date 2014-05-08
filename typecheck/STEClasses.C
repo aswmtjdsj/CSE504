@@ -2,7 +2,7 @@
 #include "Value.h"
 #include "ParserUtil.h"
 
-Type* GlobalEntry::typeCheck() {
+const Type* GlobalEntry::typeCheck() {
 	SymTab::iterator st_iter = symTab()->begin();
 	for(; st_iter != symTab()->end(); ++st_iter) {
 		if((*st_iter)->name() != "any")
@@ -14,6 +14,26 @@ Type* GlobalEntry::typeCheck() {
 	}
 	return NULL;
 }
+const Type* VariableEntry::typeCheck() {
+	const Type* t_init = NULL;
+	if(initVal()) {
+		t_init = initVal()->typeCheck();
+	}
+	if(t_init) {
+		if(t_init->fullName() == type()->fullName()) { // same type
+		}
+		else if(t_init->isSubType(type())) { // super type
+		}
+		else
+			errMsg("Assignment between incompatible types", line(), column(), file().c_str());
+	}
+	return NULL;
+}
+const Type* FunctionEntry::typeCheck() {
+	if(body())
+		body()->typeCheck();
+	return NULL;
+}
 
 void GlobalEntry::typePrint(ostream& out, int indent) const {
 	SymTab::const_iterator st_iter = symTab()->begin();
@@ -21,46 +41,82 @@ void GlobalEntry::typePrint(ostream& out, int indent) const {
 		if((*st_iter)->name() != "any")
 			(*st_iter)->typePrint(out, indent);
 	}
+	out << endl;
 	vector<RuleNode*>::const_iterator ru_iter = rules_.begin();
 	for(; ru_iter != rules_.end(); ++ru_iter) {
 		(*ru_iter)->typePrint(out, indent);
 	}
 }
 
-Type* VariableEntry::typeCheck() {
-	Type* t_init;
-	if(initVal()) {
-		t_init = initVal()->typeCheck();
+void VariableEntry::typePrint(ostream& out, int indent) const {
+	if (initVal())
+	{
+		out << type()->fullName() << " " << name() << " = ";
+		initVal()->typePrint(out, indent);
+		out << endl;
 	}
-	if(t_init) {
-		if(t_init->fullName() == type()->fullName()) { // same type
-			cout << t_init->fullName() << endl;
-			cout << type()->fullName() << endl;
-		}
-		else if(t_init->isSubType(type())) { // super type
-			cout << t_init->fullName() << endl;
-			//initVal()->coercedType(type());
-		}
-		else
-			errMsg("assignment wrong", line(), column(), file().c_str());
-	}
-	return NULL;
+	else 
+		out << type()->fullName() << " " << name() << endl;
 }
 
-void VariableEntry::typePrint(ostream& os, int indent) const {
-	cout << "sb" << endl;
+void EventEntry::typePrint(ostream& out, int indent) const {
+	out << "event " << name() << "(";
+	SymTab::const_iterator iter = symTab()->begin();
+	while (iter != symTab()->end())
+	{
+		(*iter)->type()->print(out, indent);
+		out << " " << (*iter)->name();
+		++iter;
+		if (iter != symTab()->end())  out << ", ";
+	}
+	out << ");" << endl;
 }
+void ClassEntry::typePrint(ostream& out, int indent) const {
+	out << "class " << name() << ";";
+	out << endl;
+}
+void FunctionEntry::typePrint(ostream& out, int indent) const {
+	type()->retType()->print(out, indent);
+	out << " " << name() << "(";
+	if (symTab() == NULL) 
+	{
+		out << ");" << endl;
+		return ;
+	}
+	SymTab::const_iterator iter = symTab()->begin();
+	VariableEntry* v;
+	while (iter != NULL && iter != symTab()->end() && (*iter)->kind() == SymTabEntry::Kind::VARIABLE_KIND)
+	{
+		v = (VariableEntry*)(*iter);
+		if (v->varKind() == VariableEntry::VarKind::PARAM_VAR)
+		{
+			out << v->type()->fullName() << " " << v->name();
+			if ((++iter) != symTab()->end()) 
+			{
+				out << ", ";
+				continue;
+			}
+		}
+		++iter;
+	}
+	out << ")";
 
-
-
-
-
-
-
-
-
-
-
+	if(body_) {
+		out << "{" << endl;
+		//print the variable decl
+		SymTab::const_iterator it = symTab()->begin();
+		while(it != symTab()->end() && (*it)->kind() == SymTabEntry::Kind::VARIABLE_KIND && 
+		((VariableEntry*)(*it))->varKind() != VariableEntry::VarKind::PARAM_VAR) {
+		(*it)->typePrint(out, indent);
+		++it;
+		out << ";" << endl;
+		}
+		//print the statement
+		body_->typePrintWithoutBraces(out, indent+STEP_INDENT);
+		out << "}" << endl;
+	}
+	cout << ";" << endl;
+}
 void GlobalEntry::print(ostream& out, int indent) const{};
 void EventEntry::print(ostream& out, int indent) const{};
 void BlockEntry::print(ostream& out, int indent) const{};
