@@ -5,7 +5,7 @@
 event a(int x);
 event b(double y, double z);
 int z;
-int f,g,w,j,y ;
+int f,g,w,k,j,y ;
 a(e) -> z=z+1;
 a(f) : (b(y, w)|w==f) -> z=w;
 a(f) : (b(y, w)|w==f) -> z=f;

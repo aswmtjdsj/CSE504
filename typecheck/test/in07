@@ -40,7 +40,7 @@ string state_var;
 bool bo, bo1, bo2, bo3, bo4;
 ArgV arg;
 
-open(file,flags,mode)**: !(any**) :
+open(file,flags,mode)**: !(open(file,flags,mode)**) :
 (open(file1,flags1,mode1)|(state_var = get(file1))) :
 (!(close(fd))): (unlink(path)|(state_var == get(path))) -> {
 	;

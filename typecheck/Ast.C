@@ -143,7 +143,7 @@ const Type* OpNode::typeCheck() {
       errMsg(err, line(), column(), file().c_str());
     }
     if(!Type::isBool(tr->tag())) {
-      string err = "Error:Incompatible type for argument 1 for operator '" + op + "'";
+      string err = "Error:Incompatible type for argument 2 for operator '" + op + "'";
       errMsg(err, line(), column(), file().c_str());
     }
     Type* t = new Type(Type::BOOL);
@@ -238,7 +238,7 @@ const Type* PatNode::typeCheck() {
     case PatNodeKind::PRIMITIVE: break;
     case PatNodeKind::EMPTY: break;
     case PatNodeKind::NEG: {
-      if(hasSeqOps()) {
+      if(isNegatable()) {
         errMsg("invalid use of negation", line(), column(), file().c_str());
       }
       pat1_->typeCheck();
@@ -497,10 +497,62 @@ void IfNode::typePrint(ostream& out, int indent) const {
     }
 }
 void PatNode::typePrint(ostream& out, int indent) const {
-
+  out << "(";
+  switch(kind()) {
+    case PatNodeKind::PRIMITIVE: break;
+    case PatNodeKind::EMPTY: break;
+    case PatNodeKind::NEG:
+      out << "!";
+      pat1_->typePrint(out,indent);
+      break;
+    case PatNodeKind::SEQ:
+      pat1_->typePrint(out,indent);
+      out << ":";
+      pat2_->typePrint(out,indent);
+      break;
+    case PatNodeKind::OR:
+      pat1_->typePrint(out,indent);
+      out << " \\/ ";
+      pat2_->typePrint(out,indent);
+      break;
+    case PatNodeKind::STAR:
+      pat1_->typePrint(out,indent);
+      out << "**";
+      break;
+    case PatNodeKind::UNDEFINED: break;
+  };
+  out << ")";
 }
 void PrimitivePatNode::typePrint(ostream& out, int indent) const{
-  
+  if (!ee_) return;
+    Type* type = ee_->type();
+  vector<Type*>* argTypes = NULL;
+  if (type) argTypes = type->argTypes();
+
+  out << "(" << ee_->name();
+  if (params_) {
+    out << "(";
+    vector<VariableEntry*>::const_iterator it;
+    vector<Type*>::const_iterator itType;
+    for (it = params_->begin(),itType = argTypes->begin();it!=params_->end();) {
+      if ((*itType) && (*it)) {
+        out << (*itType)->fullName() << " " <<  (*it)->name();
+      }
+      ++it;
+      ++itType;
+      if (it!=params_->end() && itType!=argTypes->end())
+        out << ", ";
+      }
+    out << ")";
+  } else {
+    if (ee_->name()!="any")
+      out << "()";
+  }
+  if (cond_) {
+    out << "|";
+    cond_->typePrint(out,indent);
+  }
+  out << ")";
 }
 
 

@@ -409,11 +409,7 @@ TOK_SEMICOLON
 ret_stmt:                                  //need to search here
 TOK_RETURN expr                                   
 {
-    
-}
-|TOK_RETURN TOK_SEMICOLON                         
-{
-  
+    $$ = new ReturnStmtNode($2, (FunctionEntry*)stm.currentScope(), yylinenum, yycolumnno, yyfilename);
 }
 ;
 
