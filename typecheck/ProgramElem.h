@@ -50,7 +50,7 @@ class ProgramElem {
 	return *this;
   };
 
-  virtual Type* typeCheck() {return NULL;};
+  virtual const Type* typeCheck() {return NULL;};
   virtual void typePrint(ostream&, int indent=0) const{;};
   
  private:

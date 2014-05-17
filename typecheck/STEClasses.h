@@ -33,7 +33,7 @@ class GlobalEntry: public SymTabEntry {
 
   void print(ostream&, int indent=0) const;
 
-  Type* typeCheck();
+  const Type* typeCheck();
   void typePrint(ostream&, int indent=0) const;
 
  private:
@@ -86,7 +86,7 @@ class VariableEntry: public SymTabEntry {
 
   void print(ostream& os, int indent=0) const;
 
-  Type* typeCheck();
+  const Type* typeCheck();
   void typePrint(ostream& os, int indent=0) const;
 
  private:
@@ -102,6 +102,7 @@ class ClassEntry: public SymTabEntry {
   ~ClassEntry() {};
 
   void print(ostream& os, int indent) const;
+  void typePrint(ostream& os, int indent) const;
 };
 
 class FunctionEntry: public SymTabEntry {
@@ -118,7 +119,8 @@ class FunctionEntry: public SymTabEntry {
   void body(CompoundStmtNode* n) { body_ = n;};
 
   void print(ostream& os, int indent) const;
-
+  const Type* typeCheck();
+  void typePrint(ostream& os, int indent) const;
  private:
   CompoundStmtNode* body_;
 };
@@ -130,6 +132,7 @@ class EventEntry: public SymTabEntry {
   ~EventEntry() {};
 
   void print(ostream& out, int indent=0) const; 
+  void typePrint(ostream& out, int indent=0) const;
 };  
 
 #endif

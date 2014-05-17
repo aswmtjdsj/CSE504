@@ -58,14 +58,14 @@ extern const OpNode::OpInfo opInfo[];
 %token TOK_BITAND TOK_BITOR TOK_BITNOT TOK_BITXOR TOK_SHL TOK_SHR 
 %token TOK_GT TOK_LT TOK_GE TOK_LE TOK_EQ  TOK_NE TOK_AND TOK_OR TOK_NOT 
 %token TOK_COMMA TOK_ASSIGN TOK_SEMICOLON TOK_COLON TOK_ARROW
-%token TOK_LBRACE TOK_RBRACE TOK_LPAREN TOK_RPAREN TOK_LBRACK TOK_RBRACK TOK_QMARK
+%token TOK_LBRACE TOK_RBRACE TOK_LPAREN TOK_RPAREN
 
 /* Key words */
 
-%token TOK_IF TOK_ELSE TOK_CLASS TOK_RETURN TOK_EVENT TOK_ANY TOK_PRINT TOK_WHILE TOK_BREAK
-%token TOK_UINTNUM TOK_DOUBLENUM TOK_VOID TOK_STRING TOK_STRCONST TOK_BIT TOK_ENUM TOK_LONG
+%token TOK_IF TOK_ELSE TOK_CLASS TOK_RETURN TOK_EVENT TOK_ANY TOK_PRINT 
+%token TOK_UINTNUM TOK_DOUBLENUM TOK_VOID TOK_STRING TOK_STRCONST 
 %token TOK_INT TOK_UNSIGNED TOK_BOOL TOK_BYTE TOK_DOUBLE TOK_SHORT
-%token TOK_TRUE TOK_FALSE TOK_IDENT TOK_DOUBLE_COLON TOK_DOT
+%token TOK_TRUE TOK_FALSE TOK_IDENT
 
 /******************************** Type Info ********************************/
 /* Uncomment types below as you start adding rules.
@@ -409,11 +409,7 @@ TOK_SEMICOLON
 ret_stmt:                                  //need to search here
 TOK_RETURN expr                                   
 {
-    
-}
-|TOK_RETURN TOK_SEMICOLON                         
-{
-  
+    $$ = new ReturnStmtNode($2, (FunctionEntry*)stm.currentScope(), yylinenum, yycolumnno, yyfilename);
 }
 ;
 

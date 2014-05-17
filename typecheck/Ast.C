@@ -1,36 +1,33 @@
 #include "Ast.h"					
 #include "ParserUtil.h"					
 
+extern const OpNode::OpInfo opInfo[];
 
-
-Type* ValueNode::typeCheck() {
+const Type* ValueNode::typeCheck() {
   return type();
 }
-
-Type* RefExprNode::typeCheck() {
-  return type();
+const Type* RefExprNode::typeCheck() {
+  return symTabEntry()->type();
 }
-Type* OpNode::typeCheck() {
+const Type* OpNode::typeCheck() {
   bool biOp = false;
   bool uOp = false;
-  ExprNode *arg1, *arg2;
-  Type *t_arg1, *t_arg2;
+  ExprNode *l = NULL, *r = NULL; // left and right operands
+  const Type *tl = NULL, *tr = NULL; // type of left and right operands
+  // initialize ExprNode and its type
   if(arity() == 2) {
-    arg1 = arg(0);
-    arg2 = arg(1);
-    if(arg1 != NULL) t_arg1 = arg1->typeCheck();
-    if(arg2 != NULL) t_arg2 = arg2->typeCheck();
+    l = arg(0);
+    r = arg(1);
+    if(l != NULL) tl = l->typeCheck();
+    if(r != NULL) tr = r->typeCheck();
     biOp = true;
   }
   if(arity() == 1) {
-    arg1 = arg(0);
-    if(arg1 != NULL) t_arg1 = arg1->typeCheck();
+    l = arg(0);
+    if(l != NULL) tl = l->typeCheck();
     uOp = true;
   }
-
-  if(opCode() == OpCode::PLUS && biOp == true) {
-    
-  }
+  // check different operators
 
   //UMINUS, PLUS, MINUS, MULT, DIV, MOD, 
   //EQ, NE, GT, LT, GE, LE,
@@ -40,24 +37,472 @@ Type* OpNode::typeCheck() {
 
   //UMINUS
   if(opCode() == OpCode::UMINUS && uOp == true) {
-    if(t_arg1->tag() == Type::UINT) {
+    if(!Type::isNumeric(tl->tag())) {
+      string err = "Incompatible type for argument 1 for operator '-'";
+      errMsg(err, line(), column(), file().c_str());
+    }
+    if(tl->tag() == Type::UINT) {
       Type *t = new Type(Type::INT);
-      arg1->coercedType(t);
+      l->coercedType(t);
       type((Type*)t);
     }
+    else {
+      type((Type*)tl);
+    }
+    return type();
+  }
+  //PLUS, MINUS, MULT, DIV
+  if(opCode() >= OpCode::PLUS && opCode() <=OpCode::DIV && biOp == true) {
+    bool lflag = true, rflag = true;
+    const Type *t = NULL;
+    string op;
+    if(opCode() == OpCode::PLUS)        { op = "+"; }
+    else if(opCode() == OpCode::MINUS)  { op = "-"; }
+    else if(opCode() == OpCode::MULT)   { op = "*"; }
+    else if(opCode() == OpCode::DIV)    { op = "/"; }
+
+    if(!Type::isNumeric(tl->tag())) {
+      string err = "Incompatible type for argument 1 for operator '" + op + "'";
+      errMsg(err, line(), column(), file().c_str());
+      lflag = false;
+    } 
+    if(!Type::isNumeric(tr->tag())) {
+      string err = "Incompatible type for argument 2 for operator '" + op + "'";
+      errMsg(err, line(), column(), file().c_str());
+      rflag = false;
+    }
+    if(lflag == false && rflag == false) {}
+    else if(tl->fullName() == tr->fullName()) {
+      t = tl;
+    }
+    else if(tl->isSubType(tr) || lflag == false) {
+      t = tr;
+      l->coercedType(tr);
+    }
+    else if(tr->isSubType(tl) || rflag == false) {
+      t = tl;
+      r->coercedType(tl);
+    }
+    // if(opCode() == OpCode::DIV)
+    //   type(new Type(Type::DOUBLE));
+    // else 
+      type((Type*)t);
+    return type();
+  }
+  //MOD
+  if(opCode() == OpCode::MOD && biOp == true) {
+    if(!Type::isInt(tl->tag()))
+      errMsg("Incompatible type for argument 1 for operator `%'", line(), column(), file().c_str());
+    if(!Type::isInt(tr->tag()))
+      errMsg("Incompatible type for argument 2 for operator `%'", line(), column(), file().c_str());
+    if(tl->fullName() == tr->fullName());
+    else if(tl->isSubType(tr) && Type::isInt(tr->tag())) {
+      l->coercedType(tr);
+      type((Type*)tr);
+    }
+    else if(tr->isSubType(tl) && Type::isInt(tl->tag())) {
+      r->coercedType(tl);
+      type((Type*)tl);
+    }
+    Type* t = new Type(Type::INT);
+    type(t);
+    return type();
+  }
+  //EQ, NE, GT, LT, GE, LE,
+  if(opCode() >= OpCode::EQ && opCode() <= OpCode::LE && biOp == true) {
+    // cout << line() << endl;
+    // cout << tl->fullName() << endl;
+    // cout << tr->fullName() << endl;
+    string op;
+    if(opCode() == OpCode::EQ)      { op = "=="; }
+    else if(opCode() == OpCode::NE) { op = "!="; }
+    else if(opCode() == OpCode::GT) { op = ">";  }
+    else if(opCode() == OpCode::LT) { op = "<";  }
+    else if(opCode() == OpCode::GE) { op = ">="; }
+    else if(opCode() == OpCode::LE) { op = "<="; }
+
+    if(!(Type::isNumeric(tl->tag()) || Type::isBool(tl->tag()) || Type::isString(tl->tag()))) {
+      string err = "Error:Incompatible type for argument 1 for operator '" + op + "'";
+      errMsg(err, line(), column(), file().c_str());
+    }
+    if(!(Type::isNumeric(tr->tag()) || Type::isBool(tr->tag()) || Type::isString(tr->tag()))) {
+      string err = "Error:Incompatible type for argument 2 for operator '" + op + "'";
+      errMsg(err, line(), column(), file().c_str());
+    }
+    Type* t = new Type(Type::BOOL);
+    type((Type*)t);
+    return type();
+  }
+  //AND, OR
+  if(opCode() >= OpCode::AND && opCode() <= OpCode::OR && biOp == true) {
+    string op;
+    if(opCode() == OpCode::AND)     { op = "&&"; }
+    else if(opCode() == OpCode::OR) { op = "||"; }
+    if(!Type::isBool(tl->tag())) {
+      string err = "Error:Incompatible type for argument 1 for operator '" + op + "'";
+      errMsg(err, line(), column(), file().c_str());
+    }
+    if(!Type::isBool(tr->tag())) {
+      string err = "Error:Incompatible type for argument 1 for operator '" + op + "'";
+      errMsg(err, line(), column(), file().c_str());
+    }
+    Type* t = new Type(Type::BOOL);
+    type((Type*)t);
+    return type();
+  }
+  //NOT
+  if(opCode() == OpCode::NOT && uOp == true) {
+    Type* t = new Type(Type::BOOL);
+    type((Type*)t);
+    return type();
+  }
+  //ASSIGN
+  if(opCode() == OpCode::ASSIGN && biOp == true) {
+    // cout << line() << endl;
+    // cout << tr->fullName() << endl;
+    // cout << tl->fullName() << endl;
+    if(tr->fullName() == tl->fullName()) {}
+    else if(tr->isSubType(tl)) {
+      r->coercedType(tl);
+    }
+    else
+      errMsg("Assigned expression must be a subtype of target", line(), column(), file().c_str());
+    Type* t = new Type(Type::BOOL);
+    type(t);
+    return type();
+  }
+  //BITNOT
+  if(opCode() == OpCode::BITNOT && uOp == true) {
+    if(!Type::isIntegral(tl->tag())) {
+      errMsg("Incompatible type for argument 1 for operator '~'", line(), column(), file().c_str());
+    }
+    if(!Type::isUnsigned(tl->tag())) {
+      Type* ut = new Type(Type::UINT);
+      l->coercedType(ut);
+      type(ut);
+    }
+    //type((Type*)tl);
+    return type();
+  }
+  //BITAND, BITOR, BITXOR, SHL, SHR,
+  if(opCode() >= OpCode::BITAND && opCode() <=OpCode::SHR && biOp == true) {
+    bool lflag = true, rflag = true;
+    const Type *t = NULL;
+    string op;
+    if(opCode() == OpCode::BITAND)        { op = "&"; }
+    else if(opCode() == OpCode::BITOR)    { op = "|"; }
+    else if(opCode() == OpCode::BITXOR)   { op = "^"; }
+    else if(opCode() == OpCode::SHL)      { op = "<<"; }
+    else if(opCode() == OpCode::SHR)      { op = ">>"; }
+
+    if(!Type::isIntegral(tl->tag())) {
+      string err = "Incompatible type for argument 1 for operator '" + op + "'";
+      errMsg(err, line(), column(), file().c_str());
+      lflag = false;
+    } 
+    if(!Type::isIntegral(tr->tag())) {
+      string err = "Incompatible type for argument 2 for operator '" + op + "'";
+      errMsg(err, line(), column(), file().c_str());
+      rflag = false;
+    }
+    if(lflag == false && rflag == false) {}
+    else if(tl->fullName() == tr->fullName()) {
+      t = tl;
+    }
+    else if(tl->isSubType(tr) || lflag == false) {
+      t = tr;
+      l->coercedType(tr);
+    }
+    else if(tr->isSubType(tl) || rflag == false) {
+      t = tl;
+      r->coercedType(tl);
+    }
+    t = new Type(Type::INT);
+    type((Type*)t);
     return type();
   }
 
   return NULL;
 }
-
-Type* RuleNode::typeCheck() {
+const Type* RuleNode::typeCheck() {
+  if(pat()) {
+    pat()->typeCheck();
+  }
+  if(reaction()) {
+    reaction()->typeCheck();
+  }
   return NULL;
-} 
+}
+const Type* PatNode::typeCheck() {
+  switch(kind()) {
+    case PatNodeKind::PRIMITIVE: break;
+    case PatNodeKind::EMPTY: break;
+    case PatNodeKind::NEG: {
+      if(hasSeqOps()) {
+        errMsg("invalid use of negation", line(), column(), file().c_str());
+      }
+      pat1_->typeCheck();
+      break;
+    }
+    case PatNodeKind::SEQ:
+    case PatNodeKind::OR: {
+      pat1_->typeCheck();
+      pat2_->typeCheck();
+      break;
+    }
+    case PatNodeKind::STAR: {
+      pat1_->typeCheck();
+      break;
+    }
+    case PatNodeKind::UNDEFINED: break;
+  }
+  return NULL;
+}
+const Type* PrimitivePatNode::typeCheck() {
+  Type *ee = event()->type();
+  vector<Type*>* formal = NULL;
+  int formal_size = 0;
+  int param_size = 0;
+  if(ee->argTypes()) {
+    formal = ee->argTypes();
+    formal_size = formal->size();
+  }
+  if(params_)
+    param_size = params_->size();
+  if(param_size == formal_size) {
+    // for(int i = 0; i < formal_size; i++) {
+    //   params_->at(i)->type(formal->at(i));
+    //   cout << params_->at(i)->type()->fullName();
+    // }
+    // cout << endl;
+    // vector<VariableEntry*>::const_iterator it;
+    // for(it = params_->begin(); it != params_->end(); ++it)
+    //   if(*it)
+    //     (*it)->typeCheck();
+  }
+  else {
+    string s = "Event " + ee_->name() + " requires " + itoa(formal->size()) + " arguments";
+    errMsg(s, line(), column(), file().c_str());
+  }
+  if(condition()) {
+    condition()->typeCheck();
+  }
+  return NULL;
+}
+const Type* InvocationNode::typeCheck() {
+  const Type* ret = NULL;
+  FunctionEntry* fe = (FunctionEntry*)symTabEntry();
+  vector<Type*>* formal = fe->type()->argTypes(); // formal types
+  ret = fe->type()->retType(); // return type
 
+  if(formal->size() == params_->size()) {
+    for(unsigned int i = 0; i < formal->size(); i++) {
+      const Type* tp = params_->at(i)->typeCheck();
+      const Type* tf = formal->at(i);
+      if(tp->fullName() == tf->fullName()) { }
+      else if(tp->isSubType(tf)) { 
+        params_->at(i)->coercedType(tf);
+      }
+      else {
+        string err = "Type mismatch for argument " + itoa(i+1) + " to " + symTabEntry()->name();
+        errMsg(err, line(), column(), file().c_str());
+      }
+    }
+  }
+  else {
+    string err = itoa(formal->size()) + " arguments expected for " + symTabEntry()->name();
+    errMsg(err, line(), column(), file().c_str());
+  }
+  return ret;
+}
+const Type* ExprStmtNode::typeCheck() {
+  expr_->typeCheck();
+  return NULL;
+}
+const Type* CompoundStmtNode::typeCheck() {
+  list<StmtNode*>::const_iterator iter = stmts_->begin();
+  for(; iter != stmts_->end(); ++iter) {
+    if(*iter != NULL) {
+      (*iter)->typeCheck();
+    }
+    else
+      break;
+  }
+  return NULL;
+}
+const Type* ReturnStmtNode::typeCheck() {
+  const Type* tf = fun_->type()->retType();
+  ExprNode* exp = expr_;
+  const Type* tret = exp->typeCheck();
+  if(tf->tag() == Type::VOID) {
+    string err = "No return value expected for a void function";
+    errMsg(err, line(), column(), file().c_str());
+  } 
+  else if(tf->fullName() == tret->fullName()) {}
+  else if(tret->isSubType(tf))
+    exp->coercedType(tf);
+  else {
+    string err = "Return value incompatible with current function's type";
+    errMsg(err, line(), column(), file().c_str());
+  }
+  return NULL;
+}
+const Type* IfNode::typeCheck() {
+  //cout << "IfNode" << endl;
+  const Type* t = NULL; 
+  if(cond()) {
+    t = cond()->typeCheck();
+  }
+  if(t->tag() != Type::BOOL) {
+      errMsg("Boolean argument expected", line(), column(), file().c_str());
+  }
+  //cout << line();
+  if(thenStmt())
+      thenStmt()->typeCheck();
+  if(elseStmt())
+      elseStmt()->typeCheck();
+  return NULL;
+}
 void OpNode::typePrint(ostream& out, int indent) const{
+  bool biOp = false;
+  bool uOp = true;
+  if(arity() == 1) uOp = true;
+  if(arity() == 2) biOp = true;
+  if(coercedType())
+    out << "(" << coercedType()->fullName() << ")";
+  //UMINUS
+  if(opCode() == OpCode::UMINUS && uOp == true) {
+    out << opInfo[(int)opCode_].name_;
+    arg_[0]->typePrint(out, indent);
+  } 
+  //PLUS, MINUS, MULT, DIV, MOD,
+  if(opCode() >= OpCode::PLUS && opCode() <= OpCode::MOD && biOp == true) {
+    if(opCode() == OpCode::DIV || opCode() == OpCode::MOD) out << "(";
+    arg_[0]->typePrint(out, indent);
+    out << opInfo[(int)opCode_].name_;
+    arg_[1]->typePrint(out, indent);
+    if(opCode() == OpCode::DIV || opCode() == OpCode::MOD) out << ")";
+  } 
+  //EQ, NE, GT, LT, GE, LE,
+  if(opCode() >= OpCode::EQ && opCode() <= OpCode::LE && biOp == true) {
+    arg_[0]->typePrint(out, indent);
+    out << opInfo[(int)opCode_].name_;
+    arg_[1]->typePrint(out, indent);
+  }
+  //AND, OR,
+  if(opCode() >= OpCode::AND && opCode() <= OpCode::OR && biOp == true) {
+    cout << "(";
+    arg_[0]->typePrint(out, indent);
+    out << opInfo[(int)opCode_].name_;
+    arg_[1]->typePrint(out, indent);
+    cout << ")";
+  } 
+  //NOT, 
+  if(opCode() == OpCode::NOT && uOp == true) {
+    out << opInfo[(int)opCode_].name_;
+    arg_[0]->typePrint(out, indent);
+  }
+  //BITNOT
+  if(opCode() == OpCode::BITNOT && uOp == true) {
+    out << opInfo[(int)opCode_].name_;
+    arg_[0]->typePrint(out, indent);
+  }
+  //BITAND, BITOR, BITXOR, SHL, SHR,
+  if(opCode() >= OpCode::BITAND && opCode() <= OpCode::SHR && biOp == true) {
+    cout << "(";
+    arg_[0]->typePrint(out, indent);
+    out << opInfo[(int)opCode_].name_;
+    arg_[1]->typePrint(out, indent);
+    cout << ")";
+  } 
+  //ASSIGN, 
+  if(opCode() == OpCode::ASSIGN && biOp == true) {
+    arg_[0]->typePrint(out, indent);
+    out << opInfo[(int)opCode_].name_;
+    arg_[1]->typePrint(out, indent);
+  } 
+  //PRINT, INVALID
+}
+void ValueNode::typePrint(ostream& out, int indent) const {
+  if(coercedType())
+    out << "(" << coercedType()->fullName() << ")";
+  value()->typePrint(out, indent);
+}
+void RefExprNode::typePrint(ostream& out, int indent) const {
+  if(coercedType())
+    out << "(" << coercedType()->fullName() << ")";
+  out << symTabEntry()->type()->fullName();
+}
+void RuleNode::typePrint(ostream& out, int indent) const{
+    pat_->print(out, indent);
+    out << "-->  ";
+    reaction_->typePrint(out, indent);
+    out << ";;" << endl;
+}
+void CompoundStmtNode::typePrint(ostream& out, int indent) const {
+  out << "{" << endl;
+  typePrintWithoutBraces(out, indent+STEP_INDENT);
+  out << "};" << endl;  
+}
+void CompoundStmtNode::typePrintWithoutBraces(ostream& out, int indent) const {
+  list<StmtNode*>::const_iterator iter = stmts_->begin();
+  for (; iter != stmts_->end(); ++iter) {
+    if (*iter != NULL) {
+      //prtln(out, indent);
+      int n = indent;
+      while(n-->0)
+        out << " ";
+      (*iter)->typePrint(out, indent);
+      out << ";" << endl;
+    }
+    else break;
+  }
+}
+void InvocationNode::typePrint(ostream& out, int indent) const {
+  out << ste_->name();
+  if (params_ == NULL) {
+    out << "();";
+    return ;
+  }
+  else {
+    out << "(";
+    vector<ExprNode*>::const_iterator iter = params_->begin();
+    while (iter != params_->end()) {
+      (*iter)->typePrint(out, indent);
+      if ((++iter) != params_->end()) out << ", ";
+    }
+    out << ")";
+  }
+}
+void ReturnStmtNode::typePrint(ostream& out, int indent) const {
+  out << "return "; 
+  if(expr_ != NULL) 
+    expr_->typePrint(out, indent);
+  else 
+    out << "NULL";
+}
+void IfNode::typePrint(ostream& out, int indent) const {
+  out << "if (";
+    cond_->typePrint(out, indent);
+    out << ") ";
+    if (then_)
+    {
+      then_->typePrint(out,indent);
+    }
+    if (else_)
+    {
+        out << "else ";
+        else_->typePrint(out,indent);
+        //out << ";" << endl;
+    }
+}
+void PatNode::typePrint(ostream& out, int indent) const {
 
 }
+void PrimitivePatNode::typePrint(ostream& out, int indent) const{
+  
+}
+
 
 AstNode::AstNode(NodeType nt, int line, int column, string file):
   ProgramElem(NULL, line, column, file) 
@@ -136,7 +581,6 @@ RuleNode::RuleNode(BlockEntry *re, BasePatNode* pat, StmtNode* reaction, int lin
 
 void RuleNode::print(ostream& os, int indent) const
 {
-
     pat_->print(os, indent);
     os << "-->  ";
     reaction_->print(os, indent);
