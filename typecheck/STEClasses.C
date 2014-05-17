@@ -10,10 +10,12 @@ const Type* GlobalEntry::typeCheck() {
 	}
 	vector<RuleNode*>::iterator ru_iter = rules_.begin();
 	for(; ru_iter != rules_.end(); ++ru_iter) {
+		//cout << "rule typecheck!" << endl;
 		(*ru_iter)->typeCheck();
 	}
 	return NULL;
 }
+
 const Type* VariableEntry::typeCheck() {
 	const Type* t_init = NULL;
 	if(initVal()) {
@@ -60,6 +62,7 @@ void VariableEntry::typePrint(ostream& out, int indent) const {
 }
 
 void EventEntry::typePrint(ostream& out, int indent) const {
+
 	out << "event " << name() << "(";
 	SymTab::const_iterator iter = symTab()->begin();
 	while (iter != symTab()->end())

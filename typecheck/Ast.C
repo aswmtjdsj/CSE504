@@ -7,19 +7,24 @@ const Type* ValueNode::typeCheck() {
   return type();
 }
 const Type* RefExprNode::typeCheck() {
+  //cout << "refexprnode check!" << endl;
   return symTabEntry()->type();
 }
 const Type* OpNode::typeCheck() {
+  //cout << "opnode check!" << endl;
   bool biOp = false;
   bool uOp = false;
   ExprNode *l = NULL, *r = NULL; // left and right operands
   const Type *tl = NULL, *tr = NULL; // type of left and right operands
   // initialize ExprNode and its type
   if(arity() == 2) {
+    //cout << "enter here?" << endl;
     l = arg(0);
     r = arg(1);
     if(l != NULL) tl = l->typeCheck();
+    //cout << "ok" << endl;
     if(r != NULL) tr = r->typeCheck();
+    //cout << "ok" << endl;
     biOp = true;
   }
   if(arity() == 1) {
@@ -225,15 +230,19 @@ const Type* OpNode::typeCheck() {
   return NULL;
 }
 const Type* RuleNode::typeCheck() {
+  //cout << "rulenode check type!" << endl;
   if(pat()) {
+    //cout << "checking pat" << endl;
     pat()->typeCheck();
   }
   if(reaction()) {
+    //cout << "checking reaction" << endl;
     reaction()->typeCheck();
   }
   return NULL;
 }
 const Type* PatNode::typeCheck() {
+  //cout << "patnode check!" << endl;
   switch(kind()) {
     case PatNodeKind::PRIMITIVE: break;
     case PatNodeKind::EMPTY: break;
@@ -259,6 +268,7 @@ const Type* PatNode::typeCheck() {
   return NULL;
 }
 const Type* PrimitivePatNode::typeCheck() {
+  //cout << "ppatnode check!" << endl;
   Type *ee = event()->type();
   vector<Type*>* formal = NULL;
   int formal_size = 0;
@@ -316,6 +326,7 @@ const Type* InvocationNode::typeCheck() {
   return ret;
 }
 const Type* ExprStmtNode::typeCheck() {
+  //cout << "exprstmtnode check!" << endl;
   expr_->typeCheck();
   return NULL;
 }

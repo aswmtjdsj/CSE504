@@ -170,25 +170,55 @@ rule
 {
   
 }
+|rule_list error TOK_SEMICOLON 
+{
+    errMsg("Error, expecting a rule");
+}
 ;
 
 rule:
 event_pattern TOK_ARROW rule_body1
 {
-    stm.leaveScope();
+    if ($1) {
+        stm.leaveScope();   // Leave BlockEntry (event)
+        if ($3) {
+            $$ = new RuleNode(new BlockEntry(" ", yylinenum, yycolumnno, yyfilename), $1, $3, yylinenum, yycolumnno, yyfilename);
+            if ( stm.currentScope() && stm.currentScope()->kind() == SymTabEntry::Kind::GLOBAL_KIND) {
+                GlobalEntry* ge = (GlobalEntry*)stm.currentScope();
+                ge->addRule($$);
+            }
+        }
+    } else
+        $$ = NULL;
+    /*stm.leaveScope();
     GlobalEntry* gloen = (GlobalEntry*)stm.currentScope();
     BlockEntry *t = new BlockEntry("Block", yylinenum, yycolumnno, yyfilename);
     $$ = new RuleNode(t, $1, $3, yylinenum, yycolumnno, yyfilename);  
-    gloen->addRule($$);
+    gloen->addRule($$);*/
 }
 |event_pattern TOK_ARROW rule_body1 TOK_SEMICOLON              
 {
-    stm.leaveScope();
+    if ($1) {
+        stm.leaveScope();   // Leave BlockEntry (event)
+        if ($3) {
+            $$ = new RuleNode(new BlockEntry(" ", yylinenum, yycolumnno, yyfilename), $1, $3, yylinenum, yycolumnno, yyfilename);
+            if ( stm.currentScope() && stm.currentScope()->kind() == SymTabEntry::Kind::GLOBAL_KIND) {
+                GlobalEntry* ge = (GlobalEntry*)stm.currentScope();
+                ge->addRule($$);
+            }
+        }
+    } else
+        $$ = NULL;
+    /*stm.leaveScope();
     GlobalEntry* gloen = (GlobalEntry*)stm.currentScope();
     BlockEntry *t = new BlockEntry("Block", yylinenum, yycolumnno, yyfilename);
     $$ = new RuleNode(t, $1, $3, yylinenum, yycolumnno, yyfilename); 
-    gloen->addRule($$);
-}                                       
+    gloen->addRule($$);*/
+}      
+|event_pattern error rule_body1 
+{
+    errMsg("Syntax error, skipping event pattern");
+}
 ;
 
 ifc_decl:
@@ -219,6 +249,11 @@ TOK_CLASS TOK_IDENT
 { 
     $$ = new ClassEntry($2, yylinenum, yycolumnno, yyfilename); 
     stm.insert($$);
+}
+
+|TOK_CLASS error TOK_SEMICOLON 
+{
+    errMsg("Syntax error in class declaration: expecting class name");
 }
 ;
 
@@ -269,6 +304,10 @@ function_header formalparamlistpp funcbody
     }
     stm.insert($$);
 }
+|function_header error TOK_SEMICOLON
+{
+    errMsg("Syntax error in formal parameter declaration");
+}
 ;
 
 variable_decl:
@@ -282,6 +321,22 @@ type vlist TOK_SEMICOLON
         t->type($1);
         stm.insert(t);
     }
+}
+|type vlist error TOK_SEMICOLON
+{
+    errMsg("Error in variable declaration, may be a missing \",\" or identifier");
+}
+|type vlist TOK_COMMA error
+{
+    errMsg("Error in variable declaration, may be a missing \",\" or identifier");
+}
+|type error TOK_SEMICOLON
+{
+    errMsg("Error in variable declaration, may be a missing identifier");
+}
+|TOK_IDENT error TOK_SEMICOLON
+{
+    errMsg("Error in variable declaration, may be a missing type name or identifier");
 }
 ;
 
@@ -349,7 +404,10 @@ TOK_ANY
 |TOK_IDENT evenparamlistpp                        
 {
     EventEntry* e = (EventEntry*)stm.lookUpInScope($1, SymTabEntry::Kind::GLOBAL_KIND);
-    //BlockEntry* b = new BlockEntry($1, yylinenum, yycolumnno, yyfilename);
+    if (stm.currentScope()->kind() != SymTabEntry::Kind::BLOCK_KIND) 
+    {
+        stm.enterScope(new BlockEntry($1, yylinenum, yycolumnno, yyfilename));
+    }
     //stm.enterScope(b);
     $$ = new PrimitivePatNode(e, $2, NULL, yylinenum, yycolumnno, yyfilename);
 }                       
@@ -425,6 +483,10 @@ stmt
     $$ = $1;
     if ($2 != NULL) $$->push_back($2);
 }
+|stmt_plus error stmt 
+{
+    errMsg("Syntax error while parsing a statement");
+}
 ;
 
 if_then_else_stmt:
@@ -436,12 +498,28 @@ TOK_IF expr stmt TOK_ELSE stmt
 {
     $$ = new IfNode($2, $3, NULL, yylinenum, yycolumnno, yyfilename);
 }
+| TOK_IF error stmt 
+{
+    errMsg("Syntax error while parsing a statement");
+}
+| TOK_IF expr error stmt 
+{
+    errMsg("Syntax error while parsing a statement");
+}
+| TOK_IF expr stmt TOK_ELSE error TOK_SEMICOLON 
+{
+    errMsg("Syntax error in else statement");
+}
 ;
 
 asg_stmt:
 ref_expr TOK_ASSIGN expr                          
 {
     $$ = new OpNode(OpNode::OpCode::ASSIGN, $1, $3, yylinenum, yycolumnno, yyfilename);
+}
+|ref_expr TOK_ASSIGN error TOK_SEMICOLON 
+{
+    errMsg("Syntax error in assignment");
 }
 ;
 
@@ -527,6 +605,10 @@ stmt_plus
 |variable_decl stmt_plus                          
 {
     $$ = new CompoundStmtNode($2, yylinenum, yycolumnno, yyfilename);
+}
+|variable_decl error 
+{
+    errMsg("Syntax error, expecting a declaration");
 }
 ;
 
