@@ -11,4 +11,3 @@ a(g) : (b(y, w)|f==w) -> z=g;
 a(h) \/ b(y, w)|h==w -> z=1;
 a(i) \/ b(y)|i==w -> z=w;
 a(j) \/ b(y, w)|j==w -> z=j;
-a(k) -> z=k+y;

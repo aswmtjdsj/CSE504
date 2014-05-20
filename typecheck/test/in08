@@ -11,7 +11,7 @@
     class StatP;
     class NewStatP;
     int logMessage(string x);
-	
+    
     
     int logMessageInt(string x, int y) ;    
     int getpid();
@@ -43,34 +43,31 @@ ArgV arg;
 CString ss;
 
 int ff(double x, int y1, string z){
-	z=get(ss);
-	return x;
+    z=get(ss);
+    return x;
 }
 
-open(file,flags,mode)**: !any** :
+open(file,flags,mode)**:
 (open(file1,flags1,mode1)|(state_var = get(file1))) :
 (!(close(fd))): (unlink(path)|(state_var == get(path))) -> {
-        logMessage();
-	getpid_t(arg);
-	ff(y, f, ss);
-	ff(f,y); 
+    getpid_t(arg);
+    ff(y, f, ss);
+    ff(f,y); 
 };
         
 (open(file, flags, mode)  \/ close(fd) \/ unlink(file1) \/chmod(file2, mode2) \/ truncate(file3, len))**: 
 unlink(file7) : 
 (write(b1, b2, b3) \/ umask(c1) \/ sysinfo(d1)) :
 open(file4,flags4, mode4) -> {
-	if(!(i<6) && i<=j || j >=k)
+    if(!(i<6) && i<=j || j >=k)
                 if ((i < j) || (j > k)) {
-                	;
-		}
+                    ;
+        }
                 else {
-                	;
-		}
+                    ;
+        }
         else
                 k = k << (j >> i) ;
 
 
 };
-
-        

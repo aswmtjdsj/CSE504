@@ -40,17 +40,17 @@ string state_var;
 bool bo, bo1, bo2, bo3, bo4;
 ArgV arg;
 
-open(file,flags,mode)**: !(any**) :
+open(file,flags,mode)**: !(open(file,flags,mode)**) :
 (open(file1,flags1,mode1)|(state_var = get(file1))) :
 (!(close(fd))): (unlink(path)|(state_var == get(path))) -> {
-	;
+    ;
 };
         
 (open(file, flags, mode)  \/ close(fd) \/ unlink(file1) \/chmod(file2, mode2) \/ truncate(file3, len))**: 
 unlink(file7) : 
 (write(b1, b2, b3) \/ umask(c1) \/ sysinfo(d1)) :
 open(file4,flags4, mode4) -> {
-	if(!(i<6) && i<=j || j >=k)
+    if(!(i<6) && i<=j || j >=k)
                 if ((i < j) || (j > k)) {
                         f = (23 * (-i)/j) - f  - (45 % f) ;
                 }
@@ -67,5 +67,3 @@ open(file4,flags4, mode4) -> {
                 }
 
 };
-
-        

@@ -74,6 +74,7 @@ void EventEntry::typePrint(ostream& out, int indent) const {
 	}
 	out << ");" << endl;
 }
+
 void ClassEntry::typePrint(ostream& out, int indent) const {
 	out << "class " << name() << ";";
 	out << endl;
