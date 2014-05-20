@@ -220,12 +220,12 @@ main(int argc, char *argv[], char *envp[]) {
   labelNum = 0;
   if (ge != NULL) {
 	//cout << "Finished parsing, here is the AST\n";
-	ge->print(cout, 0);
+	//ge->print(cout, 0);
   ge->typeCheck();
   cout << endl;
-  //ge->typePrint(cout, 0);
-  EFSAlist* codeList = ge->codeGen();
-  codeList->codePrint(cout);
+  ge->typePrint(cout, 0);
+  //EFSAlist* codeList = ge->codeGen();
+  //codeList->codePrint(cout);
   }
 #endif
 }
