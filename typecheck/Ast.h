@@ -220,6 +220,10 @@ class OpNode: public ExprNode {
 
   //zdd
   EFSAlist* codeGen();
+  int tempIntVarAlloc();
+  int tempFloatVarAlloc();
+  void tempIntVarRelease(int i);
+  void tempFloatVarRelease(int i);
   
  private: 
   unsigned int arity_;
@@ -749,13 +753,13 @@ class FloatArithCode: public EFSA {
 			case EFSA::OperandName::FADD:
 				os<<"FADD";
 				break;
-			case EFSA::OperandName::SUB:
+			case EFSA::OperandName::FSUB:
 				os<<"FSUB";
 				break;
-			case EFSA::OperandName::DIV:
+			case EFSA::OperandName::FDIV:
 				os<<"FDIV";
 				break;
-			case EFSA::OperandName::MUL:
+			case EFSA::OperandName::FMUL:
 				os<<"FMUL";
 				break;
 			default:
@@ -965,16 +969,15 @@ class WhileNode: public StmtNode
     WhileNode(ExprNode* cond, StmtNode* WhileStmt, int line=0, int column=0, string file="");
     ~WhileNode(){};
 
-    const ExprNode* cond() const {return cond_;}
-    const StmtNode* whileStmt() const { return stmt_;};
-
-/*    ExprNode* cond() {return cond_;}
+    ExprNode* cond() {return cond_;}
     StmtNode* whileStmt() { return stmt_;};
-    void addLoopInvStmt(vector<StmtNode*> *s) { loop_inv_stmt_ = s;}*/
+
+    //ExprNode* cond() {return cond_;}
+    //StmtNode* whileStmt() { return stmt_;};
+    //void addLoopInvStmt(vector<StmtNode*> *s) { loop_inv_stmt_ = s;}
 
     void print(ostream& os, int indent) const;
     EFSAlist* codeGen();
-//      ImmCodes* code(bool controlFlow=false);
     //const Type* typeCheck();
    // void  typePrint(ostream& os, int indent) const;
 
