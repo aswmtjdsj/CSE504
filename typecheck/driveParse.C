@@ -224,8 +224,9 @@ main(int argc, char *argv[], char *envp[]) {
   ge->typeCheck();
   cout << endl;
   ge->typePrint(cout, 0);
-  //EFSAlist* codeList = ge->codeGen();
-  //codeList->codePrint(cout);
+  cout << endl;
+  EFSAlist* codeList = ge->codeGen();
+  codeList->codePrint(cout);
   }
 #endif
 }

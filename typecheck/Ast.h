@@ -649,6 +649,8 @@ class EFSAlist{
 	}
    }
 
+
+
  private:
     vector <EFSA*> codeList;
 };
@@ -872,6 +874,8 @@ class LabelCode: public EFSA {
 
   void codePrint(ostream& os){
 	os<<name_<<endl;
+	if (name_=="RuleEnd")
+		os<<endl;
 	};
 
  private:

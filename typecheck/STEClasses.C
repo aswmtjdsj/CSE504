@@ -233,25 +233,9 @@ EFSAlist* GlobalEntry::codeGen() {
 					codeList->addCodeList(cl);
 			}
 		}
-		// jump to event matcher
-		//c->add(ImmCode::GOTO,(void*)c->newLabel("S0"));
-		//c->add(ImmCode::GOTO,(void*)c->newLabel("test"));
 	}
 
-	// print anythig other than vardecl
-	/*
-	if (symTab()) {
-		SymTab::iterator it = symTab()->begin();
-		for (;it!=symTab()->end();++it) {
-			if ((*it) && (*it)->kind() != VARIABLE_KIND &&
-					(*it)->name() != "any") {
-				c->add((*it)->code());
-			}
-		}
-	}
-	*/
 	// Rules
-	
 	vector<RuleNode*>::const_iterator it = rules_.begin();
 	for (;it!=rules_.end();++it) {
 		if ((*it)) {
@@ -264,17 +248,19 @@ EFSAlist* GlobalEntry::codeGen() {
 }
 
 EFSAlist* VariableEntry::codeGen() {
-	/*
-	if (initVal()) {
-		ImmCodes* c = new ImmCodes();
-		c->add( initVal()->code() );
-		RefExprNode* refNode = new RefExprNode(name(), this);
-		c->add(ImmCode::EXPR, refNode, initVal()->addr(),NULL, OpNode::ASSIGN);
-		return c;
-	}
-	return NULL;
-	*/
 	int regNum = regAlloc();
+	if (initVal()) {
+		EFSAlist* codeList = new EFSAlist();
+		if (initVal()->exprNodeType()==ExprNode::ExprNodeType::VALUE_NODE || initVal()->exprNodeType()==ExprNode::ExprNodeType::REF_EXPR_NODE){
+			OpNode* on = new OpNode(OpNode::OpCode::ASSIGN, new RefExprNode(name(), this), initVal());
+			codeList->addCodeList(on->codeGen());
+		}
+		else{ 
+			OpNode* on = new OpNode(OpNode::OpCode::ASSIGN, new RefExprNode(name(), this), initVal());
+			codeList->addCodeList(on->codeGen());
+		}
+		return codeList;
+	}	
 	return NULL;
 }
 
