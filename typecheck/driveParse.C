@@ -56,6 +56,11 @@ bool genPrologCode;
 string outFileSuffix;  
 extern FILE* yyin;
 
+//zdd
+int intReg[1000];
+int floatReg[1000];
+int labelNum;
+
 void
 printUsage(const char* cmd) {
   cerr << "Usage: " << cmd << //" [-v <num>] "
@@ -208,12 +213,19 @@ main(int argc, char *argv[], char *envp[]) {
   yyparse();
   stm.leaveToScope(SymTabEntry::Kind::GLOBAL_KIND);
   GlobalEntry *ge = (GlobalEntry*)(stm.currentScope());
+  for (int i=0; i<1000; i++) {
+	intReg[i]=0;
+        floatReg[i]=0;
+  }
+  labelNum = 0;
   if (ge != NULL) {
 	//cout << "Finished parsing, here is the AST\n";
-	//ge->print(cout, 0);
+	ge->print(cout, 0);
   ge->typeCheck();
   cout << endl;
-  ge->typePrint(cout, 0);
+  //ge->typePrint(cout, 0);
+  EFSAlist* codeList = ge->codeGen();
+  codeList->codePrint(cout);
   }
 #endif
 }

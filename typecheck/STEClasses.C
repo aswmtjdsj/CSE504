@@ -216,3 +216,89 @@ void VariableEntry::print(ostream& out, int indent) const
 	}
 	else out << type()->name() << " " << name() << ";" << endl;
 }
+
+//zdd
+EFSAlist* GlobalEntry::codeGen() {
+	EFSAlist* codeList = NULL;
+	codeList = new EFSAlist();
+	codeList->addCode(new LabelCode("GlobalBegin"));
+	
+	if (symTab()){
+		SymTab::iterator it = symTab()->begin();
+		for (;it!=symTab()->end();++it) {
+			if ((*it) && (*it)->kind() == SymTabEntry::Kind::VARIABLE_KIND) {
+				VariableEntry* ve = (VariableEntry*)(*it);
+				EFSAlist* cl = ve->codeGen();
+				if (cl!=NULL)
+					codeList->addCodeList(cl);
+			}
+		}
+		// jump to event matcher
+		//c->add(ImmCode::GOTO,(void*)c->newLabel("S0"));
+		//c->add(ImmCode::GOTO,(void*)c->newLabel("test"));
+	}
+
+	// print anythig other than vardecl
+	/*
+	if (symTab()) {
+		SymTab::iterator it = symTab()->begin();
+		for (;it!=symTab()->end();++it) {
+			if ((*it) && (*it)->kind() != VARIABLE_KIND &&
+					(*it)->name() != "any") {
+				c->add((*it)->code());
+			}
+		}
+	}
+	*/
+	// Rules
+	
+	vector<RuleNode*>::const_iterator it = rules_.begin();
+	for (;it!=rules_.end();++it) {
+		if ((*it)) {
+			codeList->addCodeList((*it)->codeGen());
+		}
+	}	
+	
+	codeList->addCode(new LabelCode("GlobalEnd"));
+	return codeList;
+}
+
+EFSAlist* VariableEntry::codeGen() {
+	/*
+	if (initVal()) {
+		ImmCodes* c = new ImmCodes();
+		c->add( initVal()->code() );
+		RefExprNode* refNode = new RefExprNode(name(), this);
+		c->add(ImmCode::EXPR, refNode, initVal()->addr(),NULL, OpNode::ASSIGN);
+		return c;
+	}
+	return NULL;
+	*/
+	int regNum = regAlloc();
+	return NULL;
+}
+
+ 
+int VariableEntry::regAlloc(){
+	
+	if (type()->tag()==Type::TypeTag::UINT || type()->tag()==Type::TypeTag::INT || type()->tag()==Type::TypeTag::INT){
+		for (int i=0; i<999; i++){
+			if (intReg[i]==0){
+				intReg[i] = 1;
+				regNum_ = i;
+				regIF_ = 0;
+				return i;
+			}
+                }
+	}
+	if (type()->tag()==Type::TypeTag::DOUBLE){
+		for (int i=0; i<999; i++)
+			if (floatReg[i]==0){
+				floatReg[i]=1;
+				regNum_ = i;
+				regIF_ = 1;
+				return i;
+			}
+	}
+	return -1;
+}

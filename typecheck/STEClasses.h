@@ -12,7 +12,12 @@ class PatNode;
 class VariableEntry;
 class OpNode;
 class PrimitivePatNode;
+//zdd
+class EFSA;
 extern string newName(const string&);
+//zdd
+extern int intReg[1000];
+extern int floatReg[1000];
 
 /****************************************************************
   The first few classes dont really add any functionality over
@@ -35,6 +40,9 @@ class GlobalEntry: public SymTabEntry {
 
   const Type* typeCheck();
   void typePrint(ostream&, int indent=0) const;
+  
+  //zdd
+  EFSAlist* codeGen();
 
  private:
   vector<RuleNode*> rules_;
@@ -69,6 +77,9 @@ class VariableEntry: public SymTabEntry {
 				ExprNode* init=nullptr, int ln=0, int col=0, string file=""):
     SymTabEntry(name, SymTabEntry::Kind::VARIABLE_KIND, ln, col, file, type) {
     vkind_ = v; initVal(init);
+    //zdd
+    regNum_=-1;
+    regIF_=-1;
  };
 
   VariableEntry(const VariableEntry &v);
@@ -89,10 +100,21 @@ class VariableEntry: public SymTabEntry {
   const Type* typeCheck();
   void typePrint(ostream& os, int indent=0) const;
 
+  //zdd
+  int regAlloc();
+  EFSAlist* codeGen();
+  int regNum() {return regNum_;};
+  void regNum(int n) {regNum_=n;};
+  int regIF() {return regIF_;};
+  void regIF(int n) {regIF_=n;};
+
  private:
   VarKind vkind_;
   int offSet_;
   ExprNode* initVal_;
+  //zdd
+  int regNum_;
+  int regIF_;
 };
 
 class ClassEntry: public SymTabEntry {
