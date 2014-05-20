@@ -690,6 +690,7 @@ ExprNode::ExprNode(ExprNodeType et, const Value* val, int line, int column, stri
 	// Add your code here
     exprType_ = et;
     val_ = val;
+    regNum_ = -1;
 }
 
 
@@ -958,3 +959,80 @@ void CompoundStmtNode::print(ostream& os, int indent) const
     printWithoutBraces(os, indent);
     os << "};" << endl;
 }
+
+//zdd
+
+EFSAlist* RuleNode::codeGen() {
+	EFSAlist* codeList = NULL;
+	codeList = new EFSAlist();
+	codeList->addCode(new LabelCode("RuleBegin"));
+
+	codeList->addCodeList(reaction()->codeGen());	
+
+	codeList->addCode(new LabelCode("RuleEnd"));
+	return codeList;
+}
+
+EFSAlist* ReturnStmtNode::codeGen() {
+	EFSAlist* codeList = NULL;
+	codeList = new EFSAlist();
+	return codeList;
+}
+
+EFSAlist* ExprStmtNode::codeGen() {
+	EFSAlist* codeList = NULL;
+	codeList = new EFSAlist();
+	codeList->addCodeList(expr_->codeGen());	
+	return codeList;
+}
+
+EFSAlist* CompoundStmtNode::codeGen() {
+	EFSAlist* codeList = NULL;
+	codeList = new EFSAlist();
+	return codeList;
+}
+
+EFSAlist* IfNode::codeGen() {
+	EFSAlist* codeList = NULL;
+	codeList = new EFSAlist();
+	return codeList;
+}
+
+EFSAlist* RefExprNode::codeGen() {
+	regNum(((VariableEntry*)sym_)->regNum());
+	return NULL;
+}
+
+
+/*
+    UMINUS, PLUS, MINUS, MULT, DIV, MOD, 
+    EQ, NE, GT, LT, GE, LE,
+    AND, OR, NOT, 
+    BITNOT, BITAND, BITOR, BITXOR, SHL, SHR,
+    ASSIGN, PRINT, INVALID
+*/
+EFSAlist* OpNode::codeGen() {
+	EFSAlist* codeList = NULL;
+	codeList = new EFSAlist();
+	//ADD, SUB, DIV, MUL, MOD, NEG, AND, OR and XOR.
+	
+	//regNum_=999;
+	return codeList;
+}
+
+EFSAlist* ValueNode::codeGen() {
+	EFSAlist* codeList = NULL;
+	codeList = new EFSAlist();
+	//EFSA* code = new EFSA();
+	
+	//regNum(999);
+	return codeList;
+}
+
+EFSAlist* InvocationNode::codeGen() {
+	EFSAlist* codeList = NULL;
+	codeList = new EFSAlist();
+	return codeList;
+}
+
+

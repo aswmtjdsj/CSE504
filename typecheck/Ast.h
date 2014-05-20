@@ -19,6 +19,8 @@ class PrimitivePatNode;
 class RulezNode;
 class SymTabEntry;
 class VariableEntry;
+//zdd
+class EFSAlist;
 
 /*****************************************************************************
    Here is the class hierarchy:
@@ -69,7 +71,8 @@ class AstNode: public ProgramElem {
   virtual void typePrint(ostream& os, int indent=0) const {};
 
   virtual void print(ostream& os, int indent=0) const=0;
-  virtual EFSA* codeGen() {return NULL;};
+  //zdd
+  //virtual EFSA* codeGen() {return NULL;};
 
   virtual void renameRV(string prefix) {}; // new names start with given prefix
   virtual bool operator==(const AstNode&) const { return false; };
@@ -79,6 +82,7 @@ class AstNode: public ProgramElem {
  private: 
   NodeType nodeType_;
   const AstNode* operator=(const AstNode& other); /* disable asg */
+  EFSA* interCode_;
 };
 
 inline ostream& operator<<(ostream& os, const AstNode& an) {
@@ -114,10 +118,17 @@ class ExprNode: public AstNode {
 
   void print(ostream& os, int indent=0) const=0;
 
+  //zdd
+  virtual EFSAlist* codeGen()=0;
+  int regNum() {return regNum_;};
+  void regNum(int n) {regNum_=n;};
+
  private:
   ExprNodeType exprType_;
   const Value *val_; // reference semantics for val_ and coercedType_
   const Type* coercedType_; 
+  //zdd
+  int regNum_;
 };
 
 /****************************************************************/
@@ -140,6 +151,9 @@ class RefExprNode: public ExprNode {
 
   const Type* typeCheck();
   void typePrint(ostream& os, int indent=0) const;
+
+  //zdd
+  EFSAlist* codeGen();
   
  private:
   string ext_;
@@ -199,6 +213,9 @@ class OpNode: public ExprNode {
 
   const Type* typeCheck();
   void typePrint(ostream& os, int indent=0) const;
+
+  //zdd
+  EFSAlist* codeGen();
   
  private: 
   unsigned int arity_;
@@ -222,6 +239,9 @@ class ValueNode: public ExprNode {
 
   const Type* typeCheck();
   void typePrint(ostream& os, int indent=0) const;
+
+  //zdd
+  EFSAlist* codeGen();
  private:
   /* val_ field is already included in ExprNode, so no new data members */
 };
@@ -253,6 +273,9 @@ class InvocationNode: public ExprNode {
 
   const Type* typeCheck();
   void typePrint(ostream& os, int indent=0) const;
+
+  //zdd
+  EFSAlist* codeGen();
  private:
   vector<ExprNode*>* params_;
   const SymTabEntry *ste_; // reference semantics
@@ -394,6 +417,9 @@ class StmtNode: public AstNode {
 
   void print(ostream& os, int indent) const = 0;
 
+  //zdd
+  virtual EFSAlist* codeGen() = 0;
+
  private:
   StmtNodeKind skind_;
 };
@@ -412,6 +438,9 @@ class ReturnStmtNode: public StmtNode {
 	if(expr_ != NULL) expr_->print(os, indent); else os << "NULL";};
   const Type* typeCheck();
   void typePrint(ostream& os, int indent) const;
+
+  //zdd
+  EFSAlist* codeGen();
  private:
   ExprNode* expr_;
   FunctionEntry* fun_;
@@ -432,6 +461,9 @@ class ExprStmtNode: public StmtNode {
   void typePrint(ostream& os, int indent) const {
   if(expr_ != NULL) { expr_->typePrint(os,indent); }};
   const Type* typeCheck();
+
+  //zdd
+  EFSAlist* codeGen();
  private:
   ExprNode* expr_;
 };
@@ -458,6 +490,9 @@ class CompoundStmtNode: public StmtNode{
   const Type* typeCheck();
   void typePrint(ostream& out, int indent) const;
   void typePrintWithoutBraces(ostream& os, int indent) const;
+
+  //zdd
+  EFSAlist* codeGen();
 
  private:
   CompoundStmtNode(const CompoundStmtNode&);
@@ -487,6 +522,9 @@ class IfNode: public StmtNode{
   void print(ostream& os, int indent) const;
   const Type* typeCheck();
   void typePrint(ostream& os, int indent) const;
+
+  //zdd
+  EFSAlist* codeGen();
  private: 
   ExprNode *cond_;
   StmtNode *then_, *else_;
@@ -516,12 +554,202 @@ class RuleNode: public AstNode {
   void print(ostream& os, int indent=0) const;
   void typePrint(ostream& os, int indent=0) const;
   const Type* typeCheck();
+
+  //zdd
+  EFSAlist* codeGen();
  private:
   BlockEntry    *rste_;
   BasePatNode *pat_;
   StmtNode *reaction_;
    
   RuleNode(const RuleNode&);
+};
+
+
+/****************************************************************/
+class EFSAlist{
+ public:
+   void addCodeList(EFSAlist* codes) {
+	if (codes!=NULL){
+		vector <EFSA*>::iterator it = codes->codeList.begin();
+		for(;it!=codes->codeList.end();it++) {
+			codeList.push_back((*it));
+		}
+         }
+   }
+   void addCode(EFSA* code) {
+	if (code!=NULL)
+		codeList.push_back(code);
+   }
+
+ private:
+    vector <EFSA*> codeList;
+};
+
+/****************************************************************/
+
+class EFSA {
+ public:
+  
+  enum class OperatorType {
+    INT_ARITH,
+    FLOAT_ARITH,
+    INT_RELATION,
+    FLOAT_RELATION,
+    PRINT,
+    JUMP,
+    MOVE,
+    INPUT,
+    LABEL
+  };
+
+  enum class OperandName {
+    ADD, 
+    SUB, 
+    DIV, 
+    MUL, 
+    MOD, 
+    NEG, 
+    AND, 
+    OR,
+    XOR,
+    FADD, 
+    FSUB, 
+    FDIV, 
+    FMUL,
+    FNEG,
+    GT,
+    GE,
+    UGT,
+    UGE,
+    EQ,
+    NE,
+    FGT, 
+    FGE, 
+    FEQ,
+    FNE,
+    LABEL,
+    MOVL,
+    MOVS,
+    MOVI,
+    MOVF,
+    MOVIF,
+    LDI,
+    LDF,
+    STI,
+    STF
+  };
+  
+  EFSA(EFSA::OperandName name, OperatorType type) {
+    name_ = name;
+    operatorType_ = type;
+  };
+
+  OperandName name() const { return name_; };
+  void name(OperandName str) { name_=str; };
+
+  OperatorType operatorType() const { return operatorType_;};
+  void operatorType(OperatorType t) { operatorType_ = t; };
+
+ private:
+  OperandName name_;
+  OperatorType operatorType_;
+};
+
+
+/****************************************************************/
+
+class IntArithCode: public EFSA {
+ public:
+
+  enum class OperandNum {
+    UNARY,
+    BINARY
+  };
+
+  IntArithCode(IntArithCode::OperandNum operandNum, EFSA::OperandName name):
+    EFSA(name, EFSA::OperatorType::INT_ARITH) { operandNum_ = operandNum; };
+
+  OperandNum operandNum() const { return operandNum_;};
+  void operandNum(OperandNum n) { operandNum_ = n; };
+
+ private:
+  OperandNum operandNum_;
+  int leftRegNum_;
+  int rightRegNum_;
+};
+
+
+/****************************************************************/
+
+class FloatArithCode: public EFSA {
+ public:
+
+  enum class OperandNum {
+    UNARY,
+    BINARY
+  };
+
+  FloatArithCode(FloatArithCode::OperandNum operandNum, EFSA::OperandName name):
+    EFSA(name, EFSA::OperatorType::FLOAT_ARITH) { operandNum_ = operandNum; };
+
+  OperandNum operandNum() const { return operandNum_;};
+  void operandNum(OperandNum n) { operandNum_ = n; };
+
+ private:
+  OperandNum operandNum_;
+};
+
+
+/****************************************************************/
+
+class IntRelationCode: public EFSA {
+ public:
+
+  enum class OperandNum {
+    BINARY
+  };
+
+  IntRelationCode(IntRelationCode::OperandNum operandNum, EFSA::OperandName name):
+    EFSA(name, EFSA::OperatorType::INT_RELATION) { operandNum_ = operandNum; };
+
+  OperandNum operandNum() const { return operandNum_;};
+  void operandNum(OperandNum n) { operandNum_ = n; };
+
+ private:
+  OperandNum operandNum_;
+};
+
+
+/****************************************************************/
+
+class FloatRelationCode: public EFSA {
+ public:
+
+  enum class OperandNum {
+    BINARY
+  };
+
+  FloatRelationCode(FloatRelationCode::OperandNum operandNum, EFSA::OperandName name):
+    EFSA(name, EFSA::OperatorType::FLOAT_RELATION) { operandNum_ = operandNum; };
+
+  OperandNum operandNum() const { return operandNum_;};
+  void operandNum(OperandNum n) { operandNum_ = n; };
+
+ private:
+  OperandNum operandNum_;
+};
+
+
+/****************************************************************/
+
+class LabelCode: public EFSA {
+ public:
+  LabelCode(string name):
+    EFSA(EFSA::OperandName::LABEL, EFSA::OperatorType::LABEL){name_=name;};
+
+ private:
+  string name_;
 };
 
 /****************************************************************/

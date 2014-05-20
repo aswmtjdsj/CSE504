@@ -41,4 +41,7 @@ class SymTabMgr {
 };
 
 extern SymTabMgr stm;
+//zdd
+extern int intReg[1000];
+extern int floatReg[1000];
 #endif
