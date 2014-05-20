@@ -1016,17 +1016,12 @@ EFSAlist* OpNode::codeGen() {
 	codeList = new EFSAlist();
 	//ADD, SUB, DIV, MUL, MOD, NEG, AND, OR and XOR.
 	
-	//regNum_=999;
+	regNum(999);
 	return codeList;
 }
 
 EFSAlist* ValueNode::codeGen() {
-	EFSAlist* codeList = NULL;
-	codeList = new EFSAlist();
-	//EFSA* code = new EFSA();
-	
-	//regNum(999);
-	return codeList;
+	return NULL;
 }
 
 EFSAlist* InvocationNode::codeGen() {

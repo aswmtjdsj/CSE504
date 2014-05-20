@@ -604,40 +604,9 @@ class EFSA {
   };
 
   enum class OperandName {
-    ADD, 
-    SUB, 
-    DIV, 
-    MUL, 
-    MOD, 
-    NEG, 
-    AND, 
-    OR,
-    XOR,
-    FADD, 
-    FSUB, 
-    FDIV, 
-    FMUL,
-    FNEG,
-    GT,
-    GE,
-    UGT,
-    UGE,
-    EQ,
-    NE,
-    FGT, 
-    FGE, 
-    FEQ,
-    FNE,
-    LABEL,
-    MOVL,
-    MOVS,
-    MOVI,
-    MOVF,
-    MOVIF,
-    LDI,
-    LDF,
-    STI,
-    STF
+    ADD, SUB, DIV, MUL, MOD, NEG, AND, OR, XOR, FADD, FSUB, FDIV, FMUL, FNEG, GT, GE,
+    UGT, UGE, EQ, NE, FGT, FGE, FEQ, FNE, LABEL, MOVL, MOVS, MOVI, MOVF, MOVIF, LDI, 
+    LDF, STI, STF
   };
   
   EFSA(EFSA::OperandName name, OperatorType type) {
