@@ -220,7 +220,10 @@ class OpNode: public ExprNode {
 
   //zdd
   EFSAlist* codeGen();
-  int tempVarAlloc();
+  int tempIntVarAlloc();
+  int tempFloatVarAlloc();
+  void tempIntVarRelease(int i);
+  void tempFloatVarRelease(int i);
   
  private: 
   unsigned int arity_;
@@ -750,13 +753,13 @@ class FloatArithCode: public EFSA {
 			case EFSA::OperandName::FADD:
 				os<<"FADD";
 				break;
-			case EFSA::OperandName::SUB:
+			case EFSA::OperandName::FSUB:
 				os<<"FSUB";
 				break;
-			case EFSA::OperandName::DIV:
+			case EFSA::OperandName::FDIV:
 				os<<"FDIV";
 				break;
-			case EFSA::OperandName::MUL:
+			case EFSA::OperandName::FMUL:
 				os<<"FMUL";
 				break;
 			default:
