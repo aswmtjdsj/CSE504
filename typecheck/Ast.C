@@ -969,9 +969,9 @@ WhileNode::WhileNode(ExprNode* cond, StmtNode* whileStmt, int line, int column, 
 }
 
 
-void WhileNode::print(ostream& os, int indent) const {
+void WhileNode::print(ostream& os, int indent) const{
     os << "while (";
-    if(cond())
+    if(cond_)
     cond_->print(os,indent);
     os << ") ";
     if(stmt_) {
@@ -983,12 +983,6 @@ void WhileNode::print(ostream& os, int indent) const {
     }
 
 }
-
-EFSAlist* WhileNode::codeGen()
-{
-    return NULL;
-}
-//zdd
 
 EFSAlist* RuleNode::codeGen() {
 	EFSAlist* codeList = NULL;
@@ -1063,10 +1057,51 @@ EFSAlist* IfNode::codeGen() {
 	return codeList;
 }
 
+
+EFSAlist* WhileNode::codeGen()
+{
+	EFSAlist* codeList = NULL;
+	codeList = new EFSAlist();
+
+	string l1 = "Label"+std::to_string(labelNum);
+	labelNum++;
+	string l2 = "Label"+std::to_string(labelNum);
+	labelNum++;
+	string l3 = "Label"+std::to_string(labelNum);
+	labelNum++;
+	LabelCode* label1 = new LabelCode(l1);
+	LabelCode* label2 = new LabelCode(l2);
+	LabelCode* label3 = new LabelCode(l3);
+	codeList->addCode(label1);
+	
+	codeList->addCodeList(cond()->codeGen());
+	EFSA* conditionCode = codeList->getLastCode();
+	codeList->removeLastCode();
+	JumpCode* jumpCode1 = new JumpCode(EFSA::OperandName::JMPC, conditionCode, label2);
+	codeList->addCode(jumpCode1);
+	JumpCode* jumpCode2 = new JumpCode(EFSA::OperandName::JMP, NULL, label3);
+	codeList->addCode(jumpCode2);
+	codeList->addCode(label2);
+	if (whileStmt()!=NULL){
+		EFSAlist* list = whileStmt()->codeGen();
+		if (list!=NULL)
+			codeList->addCodeList(list);
+	}
+	JumpCode* jumpCode3 = new JumpCode(EFSA::OperandName::JMP, NULL, label1);
+	codeList->addCode(jumpCode3);
+    	codeList->addCode(label3);
+    	return codeList;
+}
+
 EFSAlist* RefExprNode::codeGen() {
 	regNum(((VariableEntry*)sym_)->regNum());
 	regIF(((VariableEntry*)sym_)->regIF());
 	return NULL;
+}
+
+
+int OpNode::tempVarAlloc() {
+	
 }
 
 
@@ -2045,10 +2080,10 @@ EFSAlist* OpNode::codeGen() {
 				ValueNode* vn = (ValueNode*)arg_[1];
 				Type* type = vn->type();
 				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
-						left = std::to_string(vn->value()->ival());	
+						right = std::to_string(vn->value()->ival());	
 				}
 				else if (type->tag()==Type::TypeTag::DOUBLE){
-						left = std::to_string(vn->value()->dval());	
+						right = std::to_string(vn->value()->dval());	
 				}
 			}
 			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::EQ, left, right);
@@ -2080,10 +2115,10 @@ EFSAlist* OpNode::codeGen() {
 				ValueNode* vn = (ValueNode*)arg_[1];
 				Type* type = vn->type();
 				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
-						left = std::to_string(vn->value()->ival());	
+						right = std::to_string(vn->value()->ival());	
 				}
 				else if (type->tag()==Type::TypeTag::DOUBLE){
-						left = std::to_string(vn->value()->dval());	
+						right = std::to_string(vn->value()->dval());	
 				}
 			}
 			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::NE, left, right);
@@ -2115,10 +2150,10 @@ EFSAlist* OpNode::codeGen() {
 				ValueNode* vn = (ValueNode*)arg_[1];
 				Type* type = vn->type();
 				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
-						left = std::to_string(vn->value()->ival());	
+						right = std::to_string(vn->value()->ival());	
 				}
 				else if (type->tag()==Type::TypeTag::DOUBLE){
-						left = std::to_string(vn->value()->dval());	
+						right = std::to_string(vn->value()->dval());	
 				}
 			}
 			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::GT, left, right);
@@ -2150,10 +2185,10 @@ EFSAlist* OpNode::codeGen() {
 				ValueNode* vn = (ValueNode*)arg_[1];
 				Type* type = vn->type();
 				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
-						left = std::to_string(vn->value()->ival());	
+						right = std::to_string(vn->value()->ival());	
 				}
 				else if (type->tag()==Type::TypeTag::DOUBLE){
-						left = std::to_string(vn->value()->dval());	
+						right = std::to_string(vn->value()->dval());	
 				}
 			}
 			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::GE, left, right);
