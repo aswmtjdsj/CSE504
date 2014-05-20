@@ -59,6 +59,7 @@ extern FILE* yyin;
 //zdd
 int intReg[1000];
 int floatReg[1000];
+int labelNum;
 
 void
 printUsage(const char* cmd) {
@@ -216,6 +217,7 @@ main(int argc, char *argv[], char *envp[]) {
 	intReg[i]=0;
         floatReg[i]=0;
   }
+  labelNum = 0;
   if (ge != NULL) {
 	//cout << "Finished parsing, here is the AST\n";
 	ge->print(cout, 0);
@@ -223,6 +225,7 @@ main(int argc, char *argv[], char *envp[]) {
   cout << endl;
   //ge->typePrint(cout, 0);
   EFSAlist* codeList = ge->codeGen();
+  codeList->codePrint(cout);
   }
 #endif
 }

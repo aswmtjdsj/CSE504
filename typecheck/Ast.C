@@ -981,42 +981,1161 @@ EFSAlist* ReturnStmtNode::codeGen() {
 
 EFSAlist* ExprStmtNode::codeGen() {
 	EFSAlist* codeList = NULL;
-	codeList = new EFSAlist();
-	codeList->addCodeList(expr_->codeGen());	
+	codeList = new EFSAlist();	
+	codeList->addCodeList(expr_->codeGen());
+	
 	return codeList;
 }
 
 EFSAlist* CompoundStmtNode::codeGen() {
 	EFSAlist* codeList = NULL;
-	codeList = new EFSAlist();
+	codeList = new EFSAlist(); 
+	list<StmtNode*>::const_iterator iter;
+	for (iter = stmts()->begin(); iter != stmts()->end(); ++iter)
+	{
+		if (*iter != NULL)
+		{
+			codeList->addCodeList((*iter)->codeGen());
+		}
+		else break;
+	}
 	return codeList;
 }
 
 EFSAlist* IfNode::codeGen() {
 	EFSAlist* codeList = NULL;
 	codeList = new EFSAlist();
+	codeList->addCodeList(cond()->codeGen());
+	EFSA* conditionCode = codeList->getLastCode();
+	codeList->removeLastCode();
+	
+	string l1 = "Label"+std::to_string(labelNum);
+	labelNum++;
+	string l2 = "Label"+std::to_string(labelNum);
+	labelNum++;
+	LabelCode* label1 = new LabelCode(l1);
+	LabelCode* label2 = new LabelCode(l2);
+	JumpCode* jumpCode1 = new JumpCode(EFSA::OperandName::JMPC, conditionCode, label1);
+	codeList->addCode(jumpCode1);
+	if (elseStmt()!=NULL){
+		EFSAlist* list = elseStmt()->codeGen();
+		if (list!=NULL)
+			codeList->addCodeList(list);
+	}
+	JumpCode* jumpCode2 = new JumpCode(EFSA::OperandName::JMP, NULL, label2);
+	codeList->addCode(jumpCode2);
+	codeList->addCode(label1);
+	if (thenStmt()!=NULL){
+		EFSAlist* list = thenStmt()->codeGen();
+		if (list!=NULL)
+			codeList->addCodeList(list);
+	}
+	codeList->addCode(label2);
+ 	
 	return codeList;
 }
 
 EFSAlist* RefExprNode::codeGen() {
 	regNum(((VariableEntry*)sym_)->regNum());
+	regIF(((VariableEntry*)sym_)->regIF());
 	return NULL;
 }
 
 
 /*
+    all the operation:
     UMINUS, PLUS, MINUS, MULT, DIV, MOD, 
     EQ, NE, GT, LT, GE, LE,
     AND, OR, NOT, 
     BITNOT, BITAND, BITOR, BITXOR, SHL, SHR,
     ASSIGN, PRINT, INVALID
 */
+/* 
+    intermediate code:
+    ADD, SUB, DIV, MUL, MOD, NEG, AND, OR, XOR, FADD, FSUB, FDIV, FMUL, FNEG, GT, GE,
+    UGT, UGE, EQ, NE, FGT, FGE, FEQ, FNE, LABEL, MOVL, MOVS, MOVI, MOVF, MOVIF, LDI, 
+    LDF, STI, STF
+*/
 EFSAlist* OpNode::codeGen() {
 	EFSAlist* codeList = NULL;
 	codeList = new EFSAlist();
+	EFSAlist* temp1 = arg_[0]->codeGen();
+	EFSAlist* temp2 = arg_[1]->codeGen();
+	if (temp1!=NULL)
+		codeList->addCodeList(temp1);
+	if (temp2!=NULL)
+		codeList->addCodeList(temp2);
+
 	//ADD, SUB, DIV, MUL, MOD, NEG, AND, OR and XOR.
+	switch (opCode()){
+		case OpNode::OpCode::PLUS:
+			if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()!=-1){	//expr+expr
+				if (arg_[0]->regIF()==0){	//int
+					string leftReg = "R"+std::to_string(arg_[0]->regNum());
+					string rightReg = "R"+std::to_string(arg_[1]->regNum());
+					string destReg = "R999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::ADD, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(0);
+				}
+				else if (arg_[0]->regIF()==1){	//float
+					string leftReg = "F"+std::to_string(arg_[0]->regNum());
+					string rightReg = "F"+std::to_string(arg_[1]->regNum());
+					string destReg = "R999";
+					FloatArithCode* code = new FloatArithCode(FloatArithCode::OperandNum::BINARY, EFSA::OperandName::FADD, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(1);
+				}
+			}
+			else if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()==-1){	//expr+value
+				if (arg_[0]->regIF()==0){	//int
+				
+					string leftReg = "R"+std::to_string(arg_[0]->regNum());
+					string rightReg = "";
+					ValueNode* vn = (ValueNode*)arg_[1];
+					Type* type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						rightReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						rightReg = std::to_string(vn->value()->dval());
+					}
+					string destReg = "R999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::ADD, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(0);
+				}
+				else if (arg_[0]->regIF()==1){	//float
+					string leftReg = "F"+std::to_string(arg_[0]->regNum());
+					string rightReg = "";
+					ValueNode* vn = (ValueNode*)arg_[1];
+					Type* type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						rightReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						rightReg = std::to_string(vn->value()->dval());
+					}
+					string destReg = "F999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::FADD, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(1);
+				}
+			}
+			else if (arg_[0]->regNum()==-1 && arg_[1]->regNum()!=-1){	//value+expr
+				if (arg_[1]->regIF()==0){	//int
+					string rightReg = "R"+std::to_string(arg_[1]->regNum());
+					string leftReg = "";
+					ValueNode* vn = (ValueNode*)arg_[0];
+					Type* type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						leftReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						leftReg = std::to_string(vn->value()->dval());
+					}
+					string destReg = "R999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::ADD, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(0);
+				}
+				else if (arg_[1]->regIF()==1){	//float
+					string rightReg = "F"+std::to_string(arg_[1]->regNum());
+					string leftReg = "";
+					ValueNode* vn = (ValueNode*)arg_[0];
+					Type* type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						leftReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						leftReg = std::to_string(vn->value()->dval());
+					}
+					string destReg = "F999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::FADD, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(1);
+				}
+			}
+			else if (arg_[0]->regNum()==-1 && arg_[1]->regNum()==-1){	//value+value
+					string leftReg = "";
+					string rightReg = "";
+					string destReg = "";
+					regNum(999);
+					ValueNode* vn = (ValueNode*)arg_[0];
+					Type* type = vn->type();
+					bool flag = false;
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						leftReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						leftReg = std::to_string(vn->value()->dval());
+						flag = true;
+					}
+					vn = (ValueNode*)arg_[1];
+					type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						rightReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						rightReg = std::to_string(vn->value()->dval());
+						flag = true;
+					}
+					if (flag){
+						destReg = "F999";
+						regIF(1);
+						IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::FADD, destReg, leftReg, rightReg);
+						codeList->addCode(code);
+					}
+					else{
+						destReg = "R999";
+						regIF(0);
+						IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::ADD, destReg, leftReg, rightReg);
+						codeList->addCode(code);
+					}
+			}
+			break;
+
+		case OpNode::OpCode::MINUS:
+			if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()!=-1){	//expr+expr
+				if (arg_[0]->regIF()==0){	//int
+					string leftReg = "R"+std::to_string(arg_[0]->regNum());
+					string rightReg = "R"+std::to_string(arg_[1]->regNum());
+					string destReg = "R999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::SUB, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(0);
+				}
+				else if (arg_[0]->regIF()==1){	//float
+					string leftReg = "F"+std::to_string(arg_[0]->regNum());
+					string rightReg = "F"+std::to_string(arg_[1]->regNum());
+					string destReg = "R999";
+					FloatArithCode* code = new FloatArithCode(FloatArithCode::OperandNum::BINARY, EFSA::OperandName::FSUB, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(1);
+				}
+			}
+			else if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()==-1){	//expr+value
+				if (arg_[0]->regIF()==0){	//int
+				
+					string leftReg = "R"+std::to_string(arg_[0]->regNum());
+					string rightReg = "";
+					ValueNode* vn = (ValueNode*)arg_[1];
+					Type* type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						rightReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						rightReg = std::to_string(vn->value()->dval());
+					}
+					string destReg = "R999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::SUB, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(0);
+				}
+				else if (arg_[0]->regIF()==1){	//float
+					string leftReg = "F"+std::to_string(arg_[0]->regNum());
+					string rightReg = "";
+					ValueNode* vn = (ValueNode*)arg_[1];
+					Type* type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						rightReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						rightReg = std::to_string(vn->value()->dval());
+					}
+					string destReg = "F999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::FSUB, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(1);
+				}
+			}
+			else if (arg_[0]->regNum()==-1 && arg_[1]->regNum()!=-1){	//value+expr
+				if (arg_[1]->regIF()==0){	//int
+					string rightReg = "R"+std::to_string(arg_[1]->regNum());
+					string leftReg = "";
+					ValueNode* vn = (ValueNode*)arg_[0];
+					Type* type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						leftReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						leftReg = std::to_string(vn->value()->dval());
+					}
+					string destReg = "R999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::SUB, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(0);
+				}
+				else if (arg_[1]->regIF()==1){	//float
+					string rightReg = "F"+std::to_string(arg_[1]->regNum());
+					string leftReg = "";
+					ValueNode* vn = (ValueNode*)arg_[0];
+					Type* type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						leftReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						leftReg = std::to_string(vn->value()->dval());
+					}
+					string destReg = "F999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::FSUB, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(1);
+				}
+			}
+			else if (arg_[0]->regNum()==-1 && arg_[1]->regNum()==-1){	//value+value
+					string leftReg = "";
+					string rightReg = "";
+					string destReg = "";
+					regNum(999);
+					
+					ValueNode* vn = (ValueNode*)arg_[0];
+					Type* type = vn->type();
+					bool flag = false;
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						leftReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						leftReg = std::to_string(vn->value()->dval());
+						flag = true;
+					}
+					vn = (ValueNode*)arg_[1];
+					type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						rightReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						rightReg = std::to_string(vn->value()->dval());
+						flag = true;
+					}
+					if (flag){
+						destReg = "F999";
+						regIF(1);
+						IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::FSUB, destReg, leftReg, rightReg);
+						codeList->addCode(code);
+					}
+					else{
+						destReg = "R999";
+						regIF(0);
+						IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::SUB, destReg, leftReg, rightReg);
+						codeList->addCode(code);
+					}
+
+			}
+			break;
+
+		case OpNode::OpCode::MULT:
+			if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()!=-1){	//expr+expr
+				if (arg_[0]->regIF()==0){	//int
+					string leftReg = "R"+std::to_string(arg_[0]->regNum());
+					string rightReg = "R"+std::to_string(arg_[1]->regNum());
+					string destReg = "R999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::MUL, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(0);
+				}
+				else if (arg_[0]->regIF()==1){	//float
+					string leftReg = "F"+std::to_string(arg_[0]->regNum());
+					string rightReg = "F"+std::to_string(arg_[1]->regNum());
+					string destReg = "R999";
+					FloatArithCode* code = new FloatArithCode(FloatArithCode::OperandNum::BINARY, EFSA::OperandName::FMUL, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(1);
+				}
+			}
+			else if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()==-1){	//expr+value
+				if (arg_[0]->regIF()==0){	//int
+				
+					string leftReg = "R"+std::to_string(arg_[0]->regNum());
+					string rightReg = "";
+					ValueNode* vn = (ValueNode*)arg_[1];
+					Type* type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						rightReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						rightReg = std::to_string(vn->value()->dval());
+					}
+					string destReg = "R999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::MUL, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(0);
+				}
+				else if (arg_[0]->regIF()==1){	//float
+					string leftReg = "F"+std::to_string(arg_[0]->regNum());
+					string rightReg = "";
+					ValueNode* vn = (ValueNode*)arg_[1];
+					Type* type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						rightReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						rightReg = std::to_string(vn->value()->dval());
+					}
+					string destReg = "F999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::FMUL, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(1);
+				}
+			}
+			else if (arg_[0]->regNum()==-1 && arg_[1]->regNum()!=-1){	//value+expr
+				if (arg_[1]->regIF()==0){	//int
+					string rightReg = "R"+std::to_string(arg_[1]->regNum());
+					string leftReg = "";
+					ValueNode* vn = (ValueNode*)arg_[0];
+					Type* type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						leftReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						leftReg = std::to_string(vn->value()->dval());
+					}
+					string destReg = "R999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::MUL, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(0);
+				}
+				else if (arg_[1]->regIF()==1){	//float
+					string rightReg = "F"+std::to_string(arg_[1]->regNum());
+					string leftReg = "";
+					ValueNode* vn = (ValueNode*)arg_[0];
+					Type* type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						leftReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						leftReg = std::to_string(vn->value()->dval());
+					}
+					string destReg = "F999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::FMUL, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(1);
+				}
+			}
+			else if (arg_[0]->regNum()==-1 && arg_[1]->regNum()==-1){	//value+value
+					string leftReg = "";
+					string rightReg = "";
+					string destReg = "";
+					regNum(999);
+					ValueNode* vn = (ValueNode*)arg_[0];
+					Type* type = vn->type();
+					bool flag = false;
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						leftReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						leftReg = std::to_string(vn->value()->dval());
+						flag = true;
+					}
+					vn = (ValueNode*)arg_[1];
+					type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						rightReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						rightReg = std::to_string(vn->value()->dval());
+						flag = true;
+					}
+					if (flag){
+						destReg = "F999";
+						regIF(1);
+						IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::FMUL, destReg, leftReg, rightReg);
+						codeList->addCode(code);
+					}
+					else{
+						destReg = "R999";
+						regIF(0);
+						IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::MUL, destReg, leftReg, rightReg);
+						codeList->addCode(code);
+					}
+			}
+			break;
+
+		case OpNode::OpCode::DIV:
+			if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()!=-1){	//expr+expr
+				if (arg_[0]->regIF()==0){	//int
+					string leftReg = "R"+std::to_string(arg_[0]->regNum());
+					string rightReg = "R"+std::to_string(arg_[1]->regNum());
+					string destReg = "R999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::DIV, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(0);
+				}
+				else if (arg_[0]->regIF()==1){	//float
+					string leftReg = "F"+std::to_string(arg_[0]->regNum());
+					string rightReg = "F"+std::to_string(arg_[1]->regNum());
+					string destReg = "R999";
+					FloatArithCode* code = new FloatArithCode(FloatArithCode::OperandNum::BINARY, EFSA::OperandName::FDIV, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(1);
+				}
+			}
+			else if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()==-1){	//expr+value
+				if (arg_[0]->regIF()==0){	//int
+				
+					string leftReg = "R"+std::to_string(arg_[0]->regNum());
+					string rightReg = "";
+					ValueNode* vn = (ValueNode*)arg_[1];
+					Type* type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						rightReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						rightReg = std::to_string(vn->value()->dval());
+					}
+					string destReg = "R999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::DIV, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(0);
+				}
+				else if (arg_[0]->regIF()==1){	//float
+					string leftReg = "F"+std::to_string(arg_[0]->regNum());
+					string rightReg = "";
+					ValueNode* vn = (ValueNode*)arg_[1];
+					Type* type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						rightReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						rightReg = std::to_string(vn->value()->dval());
+					}
+					string destReg = "F999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::FDIV, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(1);
+				}
+			}
+			else if (arg_[0]->regNum()==-1 && arg_[1]->regNum()!=-1){	//value+expr
+				if (arg_[1]->regIF()==0){	//int
+					string rightReg = "R"+std::to_string(arg_[1]->regNum());
+					string leftReg = "";
+					ValueNode* vn = (ValueNode*)arg_[0];
+					Type* type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						leftReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						leftReg = std::to_string(vn->value()->dval());
+					}
+					string destReg = "R999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::DIV, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(0);
+				}
+				else if (arg_[1]->regIF()==1){	//float
+					string rightReg = "F"+std::to_string(arg_[1]->regNum());
+					string leftReg = "";
+					ValueNode* vn = (ValueNode*)arg_[0];
+					Type* type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						leftReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						leftReg = std::to_string(vn->value()->dval());
+					}
+					string destReg = "F999";
+					IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::FDIV, destReg, leftReg, rightReg);
+					codeList->addCode(code);
+					regNum(999);
+					regIF(1);
+				}
+			}
+			else if (arg_[0]->regNum()==-1 && arg_[1]->regNum()==-1){	//value+value
+					string leftReg = "";
+					string rightReg = "";
+					string destReg = "";
+					regNum(999);
+					ValueNode* vn = (ValueNode*)arg_[0];
+					Type* type = vn->type();
+					bool flag = false;
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						leftReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						leftReg = std::to_string(vn->value()->dval());
+						flag = true;
+					}
+					vn = (ValueNode*)arg_[1];
+					type = vn->type();
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						rightReg = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						rightReg = std::to_string(vn->value()->dval());
+						flag = true;
+					}
+					if (flag){
+						destReg = "F999";
+						regIF(1);
+						IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::FDIV, destReg, leftReg, rightReg);
+						codeList->addCode(code);
+					}
+					else{
+						destReg = "R999";
+						regIF(0);
+						IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::DIV, destReg, leftReg, rightReg);
+						codeList->addCode(code);
+					}
+			}
+			break;
+		
+		case OpNode::OpCode::ASSIGN:
+			if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==0) {	//intReg=?
+				if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==0) {	//move int/reg to register: MOVI <valueOrReg> <intreg>
+					string from = "R"+std::to_string(arg_[1]->regNum());
+					string dest = "R"+std::to_string(arg_[0]->regNum());
+					MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, from, dest);
+					codeList->addCode(code);
+				}
+				else if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==1) {	//move float to int reg: MOVIF <freg> <intreg>
+					string from = "F"+std::to_string(arg_[1]->regNum());
+					string dest = "R"+std::to_string(arg_[0]->regNum());
+					MoveCode* code = new MoveCode(EFSA::OperandName::MOVIF, from, dest);
+					codeList->addCode(code);
+				}
+				else if (arg_[1]->regNum()==-1)	{	//move int/reg to register: MOVI <valueOrReg> <intreg>
+					ValueNode* vn = (ValueNode*)arg_[1];
+					Type* type = vn->type();
+					string from = "";
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						from = std::to_string(vn->value()->ival());
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						from = std::to_string(vn->value()->dval());	//double, could split with .
+					}
+					string dest = "R"+std::to_string(arg_[0]->regNum());
+					MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, from, dest);
+					codeList->addCode(code);
+				}
+			}
+			else if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==1) {	//floatReg=?
+				if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==1) {	//move float to register: MOVF <valueOrReg> <freg>
+					string from = "F"+std::to_string(arg_[1]->regNum());
+					string dest = "F"+std::to_string(arg_[0]->regNum());
+					MoveCode* code = new MoveCode(EFSA::OperandName::MOVF, from, dest);
+					codeList->addCode(code);
+				}
+				else if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==0) {	//move int to float reg: MOVIF <intreg> <freg>
+					string from = "R"+std::to_string(arg_[1]->regNum());
+					string dest = "F"+std::to_string(arg_[0]->regNum());
+					MoveCode* code = new MoveCode(EFSA::OperandName::MOVIF, from, dest);
+					codeList->addCode(code);
+				}
+				else if (arg_[1]->regNum()==-1)	{	//move float to register: MOVF <valueOrReg> <freg>
+					ValueNode* vn = (ValueNode*)arg_[1];
+					Type* type = vn->type();
+					string from = "";
+					if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						from = std::to_string(vn->value()->ival());	//int, could add .
+					}
+					else if (type->tag()==Type::TypeTag::DOUBLE){
+						from = std::to_string(vn->value()->dval());	
+					}
+					string dest = "F"+std::to_string(arg_[0]->regNum());
+					MoveCode* code = new MoveCode(EFSA::OperandName::MOVF, from, dest);
+					codeList->addCode(code);
+				}
+			}
+			break;
+
+		/*
+		case OpNode::OpCode::GT:	//int
+		{
+			string left="";
+			if (arg_[0]->regNum()!=-1)
+				left = "R"+std::to_string(arg_[0]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[0];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			string right="";
+			if (arg_[1]->regNum()!=-1)
+				right = "R"+std::to_string(arg_[1]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[1];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::GT, left, right);
+			codeList->addCode(code);
+			break;
+		}
+
+		case OpNode::OpCode::GE:	//int
+		{
+			string left="";
+			if (arg_[0]->regNum()!=-1)
+				left = "R"+std::to_string(arg_[0]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[0];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			string right="";
+			if (arg_[1]->regNum()!=-1)
+				right = "R"+std::to_string(arg_[1]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[1];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::GE, left, right);
+			codeList->addCode(code);
+			break;
+		}
+
+		case OpNode::OpCode::UGT:	//int
+		{
+			string left="";
+			if (arg_[0]->regNum()!=-1)
+				left = "R"+std::to_string(arg_[0]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[0];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			string right="";
+			if (arg_[1]->regNum()!=-1)
+				right = "R"+std::to_string(arg_[1]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[1];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::UGT, left, right);
+			codeList->addCode(code);
+			break;
+		}
+
+		case OpNode::OpCode::UGE:	//int
+		{
+			string left="";
+			if (arg_[0]->regNum()!=-1)
+				left = "R"+std::to_string(arg_[0]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[0];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			string right="";
+			if (arg_[1]->regNum()!=-1)
+				right = "R"+std::to_string(arg_[1]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[1];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::UGE, left, right);
+			codeList->addCode(code);
+			break;
+		}
+
+		case OpNode::OpCode::EQ:	//int
+		{
+			string left="";
+			if (arg_[0]->regNum()!=-1)
+				left = "R"+std::to_string(arg_[0]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[0];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			string right="";
+			if (arg_[1]->regNum()!=-1)
+				right = "R"+std::to_string(arg_[1]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[1];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::EQ, left, right);
+			codeList->addCode(code);
+			break;
+		}
+
+		case OpNode::OpCode::NE:	//int
+		{
+			string left="";
+			if (arg_[0]->regNum()!=-1)
+				left = "R"+std::to_string(arg_[0]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[0];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			string right="";
+			if (arg_[1]->regNum()!=-1)
+				right = "R"+std::to_string(arg_[1]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[1];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::NE, left, right);
+			codeList->addCode(code);
+			break;
+		}
+
+		case OpNode::OpCode::FGT:	//float
+		{
+			string left="";
+			if (arg_[0]->regNum()!=-1)
+				left = "F"+std::to_string(arg_[0]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[0];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			string right="";
+			if (arg_[1]->regNum()!=-1)
+				right = "F"+std::to_string(arg_[1]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[1];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::FGT, left, right);
+			codeList->addCode(code);
+			break;
+		}
+
+		case OpNode::OpCode::FGE:	//float
+		{
+			string left="";
+			if (arg_[0]->regNum()!=-1)
+				left = "F"+std::to_string(arg_[0]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[0];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			string right="";
+			if (arg_[1]->regNum()!=-1)
+				right = "F"+std::to_string(arg_[1]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[1];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::FGE, left, right);
+			codeList->addCode(code);
+			break;
+		}
+
+		case OpNode::OpCode::FEQ:	//float
+		{
+			string left="";
+			if (arg_[0]->regNum()!=-1)
+				left = "F"+std::to_string(arg_[0]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[0];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			string right="";
+			if (arg_[1]->regNum()!=-1)
+				right = "F"+std::to_string(arg_[1]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[1];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::FEQ, left, right);
+			codeList->addCode(code);
+			break;
+		}
+
+		case OpNode::OpCode::FNE:	//float
+		{
+			string left="";
+			if (arg_[0]->regNum()!=-1)
+				left = "F"+std::to_string(arg_[0]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[0];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			string right="";
+			if (arg_[1]->regNum()!=-1)
+				right = "F"+std::to_string(arg_[1]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[1];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::FNE, left, right);
+			codeList->addCode(code);
+			break;
+		}*/
+		//EQ, NE, GT, LT, GE, LE,
+		case OpNode::OpCode::EQ:{
+			string left="";
+			if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==0)
+				left = "R"+std::to_string(arg_[0]->regNum());
+			else if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==1)
+				left = "F"+std::to_string(arg_[0]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[0];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			string right="";
+			if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==0)
+				right = "R"+std::to_string(arg_[1]->regNum());
+			else if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==1)
+				right = "F"+std::to_string(arg_[1]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[1];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::EQ, left, right);
+			codeList->addCode(code);
+			break;
+		}
+		case OpNode::OpCode::NE:{
+			string left="";
+			if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==0)
+				left = "R"+std::to_string(arg_[0]->regNum());
+			else if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==1)
+				left = "F"+std::to_string(arg_[0]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[0];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			string right="";
+			if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==0)
+				right = "R"+std::to_string(arg_[1]->regNum());
+			else if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==1)
+				right = "F"+std::to_string(arg_[1]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[1];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::NE, left, right);
+			codeList->addCode(code);
+			break;
+		}
+		case OpNode::OpCode::GT:{
+			string left="";
+			if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==0)
+				left = "R"+std::to_string(arg_[0]->regNum());
+			else if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==1)
+				left = "F"+std::to_string(arg_[0]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[0];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			string right="";
+			if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==0)
+				right = "R"+std::to_string(arg_[1]->regNum());
+			else if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==1)
+				right = "F"+std::to_string(arg_[1]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[1];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::GT, left, right);
+			codeList->addCode(code);
+			break;
+		}
+		case OpNode::OpCode::GE:{
+			string left="";
+			if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==0)
+				left = "R"+std::to_string(arg_[0]->regNum());
+			else if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==1)
+				left = "F"+std::to_string(arg_[0]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[0];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			string right="";
+			if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==0)
+				right = "R"+std::to_string(arg_[1]->regNum());
+			else if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==1)
+				right = "F"+std::to_string(arg_[1]->regNum());
+			else {
+				ValueNode* vn = (ValueNode*)arg_[1];
+				Type* type = vn->type();
+				if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+						left = std::to_string(vn->value()->ival());	
+				}
+				else if (type->tag()==Type::TypeTag::DOUBLE){
+						left = std::to_string(vn->value()->dval());	
+				}
+			}
+			IntRelationCode* code = new IntRelationCode(EFSA::OperandName::GE, left, right);
+			codeList->addCode(code);
+			break;
+		}
+		default:
+			break;
+	}
 	
-	regNum(999);
 	return codeList;
 }
 

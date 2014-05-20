@@ -79,6 +79,7 @@ class VariableEntry: public SymTabEntry {
     vkind_ = v; initVal(init);
     //zdd
     regNum_=-1;
+    regIF_=-1;
  };
 
   VariableEntry(const VariableEntry &v);
@@ -104,6 +105,8 @@ class VariableEntry: public SymTabEntry {
   EFSAlist* codeGen();
   int regNum() {return regNum_;};
   void regNum(int n) {regNum_=n;};
+  int regIF() {return regIF_;};
+  void regIF(int n) {regIF_=n;};
 
  private:
   VarKind vkind_;
@@ -111,6 +114,7 @@ class VariableEntry: public SymTabEntry {
   ExprNode* initVal_;
   //zdd
   int regNum_;
+  int regIF_;
 };
 
 class ClassEntry: public SymTabEntry {

@@ -285,6 +285,7 @@ int VariableEntry::regAlloc(){
 			if (intReg[i]==0){
 				intReg[i] = 1;
 				regNum_ = i;
+				regIF_ = 0;
 				return i;
 			}
                 }
@@ -294,6 +295,7 @@ int VariableEntry::regAlloc(){
 			if (floatReg[i]==0){
 				floatReg[i]=1;
 				regNum_ = i;
+				regIF_ = 1;
 				return i;
 			}
 	}
