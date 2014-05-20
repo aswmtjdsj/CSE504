@@ -19,7 +19,8 @@ class SymTabEntry: public ProgramElem {
 	EVENT_KIND,
 	RULE_KIND, 
 	BLOCK_KIND, RULE_BLOCK_KIND, EVENT_BLOCK_KIND, 
-	ERROR_KIND
+	ERROR_KIND,
+  WHILE_LOOP_KIND
   };
 
   static string kindTag(Kind k);

@@ -958,3 +958,27 @@ void CompoundStmtNode::print(ostream& os, int indent) const
     printWithoutBraces(os, indent);
     os << "};" << endl;
 }
+
+WhileNode::WhileNode(ExprNode* cond, StmtNode* whileStmt, int line, int column, string file) :
+  StmtNode(StmtNode::StmtNodeKind::WHILE, line, column, file) 
+{
+    cond_ = cond;
+    stmt_ = whileStmt;
+  //loop_inv_stmt_ = NULL;
+}
+
+
+void WhileNode::print(ostream& os, int indent) const {
+    os << "while (";
+    if(cond())
+    cond_->print(os,indent);
+    os << ") ";
+    if(stmt_) {
+        stmt_->print(os,indent);
+        if (stmt_->stmtNodeKind() != StmtNode::StmtNodeKind::COMPOUND) {
+      os << ";";
+      prtln(os, indent);
+        }
+    }
+
+}

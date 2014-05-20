@@ -58,14 +58,14 @@ extern const OpNode::OpInfo opInfo[];
 %token TOK_BITAND TOK_BITOR TOK_BITNOT TOK_BITXOR TOK_SHL TOK_SHR 
 %token TOK_GT TOK_LT TOK_GE TOK_LE TOK_EQ  TOK_NE TOK_AND TOK_OR TOK_NOT 
 %token TOK_COMMA TOK_ASSIGN TOK_SEMICOLON TOK_COLON TOK_ARROW
-%token TOK_LBRACE TOK_RBRACE TOK_LPAREN TOK_RPAREN
+%token TOK_LBRACE TOK_RBRACE TOK_LPAREN TOK_RPAREN TOK_LBRACK TOK_RBRACK TOK_QMARK
 
 /* Key words */
 
-%token TOK_IF TOK_ELSE TOK_CLASS TOK_RETURN TOK_EVENT TOK_ANY TOK_PRINT 
-%token TOK_UINTNUM TOK_DOUBLENUM TOK_VOID TOK_STRING TOK_STRCONST 
+%token TOK_IF TOK_ELSE TOK_CLASS TOK_RETURN TOK_EVENT TOK_ANY TOK_PRINT TOK_WHILE TOK_BREAK
+%token TOK_UINTNUM TOK_DOUBLENUM TOK_VOID TOK_STRING TOK_STRCONST TOK_BIT TOK_ENUM TOK_LONG
 %token TOK_INT TOK_UNSIGNED TOK_BOOL TOK_BYTE TOK_DOUBLE TOK_SHORT
-%token TOK_TRUE TOK_FALSE TOK_IDENT
+%token TOK_TRUE TOK_FALSE TOK_IDENT TOK_DOUBLE_COLON TOK_DOT
 
 /******************************** Type Info ********************************/
 /* Uncomment types below as you start adding rules.
@@ -79,7 +79,7 @@ extern const OpNode::OpInfo opInfo[];
 %type <primPatVal> event primitive_pat 
 %type <typeVal> type baseType 
 %type <exprList> expr_list expr_plus funcinvolistpp
-%type <exprVal> expr function_invocation asg_stmt
+%type <exprVal> expr function_invocation asg_stmt prt_expr
 %type <refexpVal> ref_expr
 %type <ruleNode> rule
 //%type <strVector> id_list id_plus                                //haven't found their usage
@@ -461,7 +461,26 @@ TOK_SEMICOLON
 |ret_stmt                                         
 {
     $$ = $1;
-}                                   
+}              
+|TOK_WHILE expr stmt    
+{
+    if($2 && $3) 
+    {
+        //cout << "this is while!" << endl;
+        $$ = new WhileNode($2, $3, yylinenum, yycolumnno, yyfilename);
+        //stm.leaveScope();
+        //stm.insert($$);
+    }
+    else
+        $$ = NULL;
+}        
+|prt_expr TOK_SEMICOLON 
+{
+        if($1)
+            $$ = new ExprStmtNode($1, yylinenum, yycolumnno, yyfilename);
+        else
+            $$ = NULL;   
+}      
 ;
 
 ret_stmt:                                  //need to search here
@@ -617,6 +636,10 @@ literal
 {
     $$ = new ValueNode($1, yylinenum, yycolumnno, yyfilename);
 }
+|prt_expr
+{
+    $$ = $1;
+}
 |ref_expr                                         
 {
     $$ = $1;
@@ -724,6 +747,13 @@ literal
     $$ = new OpNode(OpNode::OpCode::PLUS, $1, $3, yylinenum, yycolumnno, yyfilename);
 }
 ;
+
+prt_expr:
+TOK_PRINT expr 
+{ 
+    $$ = new OpNode(OpNode::OpCode::PRINT, $2, NULL, yylinenum, yycolumnno, yyfilename);
+}
+
 
 literal:
 TOK_UINTNUM                                       

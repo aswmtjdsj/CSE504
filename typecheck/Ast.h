@@ -382,7 +382,7 @@ class PatNode: public BasePatNode {
 
 class StmtNode: public AstNode {
  public:
-  enum class StmtNodeKind { ILLEGAL=-1, EXPR, IF, COMPOUND, RETURN};
+  enum class StmtNodeKind { ILLEGAL=-1, EXPR, IF, COMPOUND, RETURN, WHILE};
  public: 
   StmtNode(StmtNodeKind skm, int line=0, int column=0, string file=""):
 	AstNode(AstNode::NodeType::STMT_NODE, line,column,file) { skind_ = skm; };
@@ -525,4 +525,31 @@ class RuleNode: public AstNode {
 };
 
 /****************************************************************/
+
+class WhileNode: public StmtNode
+{
+  public:
+
+    WhileNode(ExprNode* cond, StmtNode* WhileStmt, int line=0, int column=0, string file="");
+    ~WhileNode(){};
+
+    const ExprNode* cond() const {return cond_;}
+    const StmtNode* whileStmt() const { return stmt_;};
+
+/*    ExprNode* cond() {return cond_;}
+    StmtNode* whileStmt() { return stmt_;};
+    void addLoopInvStmt(vector<StmtNode*> *s) { loop_inv_stmt_ = s;}*/
+
+    void print(ostream& os, int indent) const;
+//      ImmCodes* code(bool controlFlow=false);
+    //const Type* typeCheck();
+   // void  typePrint(ostream& os, int indent) const;
+
+  private:
+    ExprNode *cond_;
+    StmtNode *stmt_;
+    //vector<StmtNode*> *loop_inv_stmt_;
+
+    WhileNode(const WhileNode&);
+};
 #endif
