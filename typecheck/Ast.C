@@ -2244,11 +2244,24 @@ EFSAlist* ValueNode::codeGen() {
 EFSAlist* InvocationNode::codeGen() {
 	EFSAlist* codeList = NULL;
 	codeList = new EFSAlist();
-	codeList->addCode(new LabelCode("CallBegin"));
-	//codeList->addCodeList(((FunctionEntry *)symTabEntry())->body()->codeGen());	
+	codeList->addCode(new LabelCode("//CallBegin"));
+
+    // push return address
+	string l_ret = "L"+std::to_string(labelNum);
+	labelNum++;
+    string from = l_ret;
+    string dest = "R"+std::to_string(SP_REG);
+    MoveCode * movl_sp = new MoveCode(EFSA::OperandName::MOVL, from, dest);
+    codeList->addCode(movl_sp);
+
+    // need modification
 	LabelCode* label = new LabelCode(((FunctionEntry *)symTabEntry())->name());
 	JumpCode* jumpCode = new JumpCode(EFSA::OperandName::JMP, NULL, label);
 	codeList->addCode(jumpCode);
-	codeList->addCode(new LabelCode("CallEnd"));
+
+    // return label
+    LabelCode * label_return = new LabelCode(l_ret, TAR_LB);
+	codeList->addCode(label_return);
+	codeList->addCode(new LabelCode("//CallEnd"));
 	return codeList;
 }
