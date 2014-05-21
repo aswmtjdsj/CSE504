@@ -26,6 +26,8 @@ void enterScopeErrCheck(SymTabEntry*);
 
 string newName(const string& type);
 string itoa(int i);
+string getReg(string strOldReg);
+string getReg(int iRegNumber, int iType);
 
 #include "all.h"
 #include "Ast.h"
