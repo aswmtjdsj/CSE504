@@ -247,15 +247,26 @@ TOK_SEMICOLON
 class_decl:
 TOK_CLASS TOK_IDENT                              
 { 
-    $$ = new ClassEntry($2, yylinenum, yycolumnno, yyfilename); 
-    stm.insert($$);
+    SymTabEntry* classentry = stm.lookUpInScope($2, SymTabEntry::Kind::GLOBAL_KIND);
+    if (classentry == NULL)
+    {
+        $$ = new ClassEntry($2, yylinenum, yycolumnno, yyfilename); 
+        Type *ctype = new Type(classentry, Type::CLASS);
+        $$->type(ctype);
+        stm.insert($$);
+    }
+    else
+    {
+        errMsg("Redefined class name!");
+        $$ = NULL;
+    }
 }
-
 |TOK_CLASS error TOK_SEMICOLON 
 {
     errMsg("Syntax error in class declaration: expecting class name");
 }
 ;
+
 
 event_pattern:
 primitive_pat                                     
@@ -295,14 +306,17 @@ function_decl:
 function_header formalparamlistpp funcbody        
 {
     $$ = $1;
-    stm.leaveScope();
-    Type* func_Type = new Type($2, $$->type());
-    $$->type(func_Type);
-    if ($3 != NULL)
+    if ($$)
     {
-        $$->body($3);
+        stm.leaveScope();
+        Type* func_Type = new Type($2, $$->type());
+        $$->type(func_Type);
+        if ($3 != NULL)
+        {
+            $$->body($3);
+        }
+        stm.insert($$);
     }
-    stm.insert($$);
 }
 |function_header error TOK_SEMICOLON
 {
@@ -318,8 +332,11 @@ type vlist TOK_SEMICOLON
     for (int i = 0; i < x; i++)
     {
         t = $2->at(i);
-        t->type($1);
-        stm.insert(t);
+        if (t != NULL)
+        {
+            t->type($1);
+            stm.insert(t);
+        }
     }
 }
 |type vlist error TOK_SEMICOLON
@@ -356,7 +373,16 @@ vname
 vname:
 TOK_IDENT                                         
 {
-    $$ = new VariableEntry($1, VariableEntry::VarKind::GLOBAL_VAR, NULL, NULL, yylinenum, yycolumnno, yyfilename);
+    if (stm.lookUpInScope($1, stm.currentScope()->kind()) == NULL)
+    {
+        //cout << "a new var!" << endl;
+        $$ = new VariableEntry($1, VariableEntry::VarKind::GLOBAL_VAR, NULL, NULL, yylinenum, yycolumnno, yyfilename);
+    }
+    else
+    {
+        errMsg("Redefined variable name!");
+        $$ = NULL;
+    }
 }
 |TOK_IDENT TOK_ASSIGN expr                        
 {
@@ -592,9 +618,20 @@ expr
 function_header:
 type TOK_IDENT                                    
 {
-
-    $$ = new FunctionEntry($2, $1, yylinenum, yycolumnno, yyfilename);
-    stm.enterScope($$);
+    SymTabEntry* funcentry = stm.lookUpInScope($2, SymTabEntry::Kind::GLOBAL_KIND);
+    if (funcentry == NULL)
+    {
+        //cout << "add!?" << endl;
+        $$ = new FunctionEntry($2, $1, yylinenum, yycolumnno, yyfilename);
+        stm.enterScope($$);
+    }
+    else
+    {
+        errMsg("Redefined function name!");
+        $$ = NULL;
+    }
+    
+    
 }
 ;
 
@@ -805,8 +842,17 @@ formal_param
 formal_param:
 type TOK_IDENT                                    
 {
-    $$ = new VariableEntry($2, VariableEntry::VarKind::PARAM_VAR, $1, NULL, yylinenum, yycolumnno, yyfilename);
-    stm.insert($$);
+    if (stm.lookUpInScope($2, stm.currentScope()->kind()) == NULL)
+    {
+        $$ = new VariableEntry($2, VariableEntry::VarKind::PARAM_VAR, $1, NULL, yylinenum, yycolumnno, yyfilename);
+        stm.insert($$);
+    }
+    else
+    {
+        errMsg("Redefined param var name!");
+    }
+
+
 }
 ;
 
