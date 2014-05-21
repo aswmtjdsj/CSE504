@@ -2056,15 +2056,11 @@ EFSAlist* ValueNode::codeGen() {
 EFSAlist* InvocationNode::codeGen() {
 	EFSAlist* codeList = NULL;
 	codeList = new EFSAlist();
-	codeList->addCode(new LabelCode("FunctionBegin"));
+	codeList->addCode(new LabelCode("CallBegin"));
 	//codeList->addCodeList(((FunctionEntry *)symTabEntry())->body()->codeGen());	
-	string l = "Label"+std::to_string(labelNum);
-	labelNum++;
-	LabelCode* label = new LabelCode(l);
+	LabelCode* label = new LabelCode(((FunctionEntry *)symTabEntry())->name());
 	JumpCode* jumpCode = new JumpCode(EFSA::OperandName::JMP, NULL, label);
 	codeList->addCode(jumpCode);
-	codeList->addCode(label);
-	codeList->addCode(new LabelCode("FunctionEnd"));
-	//codeList = new EFSAlist();
+	codeList->addCode(new LabelCode("CallEnd"));
 	return codeList;
 }

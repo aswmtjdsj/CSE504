@@ -27,6 +27,8 @@
 #include <ext/hash_map>
 #include <ext/slist>
 
+#include "Constants.h"
+
 using namespace std;
 
 #define step " "; 
