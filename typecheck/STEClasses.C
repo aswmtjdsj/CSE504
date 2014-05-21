@@ -221,8 +221,18 @@ void VariableEntry::print(ostream& out, int indent) const
 EFSAlist* GlobalEntry::codeGen() {
 	EFSAlist* codeList = NULL;
 	codeList = new EFSAlist();
-	//codeList->addCode(new LabelCode("GlobalBegin", 1));
+	//Alloc reg for rule name		
+	vector<RuleNode*>::const_iterator iter = rules_.begin();
+	for (;iter!=rules_.end();++iter) {
+		if ((*iter)) {
+			int regNum = (*iter)->regAlloc();
+			PrimitivePatNode* pn = (PrimitivePatNode*)((*iter)->pat());
+			//new MoveCode(EFSA::OperandName::MOVS, pn->event()->name(), getReg(901, 0));
+			//codeList->addCode(new MoveCode(EFSA::OperandName::MOVS, pn->event()->name(), getReg(regNum, 0)));
+		}
+	}	
 	
+	// Variable Init
 	if (symTab()){
 		SymTab::iterator it = symTab()->begin();
 		for (;it!=symTab()->end();++it) {
@@ -235,11 +245,11 @@ EFSAlist* GlobalEntry::codeGen() {
 		}
 	}
 
-    // SP init
-    string from = std::to_string(0);
-    string dest = "R"+std::to_string(SP_REG);
-    MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, from, dest);
-    codeList->addCode(code);
+	// SP init
+	string from = std::to_string(0);
+	string dest = "R"+std::to_string(SP_REG);
+	MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, from, dest);
+	codeList->addCode(code);
 
 	// Rules
 	vector<RuleNode*>::const_iterator it = rules_.begin();
@@ -249,7 +259,6 @@ EFSAlist* GlobalEntry::codeGen() {
 		}
 	}	
 	
-	//codeList->addCode(new LabelCode("GlobalEnd", 1));
 	return codeList;
 }
 
@@ -274,21 +283,21 @@ EFSAlist* VariableEntry::codeGen() {
 int VariableEntry::regAlloc(){
 	
 	if (type()->tag()==Type::TypeTag::UINT || type()->tag()==Type::TypeTag::INT || type()->tag()==Type::TypeTag::INT){
-		for (int i=0; i<AVAIL_REG_SIZE; i++){
+		for (int i=0; i<=AVAIL_REG_SIZE; i++){
 			if (intReg[i]==0){
 				intReg[i] = 1;
 				regNum_ = i;
-				regIF_ = 0;
+				regIF_ = INT_FLAG;
 				return i;
 			}
                 }
 	}
 	if (type()->tag()==Type::TypeTag::DOUBLE){
-		for (int i=0; i<AVAIL_REG_SIZE; i++)
+		for (int i=0; i<=AVAIL_REG_SIZE; i++)
 			if (floatReg[i]==0){
 				floatReg[i]=1;
 				regNum_ = i;
-				regIF_ = 1;
+				regIF_ = FLOAT_FLAG;
 				return i;
 			}
 	}
