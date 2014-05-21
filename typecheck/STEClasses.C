@@ -274,7 +274,7 @@ EFSAlist* VariableEntry::codeGen() {
 int VariableEntry::regAlloc(){
 	
 	if (type()->tag()==Type::TypeTag::UINT || type()->tag()==Type::TypeTag::INT || type()->tag()==Type::TypeTag::INT){
-		for (int i=0; i<999; i++){
+		for (int i=0; i<AVAIL_REG_SIZE; i++){
 			if (intReg[i]==0){
 				intReg[i] = 1;
 				regNum_ = i;
@@ -284,7 +284,7 @@ int VariableEntry::regAlloc(){
                 }
 	}
 	if (type()->tag()==Type::TypeTag::DOUBLE){
-		for (int i=0; i<999; i++)
+		for (int i=0; i<AVAIL_REG_SIZE; i++)
 			if (floatReg[i]==0){
 				floatReg[i]=1;
 				regNum_ = i;

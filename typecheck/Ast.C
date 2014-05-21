@@ -1287,7 +1287,7 @@ EFSAlist* RefExprNode::codeGen() {
 
 
 int OpNode::tempIntVarAlloc() {
-	for (int i=0; i<999; i++){
+	for (int i=0; i<AVAIL_REG_SIZE; i++){
 		if (intReg[i]==0){
 			intReg[i] = 1;
 			return i;
@@ -1297,7 +1297,7 @@ int OpNode::tempIntVarAlloc() {
 }
 
 int OpNode::tempFloatVarAlloc() {
-	for (int i=0; i<999; i++){
+	for (int i=0; i<AVAIL_REG_SIZE; i++){
 		if (floatReg[i]==0){
 			floatReg[i] = 1;
 			return i;
