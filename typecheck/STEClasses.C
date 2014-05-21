@@ -227,8 +227,7 @@ EFSAlist* GlobalEntry::codeGen() {
 		if ((*iter)) {
 			int regNum = (*iter)->regAlloc();
 			PrimitivePatNode* pn = (PrimitivePatNode*)((*iter)->pat());
-			//new MoveCode(EFSA::OperandName::MOVS, pn->event()->name(), getReg(901, 0));
-			//codeList->addCode(new MoveCode(EFSA::OperandName::MOVS, pn->event()->name(), getReg(regNum, 0)));
+			codeList->addCode(new MoveCode(EFSA::OperandName::MOVS, pn->event()->name(), getReg(regNum, 0)));
 		}
 	}	
 	
