@@ -30,6 +30,7 @@ class SymTabMgr {
   ErrorST leaveToScope(SymTabEntry::Kind k);
   ErrorST insert(SymTabEntry *ste);
 
+  int gettop() {return top_;}
  private:
   const SymTabMgr& operator=(const SymTabMgr&); // Disable assignment and
   SymTabMgr(const SymTabMgr&);                  // copy constructor

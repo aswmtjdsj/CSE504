@@ -16,11 +16,11 @@ Terminals unused in grammar
 
 
 State 18 conflicts: 1 shift/reduce
-State 57 conflicts: 1 reduce/reduce
-State 72 conflicts: 1 shift/reduce
-State 119 conflicts: 18 shift/reduce
-State 151 conflicts: 1 shift/reduce
-State 167 conflicts: 1 shift/reduce
+State 58 conflicts: 1 reduce/reduce
+State 73 conflicts: 1 shift/reduce
+State 121 conflicts: 18 shift/reduce
+State 153 conflicts: 1 shift/reduce
+State 170 conflicts: 1 shift/reduce
 
 
 Grammar
@@ -78,189 +78,191 @@ Grammar
    37 event_decl: event_decl_hdr formalparamlistpp
 
    38 event_decl_hdr: TOK_EVENT TOK_IDENT
+   39               | TOK_EVENT error
 
-   39 primitive_pat: event
-   40              | event TOK_BITOR expr
+   40 primitive_pat: event
+   41              | event TOK_BITOR expr
 
-   41 event: TOK_ANY
-   42      | TOK_IDENT evenparamlistpp
+   42 event: TOK_ANY
+   43      | TOK_IDENT evenparamlistpp
 
-   43 evenparamlistpp: TOK_LPAREN evenparamlist TOK_RPAREN
+   44 evenparamlistpp: TOK_LPAREN evenparamlist TOK_RPAREN
 
-   44 evenparamlist: /* empty */
-   45              | TOK_IDENT
-   46              | evenparamlist TOK_COMMA TOK_IDENT
+   45 evenparamlist: /* empty */
+   46              | TOK_IDENT
+   47              | evenparamlist TOK_COMMA TOK_IDENT
 
-   47 stmt: TOK_SEMICOLON
-   48     | function_invocation
-   49     | asg_stmt
-   50     | TOK_LBRACE stmt_plus TOK_RBRACE
-   51     | if_then_else_stmt
-   52     | ret_stmt
-   53     | TOK_WHILE expr stmt
-   54     | prt_expr TOK_SEMICOLON
+   48 stmt: TOK_SEMICOLON
+   49     | function_invocation
+   50     | asg_stmt
+   51     | TOK_LBRACE stmt_plus TOK_RBRACE
+   52     | if_then_else_stmt
+   53     | ret_stmt
+   54     | TOK_WHILE expr stmt
+   55     | prt_expr TOK_SEMICOLON
+   56     | TOK_LBRACE error TOK_RBRACE
 
-   55 ret_stmt: TOK_RETURN expr
+   57 ret_stmt: TOK_RETURN expr
 
-   56 stmt_plus: stmt
-   57          | stmt_plus stmt
-   58          | stmt_plus error stmt
+   58 stmt_plus: stmt
+   59          | stmt_plus stmt
+   60          | stmt_plus error stmt
 
-   59 if_then_else_stmt: TOK_IF expr stmt TOK_ELSE stmt
-   60                  | TOK_IF expr stmt
-   61                  | TOK_IF error stmt
-   62                  | TOK_IF expr error stmt
-   63                  | TOK_IF expr stmt TOK_ELSE error TOK_SEMICOLON
+   61 if_then_else_stmt: TOK_IF expr stmt TOK_ELSE stmt
+   62                  | TOK_IF expr stmt
+   63                  | TOK_IF error stmt
+   64                  | TOK_IF expr error stmt
+   65                  | TOK_IF expr stmt TOK_ELSE error TOK_SEMICOLON
 
-   64 asg_stmt: ref_expr TOK_ASSIGN expr
-   65         | ref_expr TOK_ASSIGN error TOK_SEMICOLON
+   66 asg_stmt: ref_expr TOK_ASSIGN expr
+   67         | ref_expr TOK_ASSIGN error TOK_SEMICOLON
 
-   66 ref_expr: TOK_IDENT
+   68 ref_expr: TOK_IDENT
 
-   67 function_invocation: TOK_IDENT funcinvolistpp
+   69 function_invocation: TOK_IDENT funcinvolistpp
 
-   68 funcinvolistpp: TOK_LPAREN expr_list TOK_RPAREN
+   70 funcinvolistpp: TOK_LPAREN expr_list TOK_RPAREN
 
-   69 expr_list: /* empty */
-   70          | expr_plus
+   71 expr_list: /* empty */
+   72          | expr_plus
 
-   71 expr_plus: expr
-   72          | expr_plus TOK_COMMA expr
+   73 expr_plus: expr
+   74          | expr_plus TOK_COMMA expr
 
-   73 function_header: type TOK_IDENT
+   75 function_header: type TOK_IDENT
 
-   74 formalparamlistpp: TOK_LPAREN formal_param_list TOK_RPAREN
+   76 formalparamlistpp: TOK_LPAREN formal_param_list TOK_RPAREN
 
-   75 funcbody: /* empty */
-   76         | TOK_LBRACE fun_rest TOK_RBRACE
+   77 funcbody: /* empty */
+   78         | TOK_LBRACE fun_rest TOK_RBRACE
 
-   77 fun_rest: stmt_plus
-   78         | variable_decl stmt_plus
-   79         | variable_decl error
+   79 fun_rest: stmt_plus
+   80         | variable_decl stmt_plus
+   81         | variable_decl error
 
-   80 expr: literal
-   81     | prt_expr
-   82     | ref_expr
-   83     | asg_stmt
-   84     | function_invocation
-   85     | TOK_BITNOT expr
-   86     | TOK_MINUS expr
-   87     | TOK_LPAREN expr TOK_RPAREN
-   88     | TOK_NOT expr
-   89     | expr TOK_BITXOR expr
-   90     | expr TOK_SHL expr
-   91     | expr TOK_LE expr
-   92     | expr TOK_LT expr
-   93     | expr TOK_EQ expr
-   94     | expr TOK_GE expr
-   95     | expr TOK_SHR expr
-   96     | expr TOK_GT expr
-   97     | expr TOK_OR expr
-   98     | expr TOK_BITOR expr
-   99     | expr TOK_MINUS expr
-  100     | expr TOK_NE expr
-  101     | expr TOK_DIV expr
-  102     | expr TOK_MULT expr
-  103     | expr TOK_BITAND expr
-  104     | expr TOK_AND expr
-  105     | expr TOK_MOD expr
-  106     | expr TOK_PLUS expr
+   82 expr: literal
+   83     | prt_expr
+   84     | ref_expr
+   85     | asg_stmt
+   86     | function_invocation
+   87     | TOK_BITNOT expr
+   88     | TOK_MINUS expr
+   89     | TOK_LPAREN expr TOK_RPAREN
+   90     | TOK_NOT expr
+   91     | expr TOK_BITXOR expr
+   92     | expr TOK_SHL expr
+   93     | expr TOK_LE expr
+   94     | expr TOK_LT expr
+   95     | expr TOK_EQ expr
+   96     | expr TOK_GE expr
+   97     | expr TOK_SHR expr
+   98     | expr TOK_GT expr
+   99     | expr TOK_OR expr
+  100     | expr TOK_BITOR expr
+  101     | expr TOK_MINUS expr
+  102     | expr TOK_NE expr
+  103     | expr TOK_DIV expr
+  104     | expr TOK_MULT expr
+  105     | expr TOK_BITAND expr
+  106     | expr TOK_AND expr
+  107     | expr TOK_MOD expr
+  108     | expr TOK_PLUS expr
 
-  107 prt_expr: TOK_PRINT expr
+  109 prt_expr: TOK_PRINT expr
 
-  108 literal: TOK_UINTNUM
-  109        | TOK_DOUBLENUM
-  110        | TOK_STRCONST
-  111        | TOK_TRUE
-  112        | TOK_FALSE
+  110 literal: TOK_UINTNUM
+  111        | TOK_DOUBLENUM
+  112        | TOK_STRCONST
+  113        | TOK_TRUE
+  114        | TOK_FALSE
 
-  113 formal_param_list: /* empty */
-  114                  | formal_param_plus
+  115 formal_param_list: /* empty */
+  116                  | formal_param_plus
 
-  115 formal_param_plus: formal_param
-  116                  | formal_param_plus TOK_COMMA formal_param
+  117 formal_param_plus: formal_param
+  118                  | formal_param_plus TOK_COMMA formal_param
 
-  117 formal_param: type TOK_IDENT
+  119 formal_param: type TOK_IDENT
 
-  118 type: baseType
-  119     | TOK_UNSIGNED baseType
-  120     | TOK_IDENT
+  120 type: baseType
+  121     | TOK_UNSIGNED baseType
+  122     | TOK_IDENT
 
-  121 baseType: TOK_INT
-  122         | TOK_BOOL
-  123         | TOK_DOUBLE
-  124         | TOK_VOID
-  125         | TOK_STRING
-  126         | TOK_BYTE
+  123 baseType: TOK_INT
+  124         | TOK_BOOL
+  125         | TOK_DOUBLE
+  126         | TOK_VOID
+  127         | TOK_STRING
+  128         | TOK_BYTE
 
 
 Terminals, with rules where they appear
 
 $end (0) 0
-error (256) 5 8 11 18 27 29 30 31 32 58 61 62 63 65 79
+error (256) 5 8 11 18 27 29 30 31 32 39 56 60 63 64 65 67 81
 TOK_LEX_ERROR (258)
 TOK_PAT_STAR (259) 23
 TOK_PAT_OR (260) 22
 TOK_PAT_NOT (261)
-TOK_PLUS (262) 106
-TOK_MINUS (263) 86 99
+TOK_PLUS (262) 108
+TOK_MINUS (263) 88 101
 TOK_UMINUS (264)
-TOK_MULT (265) 102
-TOK_DIV (266) 101
-TOK_MOD (267) 105
-TOK_BITAND (268) 103
-TOK_BITOR (269) 40 98
-TOK_BITNOT (270) 85
-TOK_BITXOR (271) 89
-TOK_SHL (272) 90
-TOK_SHR (273) 95
-TOK_GT (274) 96
-TOK_LT (275) 92
-TOK_GE (276) 94
-TOK_LE (277) 91
-TOK_EQ (278) 93
-TOK_NE (279) 100
-TOK_AND (280) 104
-TOK_OR (281) 97
-TOK_NOT (282) 24 88
-TOK_COMMA (283) 30 34 46 72 116
-TOK_ASSIGN (284) 36 64 65
-TOK_SEMICOLON (285) 5 8 10 12 18 27 28 29 31 32 47 54 63 65
+TOK_MULT (265) 104
+TOK_DIV (266) 103
+TOK_MOD (267) 107
+TOK_BITAND (268) 105
+TOK_BITOR (269) 41 100
+TOK_BITNOT (270) 87
+TOK_BITXOR (271) 91
+TOK_SHL (272) 92
+TOK_SHR (273) 97
+TOK_GT (274) 98
+TOK_LT (275) 94
+TOK_GE (276) 96
+TOK_LE (277) 93
+TOK_EQ (278) 95
+TOK_NE (279) 102
+TOK_AND (280) 106
+TOK_OR (281) 99
+TOK_NOT (282) 24 90
+TOK_COMMA (283) 30 34 47 74 118
+TOK_ASSIGN (284) 36 66 67
+TOK_SEMICOLON (285) 5 8 10 12 18 27 28 29 31 32 48 55 65 67
 TOK_COLON (286) 21
 TOK_ARROW (287) 9 10
-TOK_LBRACE (288) 50 76
-TOK_RBRACE (289) 50 76
-TOK_LPAREN (290) 20 43 68 74 87
-TOK_RPAREN (291) 20 43 68 74 87
+TOK_LBRACE (288) 51 56 78
+TOK_RBRACE (289) 51 56 78
+TOK_LPAREN (290) 20 44 70 76 89
+TOK_RPAREN (291) 20 44 70 76 89
 TOK_LBRACK (292)
 TOK_RBRACK (293)
 TOK_QMARK (294)
-TOK_IF (295) 59 60 61 62 63
-TOK_ELSE (296) 59 63
+TOK_IF (295) 61 62 63 64 65
+TOK_ELSE (296) 61 65
 TOK_CLASS (297) 17 18
-TOK_RETURN (298) 55
-TOK_EVENT (299) 38
-TOK_ANY (300) 41
-TOK_PRINT (301) 107
-TOK_WHILE (302) 53
+TOK_RETURN (298) 57
+TOK_EVENT (299) 38 39
+TOK_ANY (300) 42
+TOK_PRINT (301) 109
+TOK_WHILE (302) 54
 TOK_BREAK (303)
-TOK_UINTNUM (304) 108
-TOK_DOUBLENUM (305) 109
-TOK_VOID (306) 124
-TOK_STRING (307) 125
-TOK_STRCONST (308) 110
+TOK_UINTNUM (304) 110
+TOK_DOUBLENUM (305) 111
+TOK_VOID (306) 126
+TOK_STRING (307) 127
+TOK_STRCONST (308) 112
 TOK_BIT (309)
 TOK_ENUM (310)
 TOK_LONG (311)
-TOK_INT (312) 121
-TOK_UNSIGNED (313) 119
-TOK_BOOL (314) 122
-TOK_BYTE (315) 126
-TOK_DOUBLE (316) 123
+TOK_INT (312) 123
+TOK_UNSIGNED (313) 121
+TOK_BOOL (314) 124
+TOK_BYTE (315) 128
+TOK_DOUBLE (316) 125
 TOK_SHORT (317)
-TOK_TRUE (318) 111
-TOK_FALSE (319) 112
-TOK_IDENT (320) 17 32 35 36 38 42 45 46 66 67 73 117 120
+TOK_TRUE (318) 113
+TOK_FALSE (319) 114
+TOK_IDENT (320) 17 32 35 36 38 43 46 47 68 69 75 119 122
 TOK_DOUBLE_COLON (321)
 TOK_DOT (322)
 
@@ -288,7 +290,7 @@ rule_body1 (76)
 function_decl (77)
     on left: 26 27, on right: 13
 variable_decl (78)
-    on left: 28 29 30 31 32, on right: 14 78 79
+    on left: 28 29 30 31 32, on right: 14 80 81
 vlist (79)
     on left: 33 34, on right: 28 29 30 34
 vname (80)
@@ -296,63 +298,63 @@ vname (80)
 event_decl (81)
     on left: 37, on right: 15
 event_decl_hdr (82)
-    on left: 38, on right: 37
+    on left: 38 39, on right: 37
 primitive_pat (83)
-    on left: 39 40, on right: 19
+    on left: 40 41, on right: 19
 event (84)
-    on left: 41 42, on right: 39 40
+    on left: 42 43, on right: 40 41
 evenparamlistpp (85)
-    on left: 43, on right: 42
+    on left: 44, on right: 43
 evenparamlist (86)
-    on left: 44 45 46, on right: 43 46
+    on left: 45 46 47, on right: 44 47
 stmt (87)
-    on left: 47 48 49 50 51 52 53 54, on right: 25 53 56 57 58 59 60
-    61 62 63
+    on left: 48 49 50 51 52 53 54 55 56, on right: 25 54 58 59 60 61
+    62 63 64 65
 ret_stmt (88)
-    on left: 55, on right: 52
+    on left: 57, on right: 53
 stmt_plus (89)
-    on left: 56 57 58, on right: 50 57 58 77 78
+    on left: 58 59 60, on right: 51 59 60 79 80
 if_then_else_stmt (90)
-    on left: 59 60 61 62 63, on right: 51
+    on left: 61 62 63 64 65, on right: 52
 asg_stmt (91)
-    on left: 64 65, on right: 49 83
+    on left: 66 67, on right: 50 85
 ref_expr (92)
-    on left: 66, on right: 64 65 82
+    on left: 68, on right: 66 67 84
 function_invocation (93)
-    on left: 67, on right: 48 84
+    on left: 69, on right: 49 86
 funcinvolistpp (94)
-    on left: 68, on right: 67
+    on left: 70, on right: 69
 expr_list (95)
-    on left: 69 70, on right: 68
+    on left: 71 72, on right: 70
 expr_plus (96)
-    on left: 71 72, on right: 70 72
+    on left: 73 74, on right: 72 74
 function_header (97)
-    on left: 73, on right: 26 27
+    on left: 75, on right: 26 27
 formalparamlistpp (98)
-    on left: 74, on right: 26 37
+    on left: 76, on right: 26 37
 funcbody (99)
-    on left: 75 76, on right: 26
+    on left: 77 78, on right: 26
 fun_rest (100)
-    on left: 77 78 79, on right: 76
+    on left: 79 80 81, on right: 78
 expr (101)
-    on left: 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97
-    98 99 100 101 102 103 104 105 106, on right: 36 40 53 55 59 60
-    62 63 64 71 72 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100
-    101 102 103 104 105 106 107
+    on left: 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99
+    100 101 102 103 104 105 106 107 108, on right: 36 41 54 57 61 62
+    64 65 66 73 74 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102
+    103 104 105 106 107 108 109
 prt_expr (102)
-    on left: 107, on right: 54 81
+    on left: 109, on right: 55 83
 literal (103)
-    on left: 108 109 110 111 112, on right: 80
+    on left: 110 111 112 113 114, on right: 82
 formal_param_list (104)
-    on left: 113 114, on right: 74
+    on left: 115 116, on right: 76
 formal_param_plus (105)
-    on left: 115 116, on right: 114 116
+    on left: 117 118, on right: 116 118
 formal_param (106)
-    on left: 117, on right: 115 116
+    on left: 119, on right: 117 118
 type (107)
-    on left: 118 119 120, on right: 28 29 30 31 73 117
+    on left: 120 121 122, on right: 28 29 30 31 75 119
 baseType (108)
-    on left: 121 122 123 124 125 126, on right: 118 119
+    on left: 123 124 125 126 127 128, on right: 120 121
 
 
 state 0
@@ -474,41 +476,43 @@ state 8
 state 9
 
    38 event_decl_hdr: TOK_EVENT . TOK_IDENT
+   39               | TOK_EVENT . error
 
-    TOK_IDENT  shift, and go to state 39
+    error      shift, and go to state 39
+    TOK_IDENT  shift, and go to state 40
 
 
 state 10
 
-   41 event: TOK_ANY .
+   42 event: TOK_ANY .
 
-    $default  reduce using rule 41 (event)
+    $default  reduce using rule 42 (event)
 
 
 state 11
 
-  124 baseType: TOK_VOID .
+  126 baseType: TOK_VOID .
 
-    $default  reduce using rule 124 (baseType)
+    $default  reduce using rule 126 (baseType)
 
 
 state 12
 
-  125 baseType: TOK_STRING .
+  127 baseType: TOK_STRING .
 
-    $default  reduce using rule 125 (baseType)
+    $default  reduce using rule 127 (baseType)
 
 
 state 13
 
-  121 baseType: TOK_INT .
+  123 baseType: TOK_INT .
 
-    $default  reduce using rule 121 (baseType)
+    $default  reduce using rule 123 (baseType)
 
 
 state 14
 
-  119 type: TOK_UNSIGNED . baseType
+  121 type: TOK_UNSIGNED . baseType
 
     TOK_VOID    shift, and go to state 11
     TOK_STRING  shift, and go to state 12
@@ -517,43 +521,43 @@ state 14
     TOK_BYTE    shift, and go to state 16
     TOK_DOUBLE  shift, and go to state 17
 
-    baseType  go to state 40
+    baseType  go to state 41
 
 
 state 15
 
-  122 baseType: TOK_BOOL .
+  124 baseType: TOK_BOOL .
 
-    $default  reduce using rule 122 (baseType)
+    $default  reduce using rule 124 (baseType)
 
 
 state 16
 
-  126 baseType: TOK_BYTE .
+  128 baseType: TOK_BYTE .
 
-    $default  reduce using rule 126 (baseType)
+    $default  reduce using rule 128 (baseType)
 
 
 state 17
 
-  123 baseType: TOK_DOUBLE .
+  125 baseType: TOK_DOUBLE .
 
-    $default  reduce using rule 123 (baseType)
+    $default  reduce using rule 125 (baseType)
 
 
 state 18
 
    32 variable_decl: TOK_IDENT . error TOK_SEMICOLON
-   42 event: TOK_IDENT . evenparamlistpp
-  120 type: TOK_IDENT .
+   43 event: TOK_IDENT . evenparamlistpp
+  122 type: TOK_IDENT .
 
-    error       shift, and go to state 41
-    TOK_LPAREN  shift, and go to state 42
+    error       shift, and go to state 42
+    TOK_LPAREN  shift, and go to state 43
 
-    error      [reduce using rule 120 (type)]
-    TOK_IDENT  reduce using rule 120 (type)
+    error      [reduce using rule 122 (type)]
+    TOK_IDENT  reduce using rule 122 (type)
 
-    evenparamlistpp  go to state 43
+    evenparamlistpp  go to state 44
 
 
 state 19
@@ -562,7 +566,7 @@ state 19
     7 rule_list: rule_list . rule
     8          | rule_list . error TOK_SEMICOLON
 
-    error       shift, and go to state 44
+    error       shift, and go to state 45
     TOK_NOT     shift, and go to state 5
     TOK_LPAREN  shift, and go to state 7
     TOK_ANY     shift, and go to state 10
@@ -570,7 +574,7 @@ state 19
 
     $end  reduce using rule 2 (specification)
 
-    rule           go to state 45
+    rule           go to state 46
     event_pattern  go to state 23
     primitive_pat  go to state 28
     event          go to state 29
@@ -606,11 +610,11 @@ state 23
    22              | event_pattern . TOK_PAT_OR event_pattern
    23              | event_pattern . TOK_PAT_STAR
 
-    error         shift, and go to state 46
-    TOK_PAT_STAR  shift, and go to state 47
-    TOK_PAT_OR    shift, and go to state 48
-    TOK_COLON     shift, and go to state 49
-    TOK_ARROW     shift, and go to state 50
+    error         shift, and go to state 47
+    TOK_PAT_STAR  shift, and go to state 48
+    TOK_PAT_OR    shift, and go to state 49
+    TOK_COLON     shift, and go to state 50
+    TOK_ARROW     shift, and go to state 51
 
 
 state 24
@@ -638,9 +642,9 @@ state 27
 
    37 event_decl: event_decl_hdr . formalparamlistpp
 
-    TOK_LPAREN  shift, and go to state 51
+    TOK_LPAREN  shift, and go to state 52
 
-    formalparamlistpp  go to state 52
+    formalparamlistpp  go to state 53
 
 
 state 28
@@ -652,12 +656,12 @@ state 28
 
 state 29
 
-   39 primitive_pat: event .
-   40              | event . TOK_BITOR expr
+   40 primitive_pat: event .
+   41              | event . TOK_BITOR expr
 
-    TOK_BITOR  shift, and go to state 53
+    TOK_BITOR  shift, and go to state 54
 
-    $default  reduce using rule 39 (primitive_pat)
+    $default  reduce using rule 40 (primitive_pat)
 
 
 state 30
@@ -665,10 +669,10 @@ state 30
    26 function_decl: function_header . formalparamlistpp funcbody
    27              | function_header . error TOK_SEMICOLON
 
-    error       shift, and go to state 54
-    TOK_LPAREN  shift, and go to state 51
+    error       shift, and go to state 55
+    TOK_LPAREN  shift, and go to state 52
 
-    formalparamlistpp  go to state 55
+    formalparamlistpp  go to state 56
 
 
 state 31
@@ -677,20 +681,20 @@ state 31
    29              | type . vlist error TOK_SEMICOLON
    30              | type . vlist TOK_COMMA error
    31              | type . error TOK_SEMICOLON
-   73 function_header: type . TOK_IDENT
+   75 function_header: type . TOK_IDENT
 
-    error      shift, and go to state 56
-    TOK_IDENT  shift, and go to state 57
+    error      shift, and go to state 57
+    TOK_IDENT  shift, and go to state 58
 
-    vlist  go to state 58
-    vname  go to state 59
+    vlist  go to state 59
+    vname  go to state 60
 
 
 state 32
 
-  118 type: baseType .
+  120 type: baseType .
 
-    $default  reduce using rule 118 (type)
+    $default  reduce using rule 120 (type)
 
 
 state 33
@@ -702,11 +706,11 @@ state 33
 
 state 34
 
-   42 event: TOK_IDENT . evenparamlistpp
+   43 event: TOK_IDENT . evenparamlistpp
 
-    TOK_LPAREN  shift, and go to state 42
+    TOK_LPAREN  shift, and go to state 43
 
-    evenparamlistpp  go to state 43
+    evenparamlistpp  go to state 44
 
 
 state 35
@@ -726,17 +730,17 @@ state 36
    22              | event_pattern . TOK_PAT_OR event_pattern
    23              | event_pattern . TOK_PAT_STAR
 
-    TOK_PAT_STAR  shift, and go to state 47
-    TOK_PAT_OR    shift, and go to state 48
-    TOK_COLON     shift, and go to state 49
-    TOK_RPAREN    shift, and go to state 60
+    TOK_PAT_STAR  shift, and go to state 48
+    TOK_PAT_OR    shift, and go to state 49
+    TOK_COLON     shift, and go to state 50
+    TOK_RPAREN    shift, and go to state 61
 
 
 state 37
 
    18 class_decl: TOK_CLASS error . TOK_SEMICOLON
 
-    TOK_SEMICOLON  shift, and go to state 61
+    TOK_SEMICOLON  shift, and go to state 62
 
 
 state 38
@@ -748,103 +752,96 @@ state 38
 
 state 39
 
+   39 event_decl_hdr: TOK_EVENT error .
+
+    $default  reduce using rule 39 (event_decl_hdr)
+
+
+state 40
+
    38 event_decl_hdr: TOK_EVENT TOK_IDENT .
 
     $default  reduce using rule 38 (event_decl_hdr)
 
 
-state 40
-
-  119 type: TOK_UNSIGNED baseType .
-
-    $default  reduce using rule 119 (type)
-
-
 state 41
 
-   32 variable_decl: TOK_IDENT error . TOK_SEMICOLON
+  121 type: TOK_UNSIGNED baseType .
 
-    TOK_SEMICOLON  shift, and go to state 62
+    $default  reduce using rule 121 (type)
 
 
 state 42
 
-   43 evenparamlistpp: TOK_LPAREN . evenparamlist TOK_RPAREN
+   32 variable_decl: TOK_IDENT error . TOK_SEMICOLON
 
-    TOK_IDENT  shift, and go to state 63
-
-    $default  reduce using rule 44 (evenparamlist)
-
-    evenparamlist  go to state 64
+    TOK_SEMICOLON  shift, and go to state 63
 
 
 state 43
 
-   42 event: TOK_IDENT evenparamlistpp .
+   44 evenparamlistpp: TOK_LPAREN . evenparamlist TOK_RPAREN
 
-    $default  reduce using rule 42 (event)
+    TOK_IDENT  shift, and go to state 64
+
+    $default  reduce using rule 45 (evenparamlist)
+
+    evenparamlist  go to state 65
 
 
 state 44
 
-    8 rule_list: rule_list error . TOK_SEMICOLON
+   43 event: TOK_IDENT evenparamlistpp .
 
-    TOK_SEMICOLON  shift, and go to state 65
+    $default  reduce using rule 43 (event)
 
 
 state 45
+
+    8 rule_list: rule_list error . TOK_SEMICOLON
+
+    TOK_SEMICOLON  shift, and go to state 66
+
+
+state 46
 
     7 rule_list: rule_list rule .
 
     $default  reduce using rule 7 (rule_list)
 
 
-state 46
+state 47
 
    11 rule: event_pattern error . rule_body1
 
-    TOK_SEMICOLON  shift, and go to state 66
-    TOK_LBRACE     shift, and go to state 67
-    TOK_IF         shift, and go to state 68
-    TOK_RETURN     shift, and go to state 69
-    TOK_PRINT      shift, and go to state 70
-    TOK_WHILE      shift, and go to state 71
-    TOK_IDENT      shift, and go to state 72
+    TOK_SEMICOLON  shift, and go to state 67
+    TOK_LBRACE     shift, and go to state 68
+    TOK_IF         shift, and go to state 69
+    TOK_RETURN     shift, and go to state 70
+    TOK_PRINT      shift, and go to state 71
+    TOK_WHILE      shift, and go to state 72
+    TOK_IDENT      shift, and go to state 73
 
-    rule_body1           go to state 73
-    stmt                 go to state 74
-    ret_stmt             go to state 75
-    if_then_else_stmt    go to state 76
-    asg_stmt             go to state 77
-    ref_expr             go to state 78
-    function_invocation  go to state 79
-    prt_expr             go to state 80
+    rule_body1           go to state 74
+    stmt                 go to state 75
+    ret_stmt             go to state 76
+    if_then_else_stmt    go to state 77
+    asg_stmt             go to state 78
+    ref_expr             go to state 79
+    function_invocation  go to state 80
+    prt_expr             go to state 81
 
 
-state 47
+state 48
 
    23 event_pattern: event_pattern TOK_PAT_STAR .
 
     $default  reduce using rule 23 (event_pattern)
 
 
-state 48
-
-   22 event_pattern: event_pattern TOK_PAT_OR . event_pattern
-
-    TOK_NOT     shift, and go to state 5
-    TOK_LPAREN  shift, and go to state 7
-    TOK_ANY     shift, and go to state 10
-    TOK_IDENT   shift, and go to state 34
-
-    event_pattern  go to state 81
-    primitive_pat  go to state 28
-    event          go to state 29
-
-
 state 49
 
-   21 event_pattern: event_pattern TOK_COLON . event_pattern
+   22 event_pattern: event_pattern TOK_PAT_OR . event_pattern
 
     TOK_NOT     shift, and go to state 5
     TOK_LPAREN  shift, and go to state 7
@@ -858,30 +855,44 @@ state 49
 
 state 50
 
-    9 rule: event_pattern TOK_ARROW . rule_body1
-   10     | event_pattern TOK_ARROW . rule_body1 TOK_SEMICOLON
+   21 event_pattern: event_pattern TOK_COLON . event_pattern
 
-    TOK_SEMICOLON  shift, and go to state 66
-    TOK_LBRACE     shift, and go to state 67
-    TOK_IF         shift, and go to state 68
-    TOK_RETURN     shift, and go to state 69
-    TOK_PRINT      shift, and go to state 70
-    TOK_WHILE      shift, and go to state 71
-    TOK_IDENT      shift, and go to state 72
+    TOK_NOT     shift, and go to state 5
+    TOK_LPAREN  shift, and go to state 7
+    TOK_ANY     shift, and go to state 10
+    TOK_IDENT   shift, and go to state 34
 
-    rule_body1           go to state 83
-    stmt                 go to state 74
-    ret_stmt             go to state 75
-    if_then_else_stmt    go to state 76
-    asg_stmt             go to state 77
-    ref_expr             go to state 78
-    function_invocation  go to state 79
-    prt_expr             go to state 80
+    event_pattern  go to state 83
+    primitive_pat  go to state 28
+    event          go to state 29
 
 
 state 51
 
-   74 formalparamlistpp: TOK_LPAREN . formal_param_list TOK_RPAREN
+    9 rule: event_pattern TOK_ARROW . rule_body1
+   10     | event_pattern TOK_ARROW . rule_body1 TOK_SEMICOLON
+
+    TOK_SEMICOLON  shift, and go to state 67
+    TOK_LBRACE     shift, and go to state 68
+    TOK_IF         shift, and go to state 69
+    TOK_RETURN     shift, and go to state 70
+    TOK_PRINT      shift, and go to state 71
+    TOK_WHILE      shift, and go to state 72
+    TOK_IDENT      shift, and go to state 73
+
+    rule_body1           go to state 84
+    stmt                 go to state 75
+    ret_stmt             go to state 76
+    if_then_else_stmt    go to state 77
+    asg_stmt             go to state 78
+    ref_expr             go to state 79
+    function_invocation  go to state 80
+    prt_expr             go to state 81
+
+
+state 52
+
+   76 formalparamlistpp: TOK_LPAREN . formal_param_list TOK_RPAREN
 
     TOK_VOID      shift, and go to state 11
     TOK_STRING    shift, and go to state 12
@@ -890,654 +901,656 @@ state 51
     TOK_BOOL      shift, and go to state 15
     TOK_BYTE      shift, and go to state 16
     TOK_DOUBLE    shift, and go to state 17
-    TOK_IDENT     shift, and go to state 84
+    TOK_IDENT     shift, and go to state 85
 
-    $default  reduce using rule 113 (formal_param_list)
+    $default  reduce using rule 115 (formal_param_list)
 
-    formal_param_list  go to state 85
-    formal_param_plus  go to state 86
-    formal_param       go to state 87
-    type               go to state 88
+    formal_param_list  go to state 86
+    formal_param_plus  go to state 87
+    formal_param       go to state 88
+    type               go to state 89
     baseType           go to state 32
 
 
-state 52
+state 53
 
    37 event_decl: event_decl_hdr formalparamlistpp .
 
     $default  reduce using rule 37 (event_decl)
 
 
-state 53
-
-   40 primitive_pat: event TOK_BITOR . expr
-
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
-
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 101
-    prt_expr             go to state 102
-    literal              go to state 103
-
-
 state 54
 
-   27 function_decl: function_header error . TOK_SEMICOLON
+   41 primitive_pat: event TOK_BITOR . expr
 
-    TOK_SEMICOLON  shift, and go to state 104
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
+
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 102
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 55
 
-   26 function_decl: function_header formalparamlistpp . funcbody
+   27 function_decl: function_header error . TOK_SEMICOLON
 
-    TOK_LBRACE  shift, and go to state 105
-
-    $default  reduce using rule 75 (funcbody)
-
-    funcbody  go to state 106
+    TOK_SEMICOLON  shift, and go to state 105
 
 
 state 56
 
-   31 variable_decl: type error . TOK_SEMICOLON
+   26 function_decl: function_header formalparamlistpp . funcbody
 
-    TOK_SEMICOLON  shift, and go to state 107
+    TOK_LBRACE  shift, and go to state 106
+
+    $default  reduce using rule 77 (funcbody)
+
+    funcbody  go to state 107
 
 
 state 57
 
-   35 vname: TOK_IDENT .
-   36      | TOK_IDENT . TOK_ASSIGN expr
-   73 function_header: type TOK_IDENT .
+   31 variable_decl: type error . TOK_SEMICOLON
 
-    TOK_ASSIGN  shift, and go to state 108
-
-    error       reduce using rule 35 (vname)
-    error       [reduce using rule 73 (function_header)]
-    TOK_LPAREN  reduce using rule 73 (function_header)
-    $default    reduce using rule 35 (vname)
+    TOK_SEMICOLON  shift, and go to state 108
 
 
 state 58
+
+   35 vname: TOK_IDENT .
+   36      | TOK_IDENT . TOK_ASSIGN expr
+   75 function_header: type TOK_IDENT .
+
+    TOK_ASSIGN  shift, and go to state 109
+
+    error       reduce using rule 35 (vname)
+    error       [reduce using rule 75 (function_header)]
+    TOK_LPAREN  reduce using rule 75 (function_header)
+    $default    reduce using rule 35 (vname)
+
+
+state 59
 
    28 variable_decl: type vlist . TOK_SEMICOLON
    29              | type vlist . error TOK_SEMICOLON
    30              | type vlist . TOK_COMMA error
    34 vlist: vlist . TOK_COMMA vname
 
-    error          shift, and go to state 109
-    TOK_COMMA      shift, and go to state 110
-    TOK_SEMICOLON  shift, and go to state 111
+    error          shift, and go to state 110
+    TOK_COMMA      shift, and go to state 111
+    TOK_SEMICOLON  shift, and go to state 112
 
 
-state 59
+state 60
 
    33 vlist: vname .
 
     $default  reduce using rule 33 (vlist)
 
 
-state 60
+state 61
 
    20 event_pattern: TOK_LPAREN event_pattern TOK_RPAREN .
 
     $default  reduce using rule 20 (event_pattern)
 
 
-state 61
+state 62
 
    18 class_decl: TOK_CLASS error TOK_SEMICOLON .
 
     $default  reduce using rule 18 (class_decl)
 
 
-state 62
+state 63
 
    32 variable_decl: TOK_IDENT error TOK_SEMICOLON .
 
     $default  reduce using rule 32 (variable_decl)
 
 
-state 63
-
-   45 evenparamlist: TOK_IDENT .
-
-    $default  reduce using rule 45 (evenparamlist)
-
-
 state 64
 
-   43 evenparamlistpp: TOK_LPAREN evenparamlist . TOK_RPAREN
-   46 evenparamlist: evenparamlist . TOK_COMMA TOK_IDENT
+   46 evenparamlist: TOK_IDENT .
 
-    TOK_COMMA   shift, and go to state 112
-    TOK_RPAREN  shift, and go to state 113
+    $default  reduce using rule 46 (evenparamlist)
 
 
 state 65
+
+   44 evenparamlistpp: TOK_LPAREN evenparamlist . TOK_RPAREN
+   47 evenparamlist: evenparamlist . TOK_COMMA TOK_IDENT
+
+    TOK_COMMA   shift, and go to state 113
+    TOK_RPAREN  shift, and go to state 114
+
+
+state 66
 
     8 rule_list: rule_list error TOK_SEMICOLON .
 
     $default  reduce using rule 8 (rule_list)
 
 
-state 66
-
-   47 stmt: TOK_SEMICOLON .
-
-    $default  reduce using rule 47 (stmt)
-
-
 state 67
 
-   50 stmt: TOK_LBRACE . stmt_plus TOK_RBRACE
+   48 stmt: TOK_SEMICOLON .
 
-    TOK_SEMICOLON  shift, and go to state 66
-    TOK_LBRACE     shift, and go to state 67
-    TOK_IF         shift, and go to state 68
-    TOK_RETURN     shift, and go to state 69
-    TOK_PRINT      shift, and go to state 70
-    TOK_WHILE      shift, and go to state 71
-    TOK_IDENT      shift, and go to state 72
-
-    stmt                 go to state 114
-    ret_stmt             go to state 75
-    stmt_plus            go to state 115
-    if_then_else_stmt    go to state 76
-    asg_stmt             go to state 77
-    ref_expr             go to state 78
-    function_invocation  go to state 79
-    prt_expr             go to state 80
+    $default  reduce using rule 48 (stmt)
 
 
 state 68
 
-   59 if_then_else_stmt: TOK_IF . expr stmt TOK_ELSE stmt
-   60                  | TOK_IF . expr stmt
-   61                  | TOK_IF . error stmt
-   62                  | TOK_IF . expr error stmt
-   63                  | TOK_IF . expr stmt TOK_ELSE error TOK_SEMICOLON
+   51 stmt: TOK_LBRACE . stmt_plus TOK_RBRACE
+   56     | TOK_LBRACE . error TOK_RBRACE
 
-    error          shift, and go to state 116
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    error          shift, and go to state 115
+    TOK_SEMICOLON  shift, and go to state 67
+    TOK_LBRACE     shift, and go to state 68
+    TOK_IF         shift, and go to state 69
+    TOK_RETURN     shift, and go to state 70
+    TOK_PRINT      shift, and go to state 71
+    TOK_WHILE      shift, and go to state 72
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 117
-    prt_expr             go to state 102
-    literal              go to state 103
+    stmt                 go to state 116
+    ret_stmt             go to state 76
+    stmt_plus            go to state 117
+    if_then_else_stmt    go to state 77
+    asg_stmt             go to state 78
+    ref_expr             go to state 79
+    function_invocation  go to state 80
+    prt_expr             go to state 81
 
 
 state 69
 
-   55 ret_stmt: TOK_RETURN . expr
+   61 if_then_else_stmt: TOK_IF . expr stmt TOK_ELSE stmt
+   62                  | TOK_IF . expr stmt
+   63                  | TOK_IF . error stmt
+   64                  | TOK_IF . expr error stmt
+   65                  | TOK_IF . expr stmt TOK_ELSE error TOK_SEMICOLON
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    error          shift, and go to state 118
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 118
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 119
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 70
 
-  107 prt_expr: TOK_PRINT . expr
+   57 ret_stmt: TOK_RETURN . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 119
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 120
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 71
 
-   53 stmt: TOK_WHILE . expr stmt
+  109 prt_expr: TOK_PRINT . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 120
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 121
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 72
 
-   66 ref_expr: TOK_IDENT .
-   67 function_invocation: TOK_IDENT . funcinvolistpp
+   54 stmt: TOK_WHILE . expr stmt
 
-    TOK_LPAREN  shift, and go to state 121
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    TOK_LPAREN  [reduce using rule 66 (ref_expr)]
-    $default    reduce using rule 66 (ref_expr)
-
-    funcinvolistpp  go to state 122
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 122
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 73
+
+   68 ref_expr: TOK_IDENT .
+   69 function_invocation: TOK_IDENT . funcinvolistpp
+
+    TOK_LPAREN  shift, and go to state 123
+
+    TOK_LPAREN  [reduce using rule 68 (ref_expr)]
+    $default    reduce using rule 68 (ref_expr)
+
+    funcinvolistpp  go to state 124
+
+
+state 74
 
    11 rule: event_pattern error rule_body1 .
 
     $default  reduce using rule 11 (rule)
 
 
-state 74
+state 75
 
    25 rule_body1: stmt .
 
     $default  reduce using rule 25 (rule_body1)
 
 
-state 75
-
-   52 stmt: ret_stmt .
-
-    $default  reduce using rule 52 (stmt)
-
-
 state 76
 
-   51 stmt: if_then_else_stmt .
+   53 stmt: ret_stmt .
 
-    $default  reduce using rule 51 (stmt)
+    $default  reduce using rule 53 (stmt)
 
 
 state 77
 
-   49 stmt: asg_stmt .
+   52 stmt: if_then_else_stmt .
 
-    $default  reduce using rule 49 (stmt)
+    $default  reduce using rule 52 (stmt)
 
 
 state 78
 
-   64 asg_stmt: ref_expr . TOK_ASSIGN expr
-   65         | ref_expr . TOK_ASSIGN error TOK_SEMICOLON
+   50 stmt: asg_stmt .
 
-    TOK_ASSIGN  shift, and go to state 123
+    $default  reduce using rule 50 (stmt)
 
 
 state 79
 
-   48 stmt: function_invocation .
+   66 asg_stmt: ref_expr . TOK_ASSIGN expr
+   67         | ref_expr . TOK_ASSIGN error TOK_SEMICOLON
 
-    $default  reduce using rule 48 (stmt)
+    TOK_ASSIGN  shift, and go to state 125
 
 
 state 80
 
-   54 stmt: prt_expr . TOK_SEMICOLON
+   49 stmt: function_invocation .
 
-    TOK_SEMICOLON  shift, and go to state 124
+    $default  reduce using rule 49 (stmt)
 
 
 state 81
+
+   55 stmt: prt_expr . TOK_SEMICOLON
+
+    TOK_SEMICOLON  shift, and go to state 126
+
+
+state 82
 
    21 event_pattern: event_pattern . TOK_COLON event_pattern
    22              | event_pattern . TOK_PAT_OR event_pattern
    22              | event_pattern TOK_PAT_OR event_pattern .
    23              | event_pattern . TOK_PAT_STAR
 
-    TOK_PAT_STAR  shift, and go to state 47
-    TOK_COLON     shift, and go to state 49
+    TOK_PAT_STAR  shift, and go to state 48
+    TOK_COLON     shift, and go to state 50
 
     $default  reduce using rule 22 (event_pattern)
 
 
-state 82
+state 83
 
    21 event_pattern: event_pattern . TOK_COLON event_pattern
    21              | event_pattern TOK_COLON event_pattern .
    22              | event_pattern . TOK_PAT_OR event_pattern
    23              | event_pattern . TOK_PAT_STAR
 
-    TOK_PAT_STAR  shift, and go to state 47
+    TOK_PAT_STAR  shift, and go to state 48
 
     $default  reduce using rule 21 (event_pattern)
 
 
-state 83
+state 84
 
     9 rule: event_pattern TOK_ARROW rule_body1 .
    10     | event_pattern TOK_ARROW rule_body1 . TOK_SEMICOLON
 
-    TOK_SEMICOLON  shift, and go to state 125
+    TOK_SEMICOLON  shift, and go to state 127
 
     $default  reduce using rule 9 (rule)
 
 
-state 84
-
-  120 type: TOK_IDENT .
-
-    $default  reduce using rule 120 (type)
-
-
 state 85
 
-   74 formalparamlistpp: TOK_LPAREN formal_param_list . TOK_RPAREN
+  122 type: TOK_IDENT .
 
-    TOK_RPAREN  shift, and go to state 126
+    $default  reduce using rule 122 (type)
 
 
 state 86
 
-  114 formal_param_list: formal_param_plus .
-  116 formal_param_plus: formal_param_plus . TOK_COMMA formal_param
+   76 formalparamlistpp: TOK_LPAREN formal_param_list . TOK_RPAREN
 
-    TOK_COMMA  shift, and go to state 127
-
-    $default  reduce using rule 114 (formal_param_list)
+    TOK_RPAREN  shift, and go to state 128
 
 
 state 87
 
-  115 formal_param_plus: formal_param .
+  116 formal_param_list: formal_param_plus .
+  118 formal_param_plus: formal_param_plus . TOK_COMMA formal_param
 
-    $default  reduce using rule 115 (formal_param_plus)
+    TOK_COMMA  shift, and go to state 129
+
+    $default  reduce using rule 116 (formal_param_list)
 
 
 state 88
 
-  117 formal_param: type . TOK_IDENT
+  117 formal_param_plus: formal_param .
 
-    TOK_IDENT  shift, and go to state 128
+    $default  reduce using rule 117 (formal_param_plus)
 
 
 state 89
 
-   86 expr: TOK_MINUS . expr
+  119 formal_param: type . TOK_IDENT
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
-
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 129
-    prt_expr             go to state 102
-    literal              go to state 103
+    TOK_IDENT  shift, and go to state 130
 
 
 state 90
 
-   85 expr: TOK_BITNOT . expr
+   88 expr: TOK_MINUS . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 130
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 131
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 91
 
-   88 expr: TOK_NOT . expr
+   87 expr: TOK_BITNOT . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 131
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 132
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 92
 
-   87 expr: TOK_LPAREN . expr TOK_RPAREN
+   90 expr: TOK_NOT . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 132
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 133
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 93
 
-  108 literal: TOK_UINTNUM .
+   89 expr: TOK_LPAREN . expr TOK_RPAREN
 
-    $default  reduce using rule 108 (literal)
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
+
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 134
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 94
 
-  109 literal: TOK_DOUBLENUM .
-
-    $default  reduce using rule 109 (literal)
-
-
-state 95
-
-  110 literal: TOK_STRCONST .
+  110 literal: TOK_UINTNUM .
 
     $default  reduce using rule 110 (literal)
 
 
-state 96
+state 95
 
-  111 literal: TOK_TRUE .
+  111 literal: TOK_DOUBLENUM .
 
     $default  reduce using rule 111 (literal)
 
 
-state 97
+state 96
 
-  112 literal: TOK_FALSE .
+  112 literal: TOK_STRCONST .
 
     $default  reduce using rule 112 (literal)
 
 
+state 97
+
+  113 literal: TOK_TRUE .
+
+    $default  reduce using rule 113 (literal)
+
+
 state 98
 
-   83 expr: asg_stmt .
+  114 literal: TOK_FALSE .
 
-    $default  reduce using rule 83 (expr)
+    $default  reduce using rule 114 (literal)
 
 
 state 99
 
-   64 asg_stmt: ref_expr . TOK_ASSIGN expr
-   65         | ref_expr . TOK_ASSIGN error TOK_SEMICOLON
-   82 expr: ref_expr .
+   85 expr: asg_stmt .
 
-    TOK_ASSIGN  shift, and go to state 123
-
-    $default  reduce using rule 82 (expr)
+    $default  reduce using rule 85 (expr)
 
 
 state 100
 
-   84 expr: function_invocation .
+   66 asg_stmt: ref_expr . TOK_ASSIGN expr
+   67         | ref_expr . TOK_ASSIGN error TOK_SEMICOLON
+   84 expr: ref_expr .
+
+    TOK_ASSIGN  shift, and go to state 125
 
     $default  reduce using rule 84 (expr)
 
 
 state 101
 
-   40 primitive_pat: event TOK_BITOR expr .
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   86 expr: function_invocation .
 
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_BITOR   shift, and go to state 139
-    TOK_BITXOR  shift, and go to state 140
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
-    TOK_GT      shift, and go to state 143
-    TOK_LT      shift, and go to state 144
-    TOK_GE      shift, and go to state 145
-    TOK_LE      shift, and go to state 146
-    TOK_EQ      shift, and go to state 147
-    TOK_NE      shift, and go to state 148
-    TOK_AND     shift, and go to state 149
-    TOK_OR      shift, and go to state 150
-
-    $default  reduce using rule 40 (primitive_pat)
+    $default  reduce using rule 86 (expr)
 
 
 state 102
 
-   81 expr: prt_expr .
+   41 primitive_pat: event TOK_BITOR expr .
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    $default  reduce using rule 81 (expr)
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_BITOR   shift, and go to state 141
+    TOK_BITXOR  shift, and go to state 142
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
+    TOK_GT      shift, and go to state 145
+    TOK_LT      shift, and go to state 146
+    TOK_GE      shift, and go to state 147
+    TOK_LE      shift, and go to state 148
+    TOK_EQ      shift, and go to state 149
+    TOK_NE      shift, and go to state 150
+    TOK_AND     shift, and go to state 151
+    TOK_OR      shift, and go to state 152
+
+    $default  reduce using rule 41 (primitive_pat)
 
 
 state 103
 
-   80 expr: literal .
+   83 expr: prt_expr .
 
-    $default  reduce using rule 80 (expr)
+    $default  reduce using rule 83 (expr)
 
 
 state 104
+
+   82 expr: literal .
+
+    $default  reduce using rule 82 (expr)
+
+
+state 105
 
    27 function_decl: function_header error TOK_SEMICOLON .
 
     $default  reduce using rule 27 (function_decl)
 
 
-state 105
+state 106
 
-   76 funcbody: TOK_LBRACE . fun_rest TOK_RBRACE
+   78 funcbody: TOK_LBRACE . fun_rest TOK_RBRACE
 
-    TOK_SEMICOLON  shift, and go to state 66
-    TOK_LBRACE     shift, and go to state 67
-    TOK_IF         shift, and go to state 68
-    TOK_RETURN     shift, and go to state 69
-    TOK_PRINT      shift, and go to state 70
-    TOK_WHILE      shift, and go to state 71
+    TOK_SEMICOLON  shift, and go to state 67
+    TOK_LBRACE     shift, and go to state 68
+    TOK_IF         shift, and go to state 69
+    TOK_RETURN     shift, and go to state 70
+    TOK_PRINT      shift, and go to state 71
+    TOK_WHILE      shift, and go to state 72
     TOK_VOID       shift, and go to state 11
     TOK_STRING     shift, and go to state 12
     TOK_INT        shift, and go to state 13
@@ -1545,461 +1558,468 @@ state 105
     TOK_BOOL       shift, and go to state 15
     TOK_BYTE       shift, and go to state 16
     TOK_DOUBLE     shift, and go to state 17
-    TOK_IDENT      shift, and go to state 151
+    TOK_IDENT      shift, and go to state 153
 
-    variable_decl        go to state 152
-    stmt                 go to state 114
-    ret_stmt             go to state 75
-    stmt_plus            go to state 153
-    if_then_else_stmt    go to state 76
-    asg_stmt             go to state 77
-    ref_expr             go to state 78
-    function_invocation  go to state 79
-    fun_rest             go to state 154
-    prt_expr             go to state 80
-    type                 go to state 155
+    variable_decl        go to state 154
+    stmt                 go to state 116
+    ret_stmt             go to state 76
+    stmt_plus            go to state 155
+    if_then_else_stmt    go to state 77
+    asg_stmt             go to state 78
+    ref_expr             go to state 79
+    function_invocation  go to state 80
+    fun_rest             go to state 156
+    prt_expr             go to state 81
+    type                 go to state 157
     baseType             go to state 32
 
 
-state 106
+state 107
 
    26 function_decl: function_header formalparamlistpp funcbody .
 
     $default  reduce using rule 26 (function_decl)
 
 
-state 107
+state 108
 
    31 variable_decl: type error TOK_SEMICOLON .
 
     $default  reduce using rule 31 (variable_decl)
 
 
-state 108
+state 109
 
    36 vname: TOK_IDENT TOK_ASSIGN . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 156
-    prt_expr             go to state 102
-    literal              go to state 103
-
-
-state 109
-
-   29 variable_decl: type vlist error . TOK_SEMICOLON
-
-    TOK_SEMICOLON  shift, and go to state 157
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 158
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 110
 
-   30 variable_decl: type vlist TOK_COMMA . error
-   34 vlist: vlist TOK_COMMA . vname
+   29 variable_decl: type vlist error . TOK_SEMICOLON
 
-    error      shift, and go to state 158
-    TOK_IDENT  shift, and go to state 159
-
-    vname  go to state 160
+    TOK_SEMICOLON  shift, and go to state 159
 
 
 state 111
+
+   30 variable_decl: type vlist TOK_COMMA . error
+   34 vlist: vlist TOK_COMMA . vname
+
+    error      shift, and go to state 160
+    TOK_IDENT  shift, and go to state 161
+
+    vname  go to state 162
+
+
+state 112
 
    28 variable_decl: type vlist TOK_SEMICOLON .
 
     $default  reduce using rule 28 (variable_decl)
 
 
-state 112
-
-   46 evenparamlist: evenparamlist TOK_COMMA . TOK_IDENT
-
-    TOK_IDENT  shift, and go to state 161
-
-
 state 113
 
-   43 evenparamlistpp: TOK_LPAREN evenparamlist TOK_RPAREN .
+   47 evenparamlist: evenparamlist TOK_COMMA . TOK_IDENT
 
-    $default  reduce using rule 43 (evenparamlistpp)
+    TOK_IDENT  shift, and go to state 163
 
 
 state 114
 
-   56 stmt_plus: stmt .
+   44 evenparamlistpp: TOK_LPAREN evenparamlist TOK_RPAREN .
 
-    $default  reduce using rule 56 (stmt_plus)
+    $default  reduce using rule 44 (evenparamlistpp)
 
 
 state 115
 
-   50 stmt: TOK_LBRACE stmt_plus . TOK_RBRACE
-   57 stmt_plus: stmt_plus . stmt
-   58          | stmt_plus . error stmt
+   56 stmt: TOK_LBRACE error . TOK_RBRACE
 
-    error          shift, and go to state 162
-    TOK_SEMICOLON  shift, and go to state 66
-    TOK_LBRACE     shift, and go to state 67
-    TOK_RBRACE     shift, and go to state 163
-    TOK_IF         shift, and go to state 68
-    TOK_RETURN     shift, and go to state 69
-    TOK_PRINT      shift, and go to state 70
-    TOK_WHILE      shift, and go to state 71
-    TOK_IDENT      shift, and go to state 72
-
-    stmt                 go to state 164
-    ret_stmt             go to state 75
-    if_then_else_stmt    go to state 76
-    asg_stmt             go to state 77
-    ref_expr             go to state 78
-    function_invocation  go to state 79
-    prt_expr             go to state 80
+    TOK_RBRACE  shift, and go to state 164
 
 
 state 116
 
-   61 if_then_else_stmt: TOK_IF error . stmt
+   58 stmt_plus: stmt .
 
-    TOK_SEMICOLON  shift, and go to state 66
-    TOK_LBRACE     shift, and go to state 67
-    TOK_IF         shift, and go to state 68
-    TOK_RETURN     shift, and go to state 69
-    TOK_PRINT      shift, and go to state 70
-    TOK_WHILE      shift, and go to state 71
-    TOK_IDENT      shift, and go to state 72
-
-    stmt                 go to state 165
-    ret_stmt             go to state 75
-    if_then_else_stmt    go to state 76
-    asg_stmt             go to state 77
-    ref_expr             go to state 78
-    function_invocation  go to state 79
-    prt_expr             go to state 80
+    $default  reduce using rule 58 (stmt_plus)
 
 
 state 117
 
-   59 if_then_else_stmt: TOK_IF expr . stmt TOK_ELSE stmt
-   60                  | TOK_IF expr . stmt
-   62                  | TOK_IF expr . error stmt
-   63                  | TOK_IF expr . stmt TOK_ELSE error TOK_SEMICOLON
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   51 stmt: TOK_LBRACE stmt_plus . TOK_RBRACE
+   59 stmt_plus: stmt_plus . stmt
+   60          | stmt_plus . error stmt
 
-    error          shift, and go to state 166
-    TOK_PLUS       shift, and go to state 133
-    TOK_MINUS      shift, and go to state 134
-    TOK_MULT       shift, and go to state 135
-    TOK_DIV        shift, and go to state 136
-    TOK_MOD        shift, and go to state 137
-    TOK_BITAND     shift, and go to state 138
-    TOK_BITOR      shift, and go to state 139
-    TOK_BITXOR     shift, and go to state 140
-    TOK_SHL        shift, and go to state 141
-    TOK_SHR        shift, and go to state 142
-    TOK_GT         shift, and go to state 143
-    TOK_LT         shift, and go to state 144
-    TOK_GE         shift, and go to state 145
-    TOK_LE         shift, and go to state 146
-    TOK_EQ         shift, and go to state 147
-    TOK_NE         shift, and go to state 148
-    TOK_AND        shift, and go to state 149
-    TOK_OR         shift, and go to state 150
-    TOK_SEMICOLON  shift, and go to state 66
-    TOK_LBRACE     shift, and go to state 67
-    TOK_IF         shift, and go to state 68
-    TOK_RETURN     shift, and go to state 69
-    TOK_PRINT      shift, and go to state 70
-    TOK_WHILE      shift, and go to state 71
-    TOK_IDENT      shift, and go to state 72
+    error          shift, and go to state 165
+    TOK_SEMICOLON  shift, and go to state 67
+    TOK_LBRACE     shift, and go to state 68
+    TOK_RBRACE     shift, and go to state 166
+    TOK_IF         shift, and go to state 69
+    TOK_RETURN     shift, and go to state 70
+    TOK_PRINT      shift, and go to state 71
+    TOK_WHILE      shift, and go to state 72
+    TOK_IDENT      shift, and go to state 73
 
     stmt                 go to state 167
-    ret_stmt             go to state 75
-    if_then_else_stmt    go to state 76
-    asg_stmt             go to state 77
-    ref_expr             go to state 78
-    function_invocation  go to state 79
-    prt_expr             go to state 80
+    ret_stmt             go to state 76
+    if_then_else_stmt    go to state 77
+    asg_stmt             go to state 78
+    ref_expr             go to state 79
+    function_invocation  go to state 80
+    prt_expr             go to state 81
 
 
 state 118
 
-   55 ret_stmt: TOK_RETURN expr .
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   63 if_then_else_stmt: TOK_IF error . stmt
 
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_BITOR   shift, and go to state 139
-    TOK_BITXOR  shift, and go to state 140
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
-    TOK_GT      shift, and go to state 143
-    TOK_LT      shift, and go to state 144
-    TOK_GE      shift, and go to state 145
-    TOK_LE      shift, and go to state 146
-    TOK_EQ      shift, and go to state 147
-    TOK_NE      shift, and go to state 148
-    TOK_AND     shift, and go to state 149
-    TOK_OR      shift, and go to state 150
+    TOK_SEMICOLON  shift, and go to state 67
+    TOK_LBRACE     shift, and go to state 68
+    TOK_IF         shift, and go to state 69
+    TOK_RETURN     shift, and go to state 70
+    TOK_PRINT      shift, and go to state 71
+    TOK_WHILE      shift, and go to state 72
+    TOK_IDENT      shift, and go to state 73
 
-    $default  reduce using rule 55 (ret_stmt)
+    stmt                 go to state 168
+    ret_stmt             go to state 76
+    if_then_else_stmt    go to state 77
+    asg_stmt             go to state 78
+    ref_expr             go to state 79
+    function_invocation  go to state 80
+    prt_expr             go to state 81
 
 
 state 119
 
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
-  107 prt_expr: TOK_PRINT expr .
+   61 if_then_else_stmt: TOK_IF expr . stmt TOK_ELSE stmt
+   62                  | TOK_IF expr . stmt
+   64                  | TOK_IF expr . error stmt
+   65                  | TOK_IF expr . stmt TOK_ELSE error TOK_SEMICOLON
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_BITOR   shift, and go to state 139
-    TOK_BITXOR  shift, and go to state 140
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
-    TOK_GT      shift, and go to state 143
-    TOK_LT      shift, and go to state 144
-    TOK_GE      shift, and go to state 145
-    TOK_LE      shift, and go to state 146
-    TOK_EQ      shift, and go to state 147
-    TOK_NE      shift, and go to state 148
-    TOK_AND     shift, and go to state 149
-    TOK_OR      shift, and go to state 150
+    error          shift, and go to state 169
+    TOK_PLUS       shift, and go to state 135
+    TOK_MINUS      shift, and go to state 136
+    TOK_MULT       shift, and go to state 137
+    TOK_DIV        shift, and go to state 138
+    TOK_MOD        shift, and go to state 139
+    TOK_BITAND     shift, and go to state 140
+    TOK_BITOR      shift, and go to state 141
+    TOK_BITXOR     shift, and go to state 142
+    TOK_SHL        shift, and go to state 143
+    TOK_SHR        shift, and go to state 144
+    TOK_GT         shift, and go to state 145
+    TOK_LT         shift, and go to state 146
+    TOK_GE         shift, and go to state 147
+    TOK_LE         shift, and go to state 148
+    TOK_EQ         shift, and go to state 149
+    TOK_NE         shift, and go to state 150
+    TOK_AND        shift, and go to state 151
+    TOK_OR         shift, and go to state 152
+    TOK_SEMICOLON  shift, and go to state 67
+    TOK_LBRACE     shift, and go to state 68
+    TOK_IF         shift, and go to state 69
+    TOK_RETURN     shift, and go to state 70
+    TOK_PRINT      shift, and go to state 71
+    TOK_WHILE      shift, and go to state 72
+    TOK_IDENT      shift, and go to state 73
 
-    TOK_PLUS    [reduce using rule 107 (prt_expr)]
-    TOK_MINUS   [reduce using rule 107 (prt_expr)]
-    TOK_MULT    [reduce using rule 107 (prt_expr)]
-    TOK_DIV     [reduce using rule 107 (prt_expr)]
-    TOK_MOD     [reduce using rule 107 (prt_expr)]
-    TOK_BITAND  [reduce using rule 107 (prt_expr)]
-    TOK_BITOR   [reduce using rule 107 (prt_expr)]
-    TOK_BITXOR  [reduce using rule 107 (prt_expr)]
-    TOK_SHL     [reduce using rule 107 (prt_expr)]
-    TOK_SHR     [reduce using rule 107 (prt_expr)]
-    TOK_GT      [reduce using rule 107 (prt_expr)]
-    TOK_LT      [reduce using rule 107 (prt_expr)]
-    TOK_GE      [reduce using rule 107 (prt_expr)]
-    TOK_LE      [reduce using rule 107 (prt_expr)]
-    TOK_EQ      [reduce using rule 107 (prt_expr)]
-    TOK_NE      [reduce using rule 107 (prt_expr)]
-    TOK_AND     [reduce using rule 107 (prt_expr)]
-    TOK_OR      [reduce using rule 107 (prt_expr)]
-    $default    reduce using rule 107 (prt_expr)
+    stmt                 go to state 170
+    ret_stmt             go to state 76
+    if_then_else_stmt    go to state 77
+    asg_stmt             go to state 78
+    ref_expr             go to state 79
+    function_invocation  go to state 80
+    prt_expr             go to state 81
 
 
 state 120
 
-   53 stmt: TOK_WHILE expr . stmt
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   57 ret_stmt: TOK_RETURN expr .
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    TOK_PLUS       shift, and go to state 133
-    TOK_MINUS      shift, and go to state 134
-    TOK_MULT       shift, and go to state 135
-    TOK_DIV        shift, and go to state 136
-    TOK_MOD        shift, and go to state 137
-    TOK_BITAND     shift, and go to state 138
-    TOK_BITOR      shift, and go to state 139
-    TOK_BITXOR     shift, and go to state 140
-    TOK_SHL        shift, and go to state 141
-    TOK_SHR        shift, and go to state 142
-    TOK_GT         shift, and go to state 143
-    TOK_LT         shift, and go to state 144
-    TOK_GE         shift, and go to state 145
-    TOK_LE         shift, and go to state 146
-    TOK_EQ         shift, and go to state 147
-    TOK_NE         shift, and go to state 148
-    TOK_AND        shift, and go to state 149
-    TOK_OR         shift, and go to state 150
-    TOK_SEMICOLON  shift, and go to state 66
-    TOK_LBRACE     shift, and go to state 67
-    TOK_IF         shift, and go to state 68
-    TOK_RETURN     shift, and go to state 69
-    TOK_PRINT      shift, and go to state 70
-    TOK_WHILE      shift, and go to state 71
-    TOK_IDENT      shift, and go to state 72
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_BITOR   shift, and go to state 141
+    TOK_BITXOR  shift, and go to state 142
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
+    TOK_GT      shift, and go to state 145
+    TOK_LT      shift, and go to state 146
+    TOK_GE      shift, and go to state 147
+    TOK_LE      shift, and go to state 148
+    TOK_EQ      shift, and go to state 149
+    TOK_NE      shift, and go to state 150
+    TOK_AND     shift, and go to state 151
+    TOK_OR      shift, and go to state 152
 
-    stmt                 go to state 168
-    ret_stmt             go to state 75
-    if_then_else_stmt    go to state 76
-    asg_stmt             go to state 77
-    ref_expr             go to state 78
-    function_invocation  go to state 79
-    prt_expr             go to state 80
+    $default  reduce using rule 57 (ret_stmt)
 
 
 state 121
 
-   68 funcinvolistpp: TOK_LPAREN . expr_list TOK_RPAREN
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
+  109 prt_expr: TOK_PRINT expr .
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_BITOR   shift, and go to state 141
+    TOK_BITXOR  shift, and go to state 142
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
+    TOK_GT      shift, and go to state 145
+    TOK_LT      shift, and go to state 146
+    TOK_GE      shift, and go to state 147
+    TOK_LE      shift, and go to state 148
+    TOK_EQ      shift, and go to state 149
+    TOK_NE      shift, and go to state 150
+    TOK_AND     shift, and go to state 151
+    TOK_OR      shift, and go to state 152
 
-    $default  reduce using rule 69 (expr_list)
-
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr_list            go to state 169
-    expr_plus            go to state 170
-    expr                 go to state 171
-    prt_expr             go to state 102
-    literal              go to state 103
+    TOK_PLUS    [reduce using rule 109 (prt_expr)]
+    TOK_MINUS   [reduce using rule 109 (prt_expr)]
+    TOK_MULT    [reduce using rule 109 (prt_expr)]
+    TOK_DIV     [reduce using rule 109 (prt_expr)]
+    TOK_MOD     [reduce using rule 109 (prt_expr)]
+    TOK_BITAND  [reduce using rule 109 (prt_expr)]
+    TOK_BITOR   [reduce using rule 109 (prt_expr)]
+    TOK_BITXOR  [reduce using rule 109 (prt_expr)]
+    TOK_SHL     [reduce using rule 109 (prt_expr)]
+    TOK_SHR     [reduce using rule 109 (prt_expr)]
+    TOK_GT      [reduce using rule 109 (prt_expr)]
+    TOK_LT      [reduce using rule 109 (prt_expr)]
+    TOK_GE      [reduce using rule 109 (prt_expr)]
+    TOK_LE      [reduce using rule 109 (prt_expr)]
+    TOK_EQ      [reduce using rule 109 (prt_expr)]
+    TOK_NE      [reduce using rule 109 (prt_expr)]
+    TOK_AND     [reduce using rule 109 (prt_expr)]
+    TOK_OR      [reduce using rule 109 (prt_expr)]
+    $default    reduce using rule 109 (prt_expr)
 
 
 state 122
 
-   67 function_invocation: TOK_IDENT funcinvolistpp .
+   54 stmt: TOK_WHILE expr . stmt
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    $default  reduce using rule 67 (function_invocation)
+    TOK_PLUS       shift, and go to state 135
+    TOK_MINUS      shift, and go to state 136
+    TOK_MULT       shift, and go to state 137
+    TOK_DIV        shift, and go to state 138
+    TOK_MOD        shift, and go to state 139
+    TOK_BITAND     shift, and go to state 140
+    TOK_BITOR      shift, and go to state 141
+    TOK_BITXOR     shift, and go to state 142
+    TOK_SHL        shift, and go to state 143
+    TOK_SHR        shift, and go to state 144
+    TOK_GT         shift, and go to state 145
+    TOK_LT         shift, and go to state 146
+    TOK_GE         shift, and go to state 147
+    TOK_LE         shift, and go to state 148
+    TOK_EQ         shift, and go to state 149
+    TOK_NE         shift, and go to state 150
+    TOK_AND        shift, and go to state 151
+    TOK_OR         shift, and go to state 152
+    TOK_SEMICOLON  shift, and go to state 67
+    TOK_LBRACE     shift, and go to state 68
+    TOK_IF         shift, and go to state 69
+    TOK_RETURN     shift, and go to state 70
+    TOK_PRINT      shift, and go to state 71
+    TOK_WHILE      shift, and go to state 72
+    TOK_IDENT      shift, and go to state 73
+
+    stmt                 go to state 171
+    ret_stmt             go to state 76
+    if_then_else_stmt    go to state 77
+    asg_stmt             go to state 78
+    ref_expr             go to state 79
+    function_invocation  go to state 80
+    prt_expr             go to state 81
 
 
 state 123
 
-   64 asg_stmt: ref_expr TOK_ASSIGN . expr
-   65         | ref_expr TOK_ASSIGN . error TOK_SEMICOLON
+   70 funcinvolistpp: TOK_LPAREN . expr_list TOK_RPAREN
 
-    error          shift, and go to state 172
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 173
-    prt_expr             go to state 102
-    literal              go to state 103
+    $default  reduce using rule 71 (expr_list)
+
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr_list            go to state 172
+    expr_plus            go to state 173
+    expr                 go to state 174
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 124
 
-   54 stmt: prt_expr TOK_SEMICOLON .
+   69 function_invocation: TOK_IDENT funcinvolistpp .
 
-    $default  reduce using rule 54 (stmt)
+    $default  reduce using rule 69 (function_invocation)
 
 
 state 125
+
+   66 asg_stmt: ref_expr TOK_ASSIGN . expr
+   67         | ref_expr TOK_ASSIGN . error TOK_SEMICOLON
+
+    error          shift, and go to state 175
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
+
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 176
+    prt_expr             go to state 103
+    literal              go to state 104
+
+
+state 126
+
+   55 stmt: prt_expr TOK_SEMICOLON .
+
+    $default  reduce using rule 55 (stmt)
+
+
+state 127
 
    10 rule: event_pattern TOK_ARROW rule_body1 TOK_SEMICOLON .
 
     $default  reduce using rule 10 (rule)
 
 
-state 126
+state 128
 
-   74 formalparamlistpp: TOK_LPAREN formal_param_list TOK_RPAREN .
+   76 formalparamlistpp: TOK_LPAREN formal_param_list TOK_RPAREN .
 
-    $default  reduce using rule 74 (formalparamlistpp)
+    $default  reduce using rule 76 (formalparamlistpp)
 
 
-state 127
+state 129
 
-  116 formal_param_plus: formal_param_plus TOK_COMMA . formal_param
+  118 formal_param_plus: formal_param_plus TOK_COMMA . formal_param
 
     TOK_VOID      shift, and go to state 11
     TOK_STRING    shift, and go to state 12
@@ -2008,1391 +2028,1355 @@ state 127
     TOK_BOOL      shift, and go to state 15
     TOK_BYTE      shift, and go to state 16
     TOK_DOUBLE    shift, and go to state 17
-    TOK_IDENT     shift, and go to state 84
+    TOK_IDENT     shift, and go to state 85
 
-    formal_param  go to state 174
-    type          go to state 88
+    formal_param  go to state 177
+    type          go to state 89
     baseType      go to state 32
-
-
-state 128
-
-  117 formal_param: type TOK_IDENT .
-
-    $default  reduce using rule 117 (formal_param)
-
-
-state 129
-
-   86 expr: TOK_MINUS expr .
-   89     | expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
-
-    TOK_MULT  shift, and go to state 135
-    TOK_DIV   shift, and go to state 136
-    TOK_MOD   shift, and go to state 137
-
-    $default  reduce using rule 86 (expr)
 
 
 state 130
 
-   85 expr: TOK_BITNOT expr .
-   89     | expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+  119 formal_param: type TOK_IDENT .
 
-    TOK_PLUS   shift, and go to state 133
-    TOK_MINUS  shift, and go to state 134
-    TOK_MULT   shift, and go to state 135
-    TOK_DIV    shift, and go to state 136
-    TOK_MOD    shift, and go to state 137
-    TOK_SHL    shift, and go to state 141
-    TOK_SHR    shift, and go to state 142
-
-    $default  reduce using rule 85 (expr)
+    $default  reduce using rule 119 (formal_param)
 
 
 state 131
 
-   88 expr: TOK_NOT expr .
-   89     | expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   88 expr: TOK_MINUS expr .
+   91     | expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_BITOR   shift, and go to state 139
-    TOK_BITXOR  shift, and go to state 140
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
-    TOK_GT      shift, and go to state 143
-    TOK_LT      shift, and go to state 144
-    TOK_GE      shift, and go to state 145
-    TOK_LE      shift, and go to state 146
-    TOK_EQ      shift, and go to state 147
-    TOK_NE      shift, and go to state 148
+    TOK_MULT  shift, and go to state 137
+    TOK_DIV   shift, and go to state 138
+    TOK_MOD   shift, and go to state 139
 
     $default  reduce using rule 88 (expr)
 
 
 state 132
 
-   87 expr: TOK_LPAREN expr . TOK_RPAREN
-   89     | expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   87 expr: TOK_BITNOT expr .
+   91     | expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_BITOR   shift, and go to state 139
-    TOK_BITXOR  shift, and go to state 140
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
-    TOK_GT      shift, and go to state 143
-    TOK_LT      shift, and go to state 144
-    TOK_GE      shift, and go to state 145
-    TOK_LE      shift, and go to state 146
-    TOK_EQ      shift, and go to state 147
-    TOK_NE      shift, and go to state 148
-    TOK_AND     shift, and go to state 149
-    TOK_OR      shift, and go to state 150
-    TOK_RPAREN  shift, and go to state 175
+    TOK_PLUS   shift, and go to state 135
+    TOK_MINUS  shift, and go to state 136
+    TOK_MULT   shift, and go to state 137
+    TOK_DIV    shift, and go to state 138
+    TOK_MOD    shift, and go to state 139
+    TOK_SHL    shift, and go to state 143
+    TOK_SHR    shift, and go to state 144
+
+    $default  reduce using rule 87 (expr)
 
 
 state 133
 
-  106 expr: expr TOK_PLUS . expr
+   90 expr: TOK_NOT expr .
+   91     | expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_BITOR   shift, and go to state 141
+    TOK_BITXOR  shift, and go to state 142
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
+    TOK_GT      shift, and go to state 145
+    TOK_LT      shift, and go to state 146
+    TOK_GE      shift, and go to state 147
+    TOK_LE      shift, and go to state 148
+    TOK_EQ      shift, and go to state 149
+    TOK_NE      shift, and go to state 150
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 176
-    prt_expr             go to state 102
-    literal              go to state 103
+    $default  reduce using rule 90 (expr)
 
 
 state 134
 
-   99 expr: expr TOK_MINUS . expr
+   89 expr: TOK_LPAREN expr . TOK_RPAREN
+   91     | expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
-
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 177
-    prt_expr             go to state 102
-    literal              go to state 103
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_BITOR   shift, and go to state 141
+    TOK_BITXOR  shift, and go to state 142
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
+    TOK_GT      shift, and go to state 145
+    TOK_LT      shift, and go to state 146
+    TOK_GE      shift, and go to state 147
+    TOK_LE      shift, and go to state 148
+    TOK_EQ      shift, and go to state 149
+    TOK_NE      shift, and go to state 150
+    TOK_AND     shift, and go to state 151
+    TOK_OR      shift, and go to state 152
+    TOK_RPAREN  shift, and go to state 178
 
 
 state 135
 
-  102 expr: expr TOK_MULT . expr
+  108 expr: expr TOK_PLUS . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 178
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 179
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 136
 
-  101 expr: expr TOK_DIV . expr
+  101 expr: expr TOK_MINUS . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 179
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 180
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 137
 
-  105 expr: expr TOK_MOD . expr
+  104 expr: expr TOK_MULT . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 180
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 181
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 138
 
-  103 expr: expr TOK_BITAND . expr
+  103 expr: expr TOK_DIV . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 181
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 182
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 139
 
-   98 expr: expr TOK_BITOR . expr
+  107 expr: expr TOK_MOD . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 182
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 183
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 140
 
-   89 expr: expr TOK_BITXOR . expr
+  105 expr: expr TOK_BITAND . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 183
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 184
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 141
 
-   90 expr: expr TOK_SHL . expr
+  100 expr: expr TOK_BITOR . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 184
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 185
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 142
 
-   95 expr: expr TOK_SHR . expr
+   91 expr: expr TOK_BITXOR . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 185
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 186
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 143
 
-   96 expr: expr TOK_GT . expr
+   92 expr: expr TOK_SHL . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 186
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 187
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 144
 
-   92 expr: expr TOK_LT . expr
+   97 expr: expr TOK_SHR . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 187
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 188
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 145
 
-   94 expr: expr TOK_GE . expr
+   98 expr: expr TOK_GT . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 188
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 189
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 146
 
-   91 expr: expr TOK_LE . expr
+   94 expr: expr TOK_LT . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 189
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 190
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 147
 
-   93 expr: expr TOK_EQ . expr
+   96 expr: expr TOK_GE . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 190
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 191
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 148
 
-  100 expr: expr TOK_NE . expr
+   93 expr: expr TOK_LE . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 191
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 192
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 149
 
-  104 expr: expr TOK_AND . expr
+   95 expr: expr TOK_EQ . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 192
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 193
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 150
 
-   97 expr: expr TOK_OR . expr
+  102 expr: expr TOK_NE . expr
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 193
-    prt_expr             go to state 102
-    literal              go to state 103
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 194
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 151
 
-   32 variable_decl: TOK_IDENT . error TOK_SEMICOLON
-   66 ref_expr: TOK_IDENT .
-   67 function_invocation: TOK_IDENT . funcinvolistpp
-  120 type: TOK_IDENT .
+  106 expr: expr TOK_AND . expr
 
-    error       shift, and go to state 41
-    TOK_LPAREN  shift, and go to state 121
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    error       [reduce using rule 120 (type)]
-    TOK_ASSIGN  reduce using rule 66 (ref_expr)
-    TOK_IDENT   reduce using rule 120 (type)
-
-    funcinvolistpp  go to state 122
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 195
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 152
 
-   78 fun_rest: variable_decl . stmt_plus
-   79         | variable_decl . error
+   99 expr: expr TOK_OR . expr
 
-    error          shift, and go to state 194
-    TOK_SEMICOLON  shift, and go to state 66
-    TOK_LBRACE     shift, and go to state 67
-    TOK_IF         shift, and go to state 68
-    TOK_RETURN     shift, and go to state 69
-    TOK_PRINT      shift, and go to state 70
-    TOK_WHILE      shift, and go to state 71
-    TOK_IDENT      shift, and go to state 72
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
 
-    stmt                 go to state 114
-    ret_stmt             go to state 75
-    stmt_plus            go to state 195
-    if_then_else_stmt    go to state 76
-    asg_stmt             go to state 77
-    ref_expr             go to state 78
-    function_invocation  go to state 79
-    prt_expr             go to state 80
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 196
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 153
 
-   57 stmt_plus: stmt_plus . stmt
-   58          | stmt_plus . error stmt
-   77 fun_rest: stmt_plus .
+   32 variable_decl: TOK_IDENT . error TOK_SEMICOLON
+   68 ref_expr: TOK_IDENT .
+   69 function_invocation: TOK_IDENT . funcinvolistpp
+  122 type: TOK_IDENT .
 
-    error          shift, and go to state 162
-    TOK_SEMICOLON  shift, and go to state 66
-    TOK_LBRACE     shift, and go to state 67
-    TOK_IF         shift, and go to state 68
-    TOK_RETURN     shift, and go to state 69
-    TOK_PRINT      shift, and go to state 70
-    TOK_WHILE      shift, and go to state 71
-    TOK_IDENT      shift, and go to state 72
+    error       shift, and go to state 42
+    TOK_LPAREN  shift, and go to state 123
 
-    TOK_RBRACE  reduce using rule 77 (fun_rest)
+    error       [reduce using rule 122 (type)]
+    TOK_ASSIGN  reduce using rule 68 (ref_expr)
+    TOK_IDENT   reduce using rule 122 (type)
 
-    stmt                 go to state 164
-    ret_stmt             go to state 75
-    if_then_else_stmt    go to state 76
-    asg_stmt             go to state 77
-    ref_expr             go to state 78
-    function_invocation  go to state 79
-    prt_expr             go to state 80
+    funcinvolistpp  go to state 124
 
 
 state 154
 
-   76 funcbody: TOK_LBRACE fun_rest . TOK_RBRACE
+   80 fun_rest: variable_decl . stmt_plus
+   81         | variable_decl . error
 
-    TOK_RBRACE  shift, and go to state 196
+    error          shift, and go to state 197
+    TOK_SEMICOLON  shift, and go to state 67
+    TOK_LBRACE     shift, and go to state 68
+    TOK_IF         shift, and go to state 69
+    TOK_RETURN     shift, and go to state 70
+    TOK_PRINT      shift, and go to state 71
+    TOK_WHILE      shift, and go to state 72
+    TOK_IDENT      shift, and go to state 73
+
+    stmt                 go to state 116
+    ret_stmt             go to state 76
+    stmt_plus            go to state 198
+    if_then_else_stmt    go to state 77
+    asg_stmt             go to state 78
+    ref_expr             go to state 79
+    function_invocation  go to state 80
+    prt_expr             go to state 81
 
 
 state 155
+
+   59 stmt_plus: stmt_plus . stmt
+   60          | stmt_plus . error stmt
+   79 fun_rest: stmt_plus .
+
+    error          shift, and go to state 165
+    TOK_SEMICOLON  shift, and go to state 67
+    TOK_LBRACE     shift, and go to state 68
+    TOK_IF         shift, and go to state 69
+    TOK_RETURN     shift, and go to state 70
+    TOK_PRINT      shift, and go to state 71
+    TOK_WHILE      shift, and go to state 72
+    TOK_IDENT      shift, and go to state 73
+
+    TOK_RBRACE  reduce using rule 79 (fun_rest)
+
+    stmt                 go to state 167
+    ret_stmt             go to state 76
+    if_then_else_stmt    go to state 77
+    asg_stmt             go to state 78
+    ref_expr             go to state 79
+    function_invocation  go to state 80
+    prt_expr             go to state 81
+
+
+state 156
+
+   78 funcbody: TOK_LBRACE fun_rest . TOK_RBRACE
+
+    TOK_RBRACE  shift, and go to state 199
+
+
+state 157
 
    28 variable_decl: type . vlist TOK_SEMICOLON
    29              | type . vlist error TOK_SEMICOLON
    30              | type . vlist TOK_COMMA error
    31              | type . error TOK_SEMICOLON
 
-    error      shift, and go to state 56
-    TOK_IDENT  shift, and go to state 159
+    error      shift, and go to state 57
+    TOK_IDENT  shift, and go to state 161
 
-    vlist  go to state 58
-    vname  go to state 59
+    vlist  go to state 59
+    vname  go to state 60
 
 
-state 156
+state 158
 
    36 vname: TOK_IDENT TOK_ASSIGN expr .
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_BITOR   shift, and go to state 139
-    TOK_BITXOR  shift, and go to state 140
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
-    TOK_GT      shift, and go to state 143
-    TOK_LT      shift, and go to state 144
-    TOK_GE      shift, and go to state 145
-    TOK_LE      shift, and go to state 146
-    TOK_EQ      shift, and go to state 147
-    TOK_NE      shift, and go to state 148
-    TOK_AND     shift, and go to state 149
-    TOK_OR      shift, and go to state 150
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_BITOR   shift, and go to state 141
+    TOK_BITXOR  shift, and go to state 142
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
+    TOK_GT      shift, and go to state 145
+    TOK_LT      shift, and go to state 146
+    TOK_GE      shift, and go to state 147
+    TOK_LE      shift, and go to state 148
+    TOK_EQ      shift, and go to state 149
+    TOK_NE      shift, and go to state 150
+    TOK_AND     shift, and go to state 151
+    TOK_OR      shift, and go to state 152
 
     $default  reduce using rule 36 (vname)
 
 
-state 157
+state 159
 
    29 variable_decl: type vlist error TOK_SEMICOLON .
 
     $default  reduce using rule 29 (variable_decl)
 
 
-state 158
+state 160
 
    30 variable_decl: type vlist TOK_COMMA error .
 
     $default  reduce using rule 30 (variable_decl)
 
 
-state 159
+state 161
 
    35 vname: TOK_IDENT .
    36      | TOK_IDENT . TOK_ASSIGN expr
 
-    TOK_ASSIGN  shift, and go to state 108
+    TOK_ASSIGN  shift, and go to state 109
 
     $default  reduce using rule 35 (vname)
 
 
-state 160
+state 162
 
    34 vlist: vlist TOK_COMMA vname .
 
     $default  reduce using rule 34 (vlist)
 
 
-state 161
-
-   46 evenparamlist: evenparamlist TOK_COMMA TOK_IDENT .
-
-    $default  reduce using rule 46 (evenparamlist)
-
-
-state 162
-
-   58 stmt_plus: stmt_plus error . stmt
-
-    TOK_SEMICOLON  shift, and go to state 66
-    TOK_LBRACE     shift, and go to state 67
-    TOK_IF         shift, and go to state 68
-    TOK_RETURN     shift, and go to state 69
-    TOK_PRINT      shift, and go to state 70
-    TOK_WHILE      shift, and go to state 71
-    TOK_IDENT      shift, and go to state 72
-
-    stmt                 go to state 197
-    ret_stmt             go to state 75
-    if_then_else_stmt    go to state 76
-    asg_stmt             go to state 77
-    ref_expr             go to state 78
-    function_invocation  go to state 79
-    prt_expr             go to state 80
-
-
 state 163
 
-   50 stmt: TOK_LBRACE stmt_plus TOK_RBRACE .
+   47 evenparamlist: evenparamlist TOK_COMMA TOK_IDENT .
 
-    $default  reduce using rule 50 (stmt)
+    $default  reduce using rule 47 (evenparamlist)
 
 
 state 164
 
-   57 stmt_plus: stmt_plus stmt .
+   56 stmt: TOK_LBRACE error TOK_RBRACE .
 
-    $default  reduce using rule 57 (stmt_plus)
+    $default  reduce using rule 56 (stmt)
 
 
 state 165
 
-   61 if_then_else_stmt: TOK_IF error stmt .
+   60 stmt_plus: stmt_plus error . stmt
 
-    $default  reduce using rule 61 (if_then_else_stmt)
+    TOK_SEMICOLON  shift, and go to state 67
+    TOK_LBRACE     shift, and go to state 68
+    TOK_IF         shift, and go to state 69
+    TOK_RETURN     shift, and go to state 70
+    TOK_PRINT      shift, and go to state 71
+    TOK_WHILE      shift, and go to state 72
+    TOK_IDENT      shift, and go to state 73
+
+    stmt                 go to state 200
+    ret_stmt             go to state 76
+    if_then_else_stmt    go to state 77
+    asg_stmt             go to state 78
+    ref_expr             go to state 79
+    function_invocation  go to state 80
+    prt_expr             go to state 81
 
 
 state 166
 
-   62 if_then_else_stmt: TOK_IF expr error . stmt
+   51 stmt: TOK_LBRACE stmt_plus TOK_RBRACE .
 
-    TOK_SEMICOLON  shift, and go to state 66
-    TOK_LBRACE     shift, and go to state 67
-    TOK_IF         shift, and go to state 68
-    TOK_RETURN     shift, and go to state 69
-    TOK_PRINT      shift, and go to state 70
-    TOK_WHILE      shift, and go to state 71
-    TOK_IDENT      shift, and go to state 72
-
-    stmt                 go to state 198
-    ret_stmt             go to state 75
-    if_then_else_stmt    go to state 76
-    asg_stmt             go to state 77
-    ref_expr             go to state 78
-    function_invocation  go to state 79
-    prt_expr             go to state 80
+    $default  reduce using rule 51 (stmt)
 
 
 state 167
 
-   59 if_then_else_stmt: TOK_IF expr stmt . TOK_ELSE stmt
-   60                  | TOK_IF expr stmt .
-   63                  | TOK_IF expr stmt . TOK_ELSE error TOK_SEMICOLON
+   59 stmt_plus: stmt_plus stmt .
 
-    TOK_ELSE  shift, and go to state 199
-
-    TOK_ELSE  [reduce using rule 60 (if_then_else_stmt)]
-    $default  reduce using rule 60 (if_then_else_stmt)
+    $default  reduce using rule 59 (stmt_plus)
 
 
 state 168
 
-   53 stmt: TOK_WHILE expr stmt .
+   63 if_then_else_stmt: TOK_IF error stmt .
 
-    $default  reduce using rule 53 (stmt)
+    $default  reduce using rule 63 (if_then_else_stmt)
 
 
 state 169
 
-   68 funcinvolistpp: TOK_LPAREN expr_list . TOK_RPAREN
+   64 if_then_else_stmt: TOK_IF expr error . stmt
 
-    TOK_RPAREN  shift, and go to state 200
+    TOK_SEMICOLON  shift, and go to state 67
+    TOK_LBRACE     shift, and go to state 68
+    TOK_IF         shift, and go to state 69
+    TOK_RETURN     shift, and go to state 70
+    TOK_PRINT      shift, and go to state 71
+    TOK_WHILE      shift, and go to state 72
+    TOK_IDENT      shift, and go to state 73
+
+    stmt                 go to state 201
+    ret_stmt             go to state 76
+    if_then_else_stmt    go to state 77
+    asg_stmt             go to state 78
+    ref_expr             go to state 79
+    function_invocation  go to state 80
+    prt_expr             go to state 81
 
 
 state 170
 
-   70 expr_list: expr_plus .
-   72 expr_plus: expr_plus . TOK_COMMA expr
+   61 if_then_else_stmt: TOK_IF expr stmt . TOK_ELSE stmt
+   62                  | TOK_IF expr stmt .
+   65                  | TOK_IF expr stmt . TOK_ELSE error TOK_SEMICOLON
 
-    TOK_COMMA  shift, and go to state 201
+    TOK_ELSE  shift, and go to state 202
 
-    $default  reduce using rule 70 (expr_list)
+    TOK_ELSE  [reduce using rule 62 (if_then_else_stmt)]
+    $default  reduce using rule 62 (if_then_else_stmt)
 
 
 state 171
 
-   71 expr_plus: expr .
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   54 stmt: TOK_WHILE expr stmt .
 
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_BITOR   shift, and go to state 139
-    TOK_BITXOR  shift, and go to state 140
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
-    TOK_GT      shift, and go to state 143
-    TOK_LT      shift, and go to state 144
-    TOK_GE      shift, and go to state 145
-    TOK_LE      shift, and go to state 146
-    TOK_EQ      shift, and go to state 147
-    TOK_NE      shift, and go to state 148
-    TOK_AND     shift, and go to state 149
-    TOK_OR      shift, and go to state 150
-
-    $default  reduce using rule 71 (expr_plus)
+    $default  reduce using rule 54 (stmt)
 
 
 state 172
 
-   65 asg_stmt: ref_expr TOK_ASSIGN error . TOK_SEMICOLON
+   70 funcinvolistpp: TOK_LPAREN expr_list . TOK_RPAREN
 
-    TOK_SEMICOLON  shift, and go to state 202
+    TOK_RPAREN  shift, and go to state 203
 
 
 state 173
 
-   64 asg_stmt: ref_expr TOK_ASSIGN expr .
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   72 expr_list: expr_plus .
+   74 expr_plus: expr_plus . TOK_COMMA expr
 
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_BITOR   shift, and go to state 139
-    TOK_BITXOR  shift, and go to state 140
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
-    TOK_GT      shift, and go to state 143
-    TOK_LT      shift, and go to state 144
-    TOK_GE      shift, and go to state 145
-    TOK_LE      shift, and go to state 146
-    TOK_EQ      shift, and go to state 147
-    TOK_NE      shift, and go to state 148
-    TOK_AND     shift, and go to state 149
-    TOK_OR      shift, and go to state 150
+    TOK_COMMA  shift, and go to state 204
 
-    $default  reduce using rule 64 (asg_stmt)
+    $default  reduce using rule 72 (expr_list)
 
 
 state 174
 
-  116 formal_param_plus: formal_param_plus TOK_COMMA formal_param .
+   73 expr_plus: expr .
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    $default  reduce using rule 116 (formal_param_plus)
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_BITOR   shift, and go to state 141
+    TOK_BITXOR  shift, and go to state 142
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
+    TOK_GT      shift, and go to state 145
+    TOK_LT      shift, and go to state 146
+    TOK_GE      shift, and go to state 147
+    TOK_LE      shift, and go to state 148
+    TOK_EQ      shift, and go to state 149
+    TOK_NE      shift, and go to state 150
+    TOK_AND     shift, and go to state 151
+    TOK_OR      shift, and go to state 152
+
+    $default  reduce using rule 73 (expr_plus)
 
 
 state 175
 
-   87 expr: TOK_LPAREN expr TOK_RPAREN .
+   67 asg_stmt: ref_expr TOK_ASSIGN error . TOK_SEMICOLON
 
-    $default  reduce using rule 87 (expr)
+    TOK_SEMICOLON  shift, and go to state 205
 
 
 state 176
 
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
-  106     | expr TOK_PLUS expr .
+   66 asg_stmt: ref_expr TOK_ASSIGN expr .
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    TOK_MULT  shift, and go to state 135
-    TOK_DIV   shift, and go to state 136
-    TOK_MOD   shift, and go to state 137
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_BITOR   shift, and go to state 141
+    TOK_BITXOR  shift, and go to state 142
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
+    TOK_GT      shift, and go to state 145
+    TOK_LT      shift, and go to state 146
+    TOK_GE      shift, and go to state 147
+    TOK_LE      shift, and go to state 148
+    TOK_EQ      shift, and go to state 149
+    TOK_NE      shift, and go to state 150
+    TOK_AND     shift, and go to state 151
+    TOK_OR      shift, and go to state 152
 
-    $default  reduce using rule 106 (expr)
+    $default  reduce using rule 66 (asg_stmt)
 
 
 state 177
 
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-   99     | expr TOK_MINUS expr .
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+  118 formal_param_plus: formal_param_plus TOK_COMMA formal_param .
 
-    TOK_MULT  shift, and go to state 135
-    TOK_DIV   shift, and go to state 136
-    TOK_MOD   shift, and go to state 137
-
-    $default  reduce using rule 99 (expr)
+    $default  reduce using rule 118 (formal_param_plus)
 
 
 state 178
 
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  102     | expr TOK_MULT expr .
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
-
-    $default  reduce using rule 102 (expr)
-
-
-state 179
-
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  101     | expr TOK_DIV expr .
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
-
-    $default  reduce using rule 101 (expr)
-
-
-state 180
-
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  105     | expr TOK_MOD expr .
-  106     | expr . TOK_PLUS expr
-
-    $default  reduce using rule 105 (expr)
-
-
-state 181
-
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  103     | expr TOK_BITAND expr .
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
-
-    TOK_PLUS   shift, and go to state 133
-    TOK_MINUS  shift, and go to state 134
-    TOK_MULT   shift, and go to state 135
-    TOK_DIV    shift, and go to state 136
-    TOK_MOD    shift, and go to state 137
-    TOK_SHL    shift, and go to state 141
-    TOK_SHR    shift, and go to state 142
-
-    $default  reduce using rule 103 (expr)
-
-
-state 182
-
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   98     | expr TOK_BITOR expr .
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
-
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
-
-    $default  reduce using rule 98 (expr)
-
-
-state 183
-
-   89 expr: expr . TOK_BITXOR expr
-   89     | expr TOK_BITXOR expr .
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
-
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
+   89 expr: TOK_LPAREN expr TOK_RPAREN .
 
     $default  reduce using rule 89 (expr)
 
 
+state 179
+
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
+  108     | expr TOK_PLUS expr .
+
+    TOK_MULT  shift, and go to state 137
+    TOK_DIV   shift, and go to state 138
+    TOK_MOD   shift, and go to state 139
+
+    $default  reduce using rule 108 (expr)
+
+
+state 180
+
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  101     | expr TOK_MINUS expr .
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
+
+    TOK_MULT  shift, and go to state 137
+    TOK_DIV   shift, and go to state 138
+    TOK_MOD   shift, and go to state 139
+
+    $default  reduce using rule 101 (expr)
+
+
+state 181
+
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  104     | expr TOK_MULT expr .
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
+
+    $default  reduce using rule 104 (expr)
+
+
+state 182
+
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  103     | expr TOK_DIV expr .
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
+
+    $default  reduce using rule 103 (expr)
+
+
+state 183
+
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  107     | expr TOK_MOD expr .
+  108     | expr . TOK_PLUS expr
+
+    $default  reduce using rule 107 (expr)
+
+
 state 184
 
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   90     | expr TOK_SHL expr .
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  105     | expr TOK_BITAND expr .
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    TOK_PLUS   shift, and go to state 133
-    TOK_MINUS  shift, and go to state 134
-    TOK_MULT   shift, and go to state 135
-    TOK_DIV    shift, and go to state 136
-    TOK_MOD    shift, and go to state 137
+    TOK_PLUS   shift, and go to state 135
+    TOK_MINUS  shift, and go to state 136
+    TOK_MULT   shift, and go to state 137
+    TOK_DIV    shift, and go to state 138
+    TOK_MOD    shift, and go to state 139
+    TOK_SHL    shift, and go to state 143
+    TOK_SHR    shift, and go to state 144
 
-    $default  reduce using rule 90 (expr)
+    $default  reduce using rule 105 (expr)
 
 
 state 185
 
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   95     | expr TOK_SHR expr .
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  100     | expr TOK_BITOR expr .
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    TOK_PLUS   shift, and go to state 133
-    TOK_MINUS  shift, and go to state 134
-    TOK_MULT   shift, and go to state 135
-    TOK_DIV    shift, and go to state 136
-    TOK_MOD    shift, and go to state 137
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
 
-    $default  reduce using rule 95 (expr)
+    $default  reduce using rule 100 (expr)
 
 
 state 186
 
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   96     | expr TOK_GT expr .
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   91 expr: expr . TOK_BITXOR expr
+   91     | expr TOK_BITXOR expr .
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_BITOR   shift, and go to state 139
-    TOK_BITXOR  shift, and go to state 140
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
 
-    TOK_GT  error (nonassociative)
-    TOK_LT  error (nonassociative)
-    TOK_GE  error (nonassociative)
-    TOK_LE  error (nonassociative)
-    TOK_EQ  error (nonassociative)
-    TOK_NE  error (nonassociative)
-
-    $default  reduce using rule 96 (expr)
+    $default  reduce using rule 91 (expr)
 
 
 state 187
 
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   92     | expr TOK_LT expr .
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   92     | expr TOK_SHL expr .
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_BITOR   shift, and go to state 139
-    TOK_BITXOR  shift, and go to state 140
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
-
-    TOK_GT  error (nonassociative)
-    TOK_LT  error (nonassociative)
-    TOK_GE  error (nonassociative)
-    TOK_LE  error (nonassociative)
-    TOK_EQ  error (nonassociative)
-    TOK_NE  error (nonassociative)
+    TOK_PLUS   shift, and go to state 135
+    TOK_MINUS  shift, and go to state 136
+    TOK_MULT   shift, and go to state 137
+    TOK_DIV    shift, and go to state 138
+    TOK_MOD    shift, and go to state 139
 
     $default  reduce using rule 92 (expr)
 
 
 state 188
 
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   94     | expr TOK_GE expr .
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   97     | expr TOK_SHR expr .
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_BITOR   shift, and go to state 139
-    TOK_BITXOR  shift, and go to state 140
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
+    TOK_PLUS   shift, and go to state 135
+    TOK_MINUS  shift, and go to state 136
+    TOK_MULT   shift, and go to state 137
+    TOK_DIV    shift, and go to state 138
+    TOK_MOD    shift, and go to state 139
+
+    $default  reduce using rule 97 (expr)
+
+
+state 189
+
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   98     | expr TOK_GT expr .
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
+
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_BITOR   shift, and go to state 141
+    TOK_BITXOR  shift, and go to state 142
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
+
+    TOK_GT  error (nonassociative)
+    TOK_LT  error (nonassociative)
+    TOK_GE  error (nonassociative)
+    TOK_LE  error (nonassociative)
+    TOK_EQ  error (nonassociative)
+    TOK_NE  error (nonassociative)
+
+    $default  reduce using rule 98 (expr)
+
+
+state 190
+
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   94     | expr TOK_LT expr .
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
+
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_BITOR   shift, and go to state 141
+    TOK_BITXOR  shift, and go to state 142
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
 
     TOK_GT  error (nonassociative)
     TOK_LT  error (nonassociative)
@@ -3404,38 +3388,38 @@ state 188
     $default  reduce using rule 94 (expr)
 
 
-state 189
+state 191
 
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   91     | expr TOK_LE expr .
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   96     | expr TOK_GE expr .
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_BITOR   shift, and go to state 139
-    TOK_BITXOR  shift, and go to state 140
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_BITOR   shift, and go to state 141
+    TOK_BITXOR  shift, and go to state 142
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
 
     TOK_GT  error (nonassociative)
     TOK_LT  error (nonassociative)
@@ -3444,41 +3428,41 @@ state 189
     TOK_EQ  error (nonassociative)
     TOK_NE  error (nonassociative)
 
-    $default  reduce using rule 91 (expr)
+    $default  reduce using rule 96 (expr)
 
 
-state 190
+state 192
 
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   93     | expr TOK_EQ expr .
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   93     | expr TOK_LE expr .
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_BITOR   shift, and go to state 139
-    TOK_BITXOR  shift, and go to state 140
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_BITOR   shift, and go to state 141
+    TOK_BITXOR  shift, and go to state 142
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
 
     TOK_GT  error (nonassociative)
     TOK_LT  error (nonassociative)
@@ -3490,38 +3474,38 @@ state 190
     $default  reduce using rule 93 (expr)
 
 
-state 191
+state 193
 
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  100     | expr TOK_NE expr .
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   95     | expr TOK_EQ expr .
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_BITOR   shift, and go to state 139
-    TOK_BITXOR  shift, and go to state 140
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_BITOR   shift, and go to state 141
+    TOK_BITXOR  shift, and go to state 142
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
 
     TOK_GT  error (nonassociative)
     TOK_LT  error (nonassociative)
@@ -3530,269 +3514,312 @@ state 191
     TOK_EQ  error (nonassociative)
     TOK_NE  error (nonassociative)
 
-    $default  reduce using rule 100 (expr)
-
-
-state 192
-
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  104     | expr TOK_AND expr .
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
-
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_BITOR   shift, and go to state 139
-    TOK_BITXOR  shift, and go to state 140
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
-    TOK_GT      shift, and go to state 143
-    TOK_LT      shift, and go to state 144
-    TOK_GE      shift, and go to state 145
-    TOK_LE      shift, and go to state 146
-    TOK_EQ      shift, and go to state 147
-    TOK_NE      shift, and go to state 148
-
-    $default  reduce using rule 104 (expr)
-
-
-state 193
-
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   97     | expr TOK_OR expr .
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
-
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_BITOR   shift, and go to state 139
-    TOK_BITXOR  shift, and go to state 140
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
-    TOK_GT      shift, and go to state 143
-    TOK_LT      shift, and go to state 144
-    TOK_GE      shift, and go to state 145
-    TOK_LE      shift, and go to state 146
-    TOK_EQ      shift, and go to state 147
-    TOK_NE      shift, and go to state 148
-    TOK_AND     shift, and go to state 149
-
-    $default  reduce using rule 97 (expr)
+    $default  reduce using rule 95 (expr)
 
 
 state 194
 
-   79 fun_rest: variable_decl error .
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  102     | expr TOK_NE expr .
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    $default  reduce using rule 79 (fun_rest)
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_BITOR   shift, and go to state 141
+    TOK_BITXOR  shift, and go to state 142
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
+
+    TOK_GT  error (nonassociative)
+    TOK_LT  error (nonassociative)
+    TOK_GE  error (nonassociative)
+    TOK_LE  error (nonassociative)
+    TOK_EQ  error (nonassociative)
+    TOK_NE  error (nonassociative)
+
+    $default  reduce using rule 102 (expr)
 
 
 state 195
 
-   57 stmt_plus: stmt_plus . stmt
-   58          | stmt_plus . error stmt
-   78 fun_rest: variable_decl stmt_plus .
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  106     | expr TOK_AND expr .
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    error          shift, and go to state 162
-    TOK_SEMICOLON  shift, and go to state 66
-    TOK_LBRACE     shift, and go to state 67
-    TOK_IF         shift, and go to state 68
-    TOK_RETURN     shift, and go to state 69
-    TOK_PRINT      shift, and go to state 70
-    TOK_WHILE      shift, and go to state 71
-    TOK_IDENT      shift, and go to state 72
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_BITOR   shift, and go to state 141
+    TOK_BITXOR  shift, and go to state 142
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
+    TOK_GT      shift, and go to state 145
+    TOK_LT      shift, and go to state 146
+    TOK_GE      shift, and go to state 147
+    TOK_LE      shift, and go to state 148
+    TOK_EQ      shift, and go to state 149
+    TOK_NE      shift, and go to state 150
 
-    TOK_RBRACE  reduce using rule 78 (fun_rest)
-
-    stmt                 go to state 164
-    ret_stmt             go to state 75
-    if_then_else_stmt    go to state 76
-    asg_stmt             go to state 77
-    ref_expr             go to state 78
-    function_invocation  go to state 79
-    prt_expr             go to state 80
+    $default  reduce using rule 106 (expr)
 
 
 state 196
 
-   76 funcbody: TOK_LBRACE fun_rest TOK_RBRACE .
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+   99     | expr TOK_OR expr .
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
 
-    $default  reduce using rule 76 (funcbody)
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_BITOR   shift, and go to state 141
+    TOK_BITXOR  shift, and go to state 142
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
+    TOK_GT      shift, and go to state 145
+    TOK_LT      shift, and go to state 146
+    TOK_GE      shift, and go to state 147
+    TOK_LE      shift, and go to state 148
+    TOK_EQ      shift, and go to state 149
+    TOK_NE      shift, and go to state 150
+    TOK_AND     shift, and go to state 151
+
+    $default  reduce using rule 99 (expr)
 
 
 state 197
 
-   58 stmt_plus: stmt_plus error stmt .
+   81 fun_rest: variable_decl error .
 
-    $default  reduce using rule 58 (stmt_plus)
+    $default  reduce using rule 81 (fun_rest)
 
 
 state 198
 
-   62 if_then_else_stmt: TOK_IF expr error stmt .
+   59 stmt_plus: stmt_plus . stmt
+   60          | stmt_plus . error stmt
+   80 fun_rest: variable_decl stmt_plus .
 
-    $default  reduce using rule 62 (if_then_else_stmt)
+    error          shift, and go to state 165
+    TOK_SEMICOLON  shift, and go to state 67
+    TOK_LBRACE     shift, and go to state 68
+    TOK_IF         shift, and go to state 69
+    TOK_RETURN     shift, and go to state 70
+    TOK_PRINT      shift, and go to state 71
+    TOK_WHILE      shift, and go to state 72
+    TOK_IDENT      shift, and go to state 73
+
+    TOK_RBRACE  reduce using rule 80 (fun_rest)
+
+    stmt                 go to state 167
+    ret_stmt             go to state 76
+    if_then_else_stmt    go to state 77
+    asg_stmt             go to state 78
+    ref_expr             go to state 79
+    function_invocation  go to state 80
+    prt_expr             go to state 81
 
 
 state 199
 
-   59 if_then_else_stmt: TOK_IF expr stmt TOK_ELSE . stmt
-   63                  | TOK_IF expr stmt TOK_ELSE . error TOK_SEMICOLON
+   78 funcbody: TOK_LBRACE fun_rest TOK_RBRACE .
 
-    error          shift, and go to state 203
-    TOK_SEMICOLON  shift, and go to state 66
-    TOK_LBRACE     shift, and go to state 67
-    TOK_IF         shift, and go to state 68
-    TOK_RETURN     shift, and go to state 69
-    TOK_PRINT      shift, and go to state 70
-    TOK_WHILE      shift, and go to state 71
-    TOK_IDENT      shift, and go to state 72
-
-    stmt                 go to state 204
-    ret_stmt             go to state 75
-    if_then_else_stmt    go to state 76
-    asg_stmt             go to state 77
-    ref_expr             go to state 78
-    function_invocation  go to state 79
-    prt_expr             go to state 80
+    $default  reduce using rule 78 (funcbody)
 
 
 state 200
 
-   68 funcinvolistpp: TOK_LPAREN expr_list TOK_RPAREN .
+   60 stmt_plus: stmt_plus error stmt .
 
-    $default  reduce using rule 68 (funcinvolistpp)
+    $default  reduce using rule 60 (stmt_plus)
 
 
 state 201
 
-   72 expr_plus: expr_plus TOK_COMMA . expr
+   64 if_then_else_stmt: TOK_IF expr error stmt .
 
-    TOK_MINUS      shift, and go to state 89
-    TOK_BITNOT     shift, and go to state 90
-    TOK_NOT        shift, and go to state 91
-    TOK_LPAREN     shift, and go to state 92
-    TOK_PRINT      shift, and go to state 70
-    TOK_UINTNUM    shift, and go to state 93
-    TOK_DOUBLENUM  shift, and go to state 94
-    TOK_STRCONST   shift, and go to state 95
-    TOK_TRUE       shift, and go to state 96
-    TOK_FALSE      shift, and go to state 97
-    TOK_IDENT      shift, and go to state 72
-
-    asg_stmt             go to state 98
-    ref_expr             go to state 99
-    function_invocation  go to state 100
-    expr                 go to state 205
-    prt_expr             go to state 102
-    literal              go to state 103
+    $default  reduce using rule 64 (if_then_else_stmt)
 
 
 state 202
 
-   65 asg_stmt: ref_expr TOK_ASSIGN error TOK_SEMICOLON .
+   61 if_then_else_stmt: TOK_IF expr stmt TOK_ELSE . stmt
+   65                  | TOK_IF expr stmt TOK_ELSE . error TOK_SEMICOLON
 
-    $default  reduce using rule 65 (asg_stmt)
+    error          shift, and go to state 206
+    TOK_SEMICOLON  shift, and go to state 67
+    TOK_LBRACE     shift, and go to state 68
+    TOK_IF         shift, and go to state 69
+    TOK_RETURN     shift, and go to state 70
+    TOK_PRINT      shift, and go to state 71
+    TOK_WHILE      shift, and go to state 72
+    TOK_IDENT      shift, and go to state 73
+
+    stmt                 go to state 207
+    ret_stmt             go to state 76
+    if_then_else_stmt    go to state 77
+    asg_stmt             go to state 78
+    ref_expr             go to state 79
+    function_invocation  go to state 80
+    prt_expr             go to state 81
 
 
 state 203
 
-   63 if_then_else_stmt: TOK_IF expr stmt TOK_ELSE error . TOK_SEMICOLON
+   70 funcinvolistpp: TOK_LPAREN expr_list TOK_RPAREN .
 
-    TOK_SEMICOLON  shift, and go to state 206
+    $default  reduce using rule 70 (funcinvolistpp)
 
 
 state 204
 
-   59 if_then_else_stmt: TOK_IF expr stmt TOK_ELSE stmt .
+   74 expr_plus: expr_plus TOK_COMMA . expr
 
-    $default  reduce using rule 59 (if_then_else_stmt)
+    TOK_MINUS      shift, and go to state 90
+    TOK_BITNOT     shift, and go to state 91
+    TOK_NOT        shift, and go to state 92
+    TOK_LPAREN     shift, and go to state 93
+    TOK_PRINT      shift, and go to state 71
+    TOK_UINTNUM    shift, and go to state 94
+    TOK_DOUBLENUM  shift, and go to state 95
+    TOK_STRCONST   shift, and go to state 96
+    TOK_TRUE       shift, and go to state 97
+    TOK_FALSE      shift, and go to state 98
+    TOK_IDENT      shift, and go to state 73
+
+    asg_stmt             go to state 99
+    ref_expr             go to state 100
+    function_invocation  go to state 101
+    expr                 go to state 208
+    prt_expr             go to state 103
+    literal              go to state 104
 
 
 state 205
 
-   72 expr_plus: expr_plus TOK_COMMA expr .
-   89 expr: expr . TOK_BITXOR expr
-   90     | expr . TOK_SHL expr
-   91     | expr . TOK_LE expr
-   92     | expr . TOK_LT expr
-   93     | expr . TOK_EQ expr
-   94     | expr . TOK_GE expr
-   95     | expr . TOK_SHR expr
-   96     | expr . TOK_GT expr
-   97     | expr . TOK_OR expr
-   98     | expr . TOK_BITOR expr
-   99     | expr . TOK_MINUS expr
-  100     | expr . TOK_NE expr
-  101     | expr . TOK_DIV expr
-  102     | expr . TOK_MULT expr
-  103     | expr . TOK_BITAND expr
-  104     | expr . TOK_AND expr
-  105     | expr . TOK_MOD expr
-  106     | expr . TOK_PLUS expr
+   67 asg_stmt: ref_expr TOK_ASSIGN error TOK_SEMICOLON .
 
-    TOK_PLUS    shift, and go to state 133
-    TOK_MINUS   shift, and go to state 134
-    TOK_MULT    shift, and go to state 135
-    TOK_DIV     shift, and go to state 136
-    TOK_MOD     shift, and go to state 137
-    TOK_BITAND  shift, and go to state 138
-    TOK_BITOR   shift, and go to state 139
-    TOK_BITXOR  shift, and go to state 140
-    TOK_SHL     shift, and go to state 141
-    TOK_SHR     shift, and go to state 142
-    TOK_GT      shift, and go to state 143
-    TOK_LT      shift, and go to state 144
-    TOK_GE      shift, and go to state 145
-    TOK_LE      shift, and go to state 146
-    TOK_EQ      shift, and go to state 147
-    TOK_NE      shift, and go to state 148
-    TOK_AND     shift, and go to state 149
-    TOK_OR      shift, and go to state 150
-
-    $default  reduce using rule 72 (expr_plus)
+    $default  reduce using rule 67 (asg_stmt)
 
 
 state 206
 
-   63 if_then_else_stmt: TOK_IF expr stmt TOK_ELSE error TOK_SEMICOLON .
+   65 if_then_else_stmt: TOK_IF expr stmt TOK_ELSE error . TOK_SEMICOLON
 
-    $default  reduce using rule 63 (if_then_else_stmt)
+    TOK_SEMICOLON  shift, and go to state 209
+
+
+state 207
+
+   61 if_then_else_stmt: TOK_IF expr stmt TOK_ELSE stmt .
+
+    $default  reduce using rule 61 (if_then_else_stmt)
+
+
+state 208
+
+   74 expr_plus: expr_plus TOK_COMMA expr .
+   91 expr: expr . TOK_BITXOR expr
+   92     | expr . TOK_SHL expr
+   93     | expr . TOK_LE expr
+   94     | expr . TOK_LT expr
+   95     | expr . TOK_EQ expr
+   96     | expr . TOK_GE expr
+   97     | expr . TOK_SHR expr
+   98     | expr . TOK_GT expr
+   99     | expr . TOK_OR expr
+  100     | expr . TOK_BITOR expr
+  101     | expr . TOK_MINUS expr
+  102     | expr . TOK_NE expr
+  103     | expr . TOK_DIV expr
+  104     | expr . TOK_MULT expr
+  105     | expr . TOK_BITAND expr
+  106     | expr . TOK_AND expr
+  107     | expr . TOK_MOD expr
+  108     | expr . TOK_PLUS expr
+
+    TOK_PLUS    shift, and go to state 135
+    TOK_MINUS   shift, and go to state 136
+    TOK_MULT    shift, and go to state 137
+    TOK_DIV     shift, and go to state 138
+    TOK_MOD     shift, and go to state 139
+    TOK_BITAND  shift, and go to state 140
+    TOK_BITOR   shift, and go to state 141
+    TOK_BITXOR  shift, and go to state 142
+    TOK_SHL     shift, and go to state 143
+    TOK_SHR     shift, and go to state 144
+    TOK_GT      shift, and go to state 145
+    TOK_LT      shift, and go to state 146
+    TOK_GE      shift, and go to state 147
+    TOK_LE      shift, and go to state 148
+    TOK_EQ      shift, and go to state 149
+    TOK_NE      shift, and go to state 150
+    TOK_AND     shift, and go to state 151
+    TOK_OR      shift, and go to state 152
+
+    $default  reduce using rule 74 (expr_plus)
+
+
+state 209
+
+   65 if_then_else_stmt: TOK_IF expr stmt TOK_ELSE error TOK_SEMICOLON .
+
+    $default  reduce using rule 65 (if_then_else_stmt)

@@ -41,6 +41,7 @@ const Type* OpNode::typeCheck() {
   //ASSIGN, PRINT, INVALID
 
   //UMINUS
+  cout << "here" << endl;
   if(opCode() == OpCode::UMINUS && uOp == true) {
     if(!Type::isNumeric(tl->tag())) {
       string err = "Incompatible type for argument 1 for operator '-'";

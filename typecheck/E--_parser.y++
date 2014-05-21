@@ -300,6 +300,7 @@ stmt
 {
     $$ = $1;
 }
+
 ;
 
 function_decl:
@@ -317,6 +318,7 @@ function_header formalparamlistpp funcbody
         }
         stm.insert($$);
     }
+//    cout << "After insert function: " << stm.gettop() << endl;
 }
 |function_header error TOK_SEMICOLON
 {
@@ -393,19 +395,41 @@ TOK_IDENT
 event_decl:
 event_decl_hdr formalparamlistpp                  
 {
-    $$ = $1;
-    Type* event_type = new Type($2, Type::EVENT);
-    stm.leaveScope();
-    $$->type(event_type);
-    stm.insert($$);
+    if ($1)
+    {
+        $$ = $1;
+        Type* event_type = new Type($2, Type::EVENT);
+        stm.leaveScope();
+        $$->type(event_type);
+        stm.insert($$);        
+    }
+    else
+    {
+        $$ = NULL;
+    }
+//    cout << "After eventdel: "<< stm.gettop() << endl;
 }
 ;
 
 event_decl_hdr:
 TOK_EVENT TOK_IDENT                               
 {
-    $$ = new EventEntry($2, yylinenum, yycolumnno, yyfilename);
-    stm.enterScope($$);
+    SymTabEntry* evententry  = stm.lookUpInScope($2, SymTabEntry::Kind::GLOBAL_KIND);
+    if (evententry == NULL)
+    {
+        $$ = new EventEntry($2, yylinenum, yycolumnno, yyfilename);
+        stm.enterScope($$);
+//        cout << "After eventheader:" << stm.gettop() << endl;
+    }
+    else
+    {
+        errMsg("Redefined event name!");
+        $$ = NULL;
+    }
+}
+|TOK_EVENT error 
+{
+    errMsg("Expected an event name!");
 }
 ;
 
@@ -430,12 +454,26 @@ TOK_ANY
 |TOK_IDENT evenparamlistpp                        
 {
     EventEntry* e = (EventEntry*)stm.lookUpInScope($1, SymTabEntry::Kind::GLOBAL_KIND);
-    if (stm.currentScope()->kind() != SymTabEntry::Kind::BLOCK_KIND) 
+    if (e == NULL || e->kind() != SymTabEntry::Kind::EVENT_KIND)
     {
-        stm.enterScope(new BlockEntry($1, yylinenum, yycolumnno, yyfilename));
+        errMsg("Not an event name!");
+        $$ = NULL;
+    }
+    else
+    {
+        if (stm.currentScope()->kind() != SymTabEntry::Kind::BLOCK_KIND) 
+        {
+            stm.enterScope(new BlockEntry($1, yylinenum, yycolumnno, yyfilename));            
+        }
+        $$ = new PrimitivePatNode(e, $2, NULL, yylinenum, yycolumnno, yyfilename);
+    }
+
+
+    {
+
     }
     //stm.enterScope(b);
-    $$ = new PrimitivePatNode(e, $2, NULL, yylinenum, yycolumnno, yyfilename);
+
 }                       
 ;
 
@@ -506,6 +544,11 @@ TOK_SEMICOLON
             $$ = new ExprStmtNode($1, yylinenum, yycolumnno, yyfilename);
         else
             $$ = NULL;   
+}
+|TOK_LBRACE error TOK_RBRACE
+{
+    errMsg("Syntax error, expecting a statement!");
+    $$ = NULL;
 }      
 ;
 
