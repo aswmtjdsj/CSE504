@@ -559,6 +559,9 @@ class RuleNode: public AstNode {
   const StmtNode* reaction() const { return reaction_; };   
   StmtNode* reaction() { return reaction_; };   
 
+//Yansong
+  const string label() { return strRuleLabel_; };
+
   void print(ostream& os, int indent=0) const;
   void typePrint(ostream& os, int indent=0) const;
   const Type* typeCheck();
@@ -573,6 +576,8 @@ class RuleNode: public AstNode {
   BasePatNode *pat_;
   StmtNode *reaction_;
   int regNum_;
+  static int iLabelNum_; // Yansong
+  string strRuleLabel_;
    
   RuleNode(const RuleNode&);
 };
@@ -837,6 +842,30 @@ class JumpCode: public EFSA {
  private:
   EFSA* cond_;
   LabelCode* label_;
+};
+
+/****************************************************************/
+//Yansong
+class InCode: public EFSA {
+public:
+	InCode(EFSA::OperandName name, string strReg) : EFSA(name, EFSA::OperandType::IN) { iRegNumber_ = iRegNumber };
+	void codePrint(ostream& os) {
+		switch (name()) {
+		case EFSA::OperandName::IN:
+			os << "IN " << strReg << endl;
+			break;
+		case EFSA::OperandName::INF:
+			os << "INF " << strReg << endl;
+			break;
+		case EFSA::OperandName::INT:
+			os << "INT " << strReg << endl;
+			break;
+		default:
+			break;
+		}
+	}
+private:
+	int iRegNumber_;
 };
 
 /****************************************************************/
