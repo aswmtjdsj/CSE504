@@ -44,3 +44,35 @@ string itoa(int i) {
   sprintf(a, "%d", i);
   return string(a);
 }
+
+// @return string register string in format RXXX for int reg, FXXX for float reg
+// Yansong
+string getReg(string strOldReg) {
+	if (strOldReg.length() == 4) return strOldReg;
+	string strNewReg = strOldReg.substr(0, 1);
+	for (auto i = 0; i < 4 - strOldReg.length(); i++) {
+		strNewReg += "0";
+	}
+	strNewReg += strOldReg.substr(1);
+	return strNewReg;
+}
+
+// @return string register string in format RXXX for int reg, FXXX for float reg
+// @param int iType, 0 for int, 1 for float
+// Yansong
+string getReg(int iRegNumber, int iType = 0) {
+	string strRegName = iRegNumber + "";
+	for (auto i = 0; i < 3 - strRegName.length(); i++) {
+		strRegName = "0" + strRegName;
+	}
+
+	switch (iType) {
+	case 0:
+		strRegName = "R" + strRegName;
+		break;
+	case 1:
+		strRegName = "F" + strRegName;
+		break;
+	}
+	return strRegName;
+}
