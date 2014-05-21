@@ -1142,6 +1142,9 @@ void MoveCode::codePrint(ostream& os) {		//MOVL, MOVS
 		case EFSA::OperandName::MOVIF:
 			os<<"MOVIF"<<" "<<from_<<" "<<dest_<<endl;
 			break;
+		case EFSA::OperandName::MOVS:
+			os<<"MOVS"<<" "<<from_<<" "<<dest_<<endl;
+			break;
 		default:
 			break;
 	}

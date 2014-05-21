@@ -565,6 +565,8 @@ class RuleNode: public AstNode {
 
   int regNum() const { return regNum_; };
   void regNum(int n) { regNum_=n; };
+  
+  int regAlloc();
 
   //zdd
   EFSAlist* codeGen();
