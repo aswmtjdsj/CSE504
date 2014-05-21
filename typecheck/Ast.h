@@ -6,6 +6,9 @@
 #include "ProgramElem.h"
 #include "SymTabEntry.h"
 
+extern int intReg[REG_SIZE];
+extern int floatReg[REG_SIZE];
+
 class BlockEntry;
 class EventEntry;
 class FunctionEntry;
@@ -610,6 +613,34 @@ class EFSA {
 
   OperatorType operatorType() const { return operatorType_;};
   void operatorType(OperatorType t) { operatorType_ = t; };
+
+  static int intRegAlloc() {
+      for (int i=0; i<AVAIL_REG_SIZE; i++){
+          if (intReg[i]==0){
+              intReg[i] = 1;
+              return i;
+          }
+      }
+      return -2;
+  }
+
+  static int floatRegAlloc() {
+      for (int i=0; i<AVAIL_REG_SIZE; i++){
+          if (floatReg[i]==0){
+              floatReg[i] = 1;
+              return i;
+          }
+      }
+      return -2;
+  }
+
+  static void intRegFree(int i) {
+      intReg[i] = 0;
+  }
+
+  static void floatRegFree(int i) {
+      floatReg[i] = 0;
+  }
 
  private:
   OperandName name_;
