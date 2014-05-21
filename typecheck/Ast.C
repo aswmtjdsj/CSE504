@@ -1105,8 +1105,8 @@ int OpNode::tempIntVarAlloc() {
 			return i;
 		}
          }
+    return -2;
 }
-
 
 int OpNode::tempFloatVarAlloc() {
 	for (int i=0; i<999; i++){
@@ -1115,6 +1115,7 @@ int OpNode::tempFloatVarAlloc() {
 			return i;
 		}
          }
+    return -2;
 }
 
 void OpNode::tempIntVarRelease(int i) {
@@ -2054,6 +2055,16 @@ EFSAlist* ValueNode::codeGen() {
 
 EFSAlist* InvocationNode::codeGen() {
 	EFSAlist* codeList = NULL;
+	codeList = new EFSAlist();
+	codeList->addCode(new LabelCode("FunctionBegin"));
+	//codeList->addCodeList(((FunctionEntry *)symTabEntry())->body()->codeGen());	
+	string l = "Label"+std::to_string(labelNum);
+	labelNum++;
+	LabelCode* label = new LabelCode(l);
+	JumpCode* jumpCode = new JumpCode(EFSA::OperandName::JMP, NULL, label);
+	codeList->addCode(jumpCode);
+	codeList->addCode(label);
+	codeList->addCode(new LabelCode("FunctionEnd"));
 	//codeList = new EFSAlist();
 	return codeList;
 }
