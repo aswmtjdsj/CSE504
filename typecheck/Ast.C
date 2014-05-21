@@ -7,26 +7,29 @@ const Type* ValueNode::typeCheck() {
   return type();
 }
 const Type* RefExprNode::typeCheck() {
-  //cout << "refexprnode check!" << endl;
+  cout << "refexprnode check!" << endl;
   return symTabEntry()->type();
 }
 const Type* OpNode::typeCheck() {
-  //cout << "opnode check!" << endl;
+  cout << "opnode check!" << endl;
   bool biOp = false;
   bool uOp = false;
   ExprNode *l = NULL, *r = NULL; // left and right operands
   const Type *tl = NULL, *tr = NULL; // type of left and right operands
+  //cout << "here" << endl;
   // initialize ExprNode and its type
   if(arity() == 2) {
     //cout << "enter here?" << endl;
     l = arg(0);
     r = arg(1);
+    cout << "enter here?" << endl;
     if(l != NULL) tl = l->typeCheck();
-    //cout << "ok" << endl;
+    cout << "ok" << endl;
     if(r != NULL) tr = r->typeCheck();
-    //cout << "ok" << endl;
+    cout << "ok" << endl;
     biOp = true;
   }
+
   if(arity() == 1) {
     l = arg(0);
     if(l != NULL) tl = l->typeCheck();
@@ -41,7 +44,7 @@ const Type* OpNode::typeCheck() {
   //ASSIGN, PRINT, INVALID
 
   //UMINUS
-  cout << "here" << endl;
+  //cout << "here" << endl;
   if(opCode() == OpCode::UMINUS && uOp == true) {
     if(!Type::isNumeric(tl->tag())) {
       string err = "Incompatible type for argument 1 for operator '-'";

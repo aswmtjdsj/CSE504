@@ -615,6 +615,12 @@ ref_expr:
 TOK_IDENT                                         
 {
     SymTabEntry* e = stm.lookUp($1);
+    if (e == NULL)
+    {
+        errMsg("id undeclared!");
+        $$ = NULL;
+    }
+    else
     $$ = new RefExprNode($1, e, yylinenum, yycolumnno, yyfilename);
 }
 ;
