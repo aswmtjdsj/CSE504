@@ -560,8 +560,8 @@ class RuleNode: public AstNode {
   void typePrint(ostream& os, int indent=0) const;
   const Type* typeCheck();
 
-  OperandName name() const { return name_; };
-  void name(OperandName str) { name_=str; };
+  int regNum() const { return regNum_; };
+  void regNum(int n) { regNum_=n; };
 
   //zdd
   EFSAlist* codeGen();
@@ -569,7 +569,7 @@ class RuleNode: public AstNode {
   BlockEntry    *rste_;
   BasePatNode *pat_;
   StmtNode *reaction_;
-  int regNum;
+  int regNum_;
    
   RuleNode(const RuleNode&);
 };
