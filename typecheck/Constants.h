@@ -10,4 +10,7 @@
 #define JMP_LB (0)
 #define TAR_LB (1)
 
+#define REG_SIZE (1000)
+#define MEMORY_SIZE (1024)
+
 #endif

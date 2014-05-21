@@ -235,6 +235,12 @@ EFSAlist* GlobalEntry::codeGen() {
 		}
 	}
 
+    // SP init
+    string from = std::to_string(0);
+    string dest = "R"+std::to_string(SP_REG);
+    MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, from, dest);
+    codeList->addCode(code);
+
 	// Rules
 	vector<RuleNode*>::const_iterator it = rules_.begin();
 	for (;it!=rules_.end();++it) {
