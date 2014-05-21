@@ -155,6 +155,7 @@ class EventEntry: public SymTabEntry {
 
   void print(ostream& out, int indent=0) const; 
   void typePrint(ostream& out, int indent=0) const;
+
 };  
 
 /*class WLoopEntry: public SymTabEntry 

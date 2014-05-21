@@ -560,6 +560,9 @@ class RuleNode: public AstNode {
   void typePrint(ostream& os, int indent=0) const;
   const Type* typeCheck();
 
+  OperandName name() const { return name_; };
+  void name(OperandName str) { name_=str; };
+
   //zdd
   EFSAlist* codeGen();
  private:
