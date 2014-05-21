@@ -987,7 +987,8 @@ void WhileNode::print(ostream& os, int indent) const{
 EFSAlist* RuleNode::codeGen() {
 	EFSAlist* codeList = NULL;
 	codeList = new EFSAlist();
-	codeList->addCode(new LabelCode("RuleBegin", 1));
+	PrimitivePatNode* patNode = (PrimitivePatNode*)pat();
+	codeList->addCode(new LabelCode(patNode->event()->name(), 1));
 
 	codeList->addCodeList(reaction()->codeGen());	
 
@@ -1037,24 +1038,22 @@ EFSAlist* IfNode::codeGen() {
 	labelNum++;
 	string l2 = "Label"+std::to_string(labelNum);
 	labelNum++;
-	LabelCode* label1 = new LabelCode(l1);
-	LabelCode* label2 = new LabelCode(l2);
-	JumpCode* jumpCode1 = new JumpCode(EFSA::OperandName::JMPC, conditionCode, label1);
+	JumpCode* jumpCode1 = new JumpCode(EFSA::OperandName::JMPC, conditionCode, new LabelCode(l1));
 	codeList->addCode(jumpCode1);
 	if (elseStmt()!=NULL){
 		EFSAlist* list = elseStmt()->codeGen();
 		if (list!=NULL)
 			codeList->addCodeList(list);
 	}
-	JumpCode* jumpCode2 = new JumpCode(EFSA::OperandName::JMP, NULL, label2);
+	JumpCode* jumpCode2 = new JumpCode(EFSA::OperandName::JMP, NULL, new LabelCode(l2));
 	codeList->addCode(jumpCode2);
-	codeList->addCode(label1);
+	codeList->addCode(new LabelCode(l1,1));
 	if (thenStmt()!=NULL){
 		EFSAlist* list = thenStmt()->codeGen();
 		if (list!=NULL)
 			codeList->addCodeList(list);
 	}
-	codeList->addCode(label2);
+	codeList->addCode(new LabelCode(l2,1));
  	
 	return codeList;
 }
@@ -1071,27 +1070,24 @@ EFSAlist* WhileNode::codeGen()
 	labelNum++;
 	string l3 = "Label"+std::to_string(labelNum);
 	labelNum++;
-	LabelCode* label1 = new LabelCode(l1);
-	LabelCode* label2 = new LabelCode(l2);
-	LabelCode* label3 = new LabelCode(l3);
-	codeList->addCode(label1);
+	codeList->addCode(new LabelCode(l1,1));
 	
 	codeList->addCodeList(cond()->codeGen());
 	EFSA* conditionCode = codeList->getLastCode();
 	codeList->removeLastCode();
-	JumpCode* jumpCode1 = new JumpCode(EFSA::OperandName::JMPC, conditionCode, label2);
+	JumpCode* jumpCode1 = new JumpCode(EFSA::OperandName::JMPC, conditionCode, new LabelCode(l2));
 	codeList->addCode(jumpCode1);
-	JumpCode* jumpCode2 = new JumpCode(EFSA::OperandName::JMP, NULL, label3);
+	JumpCode* jumpCode2 = new JumpCode(EFSA::OperandName::JMP, NULL, new LabelCode(l3));
 	codeList->addCode(jumpCode2);
-	codeList->addCode(label2);
+	codeList->addCode(new LabelCode(l2,1));
 	if (whileStmt()!=NULL){
 		EFSAlist* list = whileStmt()->codeGen();
 		if (list!=NULL)
 			codeList->addCodeList(list);
 	}
-	JumpCode* jumpCode3 = new JumpCode(EFSA::OperandName::JMP, NULL, label1);
+	JumpCode* jumpCode3 = new JumpCode(EFSA::OperandName::JMP, NULL, new LabelCode(l1));
 	codeList->addCode(jumpCode3);
-    	codeList->addCode(label3);
+    	codeList->addCode(new LabelCode(l3,1));
     	return codeList;
 }
 

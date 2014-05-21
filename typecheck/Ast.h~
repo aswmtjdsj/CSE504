@@ -870,10 +870,14 @@ class LabelCode: public EFSA {
     EFSA(EFSA::OperandName::LABEL, EFSA::OperatorType::LABEL){name_=name; target_=target;};
 
   void codePrint(ostream& os){
-	os<<name_<<endl;
+	os<<name_;
+	if (target_==1)
+		os<<":";
+	os<<endl;
+	/*
 	if (name_=="RuleEnd")
 		os<<endl;
-	};
+	};*/
   
   string name(){return name_;};
   void name(string n){name_ = n;};
@@ -883,7 +887,7 @@ class LabelCode: public EFSA {
 
  private:
   string name_;
-  int target_;
+  int target_;	//1: target label	0: not target label, used in JMP 
 };
 
 /****************************************************************/
