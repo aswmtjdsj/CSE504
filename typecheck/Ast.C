@@ -1133,6 +1133,9 @@ void MoveCode::codePrint(ostream& os) {		//MOVL, MOVS
 		case EFSA::OperandName::MOVI:
 			os<<"MOVI"<<" "<<from_<<" "<<dest_<<endl;
 			break;
+		case EFSA::OperandName::MOVL:
+			os<<"MOVL"<<" "<<from_<<" "<<dest_<<endl;
+			break;
 		case EFSA::OperandName::MOVF:
 			os<<"MOVF"<<" "<<from_<<" "<<dest_<<endl;
 			break;
@@ -2258,15 +2261,30 @@ EFSAlist* InvocationNode::codeGen() {
 	codeList = new EFSAlist();
 	codeList->addCode(new LabelCode("//CallBegin"));
 
+    // push actual param
+    // need 
+    
     // push return address
 	string l_ret = "L"+std::to_string(labelNum);
 	labelNum++;
+    // move label to reg
     string from = l_ret;
-    string dest = "R"+std::to_string(SP_REG);
-    MoveCode * movl_sp = new MoveCode(EFSA::OperandName::MOVL, from, dest);
-    codeList->addCode(movl_sp);
+    int temp_reg = EFSA::intRegAlloc();
+    string dest = "R"+std::to_string(temp_reg);
+    MoveCode * movl_reg = new MoveCode(EFSA::OperandName::MOVL, from, dest);
+    codeList->addCode(movl_reg);
+    EFSA::intRegFree(temp_reg);
+    // move reg to sp->mem_addr
+    from = dest;
+    dest = "R"+std::to_string(SP_REG);
+    MoveCode * stir_sl = new MoveCode(EFSA::OperandName::STI, from, dest);
+    codeList->addCode(stir_sl );
+    // add sp by 1 -> push
+    string sp_reg = dest;
+    IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::ADD, sp_reg , sp_reg, std::to_string(1));
+    codeList->addCode(code);
 
-    // need modification
+    // jump to function by function-name-label
 	LabelCode* label = new LabelCode(((FunctionEntry *)symTabEntry())->name());
 	JumpCode* jumpCode = new JumpCode(EFSA::OperandName::JMP, NULL, label);
 	codeList->addCode(jumpCode);

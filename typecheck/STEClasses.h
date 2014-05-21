@@ -16,8 +16,8 @@ class PrimitivePatNode;
 class EFSA;
 extern string newName(const string&);
 //zdd
-extern int intReg[1000];
-extern int floatReg[1000];
+extern int intReg[REG_SIZE];
+extern int floatReg[REG_SIZE];
 
 /****************************************************************
   The first few classes dont really add any functionality over
@@ -144,7 +144,6 @@ class FunctionEntry: public SymTabEntry {
   const Type* typeCheck();
   void typePrint(ostream& os, int indent) const;
 
-  static int memory[MEMORY_SIZE];
  private:
   CompoundStmtNode* body_;
 };

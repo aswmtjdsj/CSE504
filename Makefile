@@ -24,4 +24,4 @@ driver.o: driver.C ICode_parser.C
 
 clean:
 	-echo "Removing all object files and compiled lexer and bison files!"
-	-rm -f demo *.o ICode_parser.C ICode_lexer.C ICode.tab.h
+	-rm -f demo *.o ICode_parser.C ICode_lexer.C ICode.tab.h *.output
