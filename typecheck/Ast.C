@@ -981,7 +981,195 @@ void WhileNode::print(ostream& os, int indent) const{
       prtln(os, indent);
         }
     }
+}
 
+
+void EFSAlist::codePrint(ostream& os) {
+	vector <EFSA*>::iterator it = codeList.begin();
+	for(;it!=codeList.end();it++) {
+		(*it)->codePrint(os);
+	}
+}
+
+void IntArithCode::codePrint(ostream& os) {
+	if (operandNum_==IntArithCode::OperandNum::BINARY){	
+		switch(name()){	//ADD, SUB, DIV, MUL, MOD, NEG, AND, OR and XOR
+			case EFSA::OperandName::ADD:
+				os<<"ADD";
+				break;
+			case EFSA::OperandName::SUB:
+				os<<"SUB";
+				break;
+			case EFSA::OperandName::DIV:
+				os<<"DIV";
+				break;
+			case EFSA::OperandName::MUL:
+				os<<"MUL";
+				break;
+			case EFSA::OperandName::MOD:
+				os<<"MOD";
+				break;
+			case EFSA::OperandName::AND:
+				os<<"AND";
+				break;
+			case EFSA::OperandName::OR:
+				os<<"OR";
+				break;
+			case EFSA::OperandName::XOR:
+				os<<"XOR";
+				break;
+			default:
+				break;
+
+		}
+		os<<" "<<dest()<<" "<<leftOperand()<<" "<<rightOperand()<<endl;
+	}
+}
+
+void FloatArithCode::codePrint(ostream& os) {
+	if (operandNum_==FloatArithCode::OperandNum::BINARY){	
+		switch(name()){	//FADD, FSUB, FDIV, FMUL, FNEG
+			case EFSA::OperandName::FADD:
+				os<<"FADD";
+				break;
+			case EFSA::OperandName::FSUB:
+				os<<"FSUB";
+				break;
+			case EFSA::OperandName::FDIV:
+				os<<"FDIV";
+				break;
+			case EFSA::OperandName::FMUL:
+				os<<"FMUL";
+				break;
+			default:
+				break;
+
+		}
+		os<<" "<<dest()<<" "<<leftOperand()<<" "<<rightOperand()<<endl;
+	}
+}
+
+void IntRelationCode::codePrint(ostream& os){
+	switch (name()){
+		case EFSA::OperandName::GT:
+			os<<"GT"<<" "<<left_<<" "<<right_;
+			break;
+		case EFSA::OperandName::GE:
+			os<<"GE"<<" "<<left_<<" "<<right_;
+			break;
+		case EFSA::OperandName::UGT:
+			os<<"UGT"<<" "<<left_<<" "<<right_;
+			break;
+		case EFSA::OperandName::UGE:
+			os<<"UGE"<<" "<<left_<<" "<<right_;
+			break;
+		case EFSA::OperandName::EQ:
+			os<<"EQ"<<" "<<left_<<" "<<right_;
+			break;
+		case EFSA::OperandName::NE:
+			os<<"NE"<<" "<<left_<<" "<<right_;
+			break;
+		default:
+			break;
+	}
+}
+
+void FloatRelationCode::codePrint(ostream& os){
+	switch (name()){
+		case EFSA::OperandName::FGT:
+			os<<"FGT"<<" "<<left_<<" "<<right_;
+			break;
+		case EFSA::OperandName::FGE:
+			os<<"FGE"<<" "<<left_<<" "<<right_;
+			break;
+		case EFSA::OperandName::FEQ:
+			os<<"FEQ"<<" "<<left_<<" "<<right_;
+			break;
+		case EFSA::OperandName::FNE:
+			os<<"FNE"<<" "<<left_<<" "<<right_;
+			break;
+		default:
+			break;
+	}
+}
+
+void LabelCode::codePrint(ostream& os){
+	os<<name_;
+	if (target_==1)
+		os<<":";
+	os<<endl;
+	/*
+	if (name_=="RuleEnd")
+		os<<endl;
+	};*/
+}
+
+void MoveCode::codePrint(ostream& os) {		//MOVL, MOVS
+	switch (name()){
+		case EFSA::OperandName::LDI:
+			os<<"LDI"<<" "<<dest_<<" "<<from_<<endl;
+			break;
+		case EFSA::OperandName::LDF:
+			os<<"LDF"<<" "<<dest_<<" "<<from_<<endl;
+			break;
+		case EFSA::OperandName::STI:
+			os<<"STI"<<" "<<from_<<" "<<dest_<<endl;
+			break;
+		case EFSA::OperandName::STF:
+			os<<"STF"<<" "<<from_<<" "<<dest_<<endl;
+			break;
+		case EFSA::OperandName::MOVI:
+			os<<"MOVI"<<" "<<from_<<" "<<dest_<<endl;
+			break;
+		case EFSA::OperandName::MOVF:
+			os<<"MOVF"<<" "<<from_<<" "<<dest_<<endl;
+			break;
+		case EFSA::OperandName::MOVIF:
+			os<<"MOVIF"<<" "<<from_<<" "<<dest_<<endl;
+			break;
+		default:
+			break;
+	}
+}
+
+void JumpCode::codePrint(ostream& os){
+	switch(name())
+	{
+		case EFSA::OperandName::JMP:
+			os<<"JMP"<<" ";
+			label_->codePrint(os);
+			break;
+		case EFSA::OperandName::JMPC:
+			os<<"JMPC"<<" ";
+			cond_->codePrint(os);
+			os<<" ";
+			label_->codePrint(os);
+			break;
+		default:
+			break;
+	}
+}
+
+void EFSAlist::addCodeList(EFSAlist* codes) {
+	if (codes!=NULL){
+		vector <EFSA*>::iterator it = codes->codeList.begin();
+		for(;it!=codes->codeList.end();it++) {
+			codeList.push_back((*it));
+		}
+         }
+}
+
+void EFSAlist::addCode(EFSA* code) {
+	if (code!=NULL)
+		codeList.push_back(code);
+}
+
+EFSA* EFSAlist::getLastCode() {
+	return codeList.back();
+}
+
+void EFSAlist::removeLastCode() {
+	codeList.pop_back();
 }
 
 EFSAlist* RuleNode::codeGen() {

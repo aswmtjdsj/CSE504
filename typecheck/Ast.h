@@ -566,6 +566,7 @@ class RuleNode: public AstNode {
   BlockEntry    *rste_;
   BasePatNode *pat_;
   StmtNode *reaction_;
+  int regNum;
    
   RuleNode(const RuleNode&);
 };
@@ -617,36 +618,11 @@ class EFSA {
 class EFSAlist{
  public:
 
-   void addCodeList(EFSAlist* codes) {
-	if (codes!=NULL){
-		vector <EFSA*>::iterator it = codes->codeList.begin();
-		for(;it!=codes->codeList.end();it++) {
-			codeList.push_back((*it));
-		}
-         }
-   }
-
-   void addCode(EFSA* code) {
-	if (code!=NULL)
-		codeList.push_back(code);
-   }
-
-   EFSA* getLastCode() {
-	return codeList.back();
-   }
-
-   void removeLastCode() {
-	codeList.pop_back();
-   }
-
-   void codePrint(ostream& os) {
-	vector <EFSA*>::iterator it = codeList.begin();
-	for(;it!=codeList.end();it++) {
-		(*it)->codePrint(os);
-	}
-   }
-
-
+   void addCodeList(EFSAlist* codes);
+   void addCode(EFSA* code);
+   EFSA* getLastCode();
+   void removeLastCode();
+   void codePrint(ostream& os);
 
  private:
     vector <EFSA*> codeList;
@@ -678,40 +654,7 @@ class IntArithCode: public EFSA {
   string dest(){return dest_;};
   void dest(string n){dest_ = n;};
 
-  void codePrint(ostream& os) {
-	if (operandNum_==IntArithCode::OperandNum::BINARY){	
-		switch(name()){	//ADD, SUB, DIV, MUL, MOD, NEG, AND, OR and XOR
-			case EFSA::OperandName::ADD:
-				os<<"ADD";
-				break;
-			case EFSA::OperandName::SUB:
-				os<<"SUB";
-				break;
-			case EFSA::OperandName::DIV:
-				os<<"DIV";
-				break;
-			case EFSA::OperandName::MUL:
-				os<<"MUL";
-				break;
-			case EFSA::OperandName::MOD:
-				os<<"MOD";
-				break;
-			case EFSA::OperandName::AND:
-				os<<"AND";
-				break;
-			case EFSA::OperandName::OR:
-				os<<"OR";
-				break;
-			case EFSA::OperandName::XOR:
-				os<<"XOR";
-				break;
-			default:
-				break;
-
-		}
-		os<<" "<<dest()<<" "<<leftOperand()<<" "<<rightOperand()<<endl;
-	}
-   }
+  void codePrint(ostream& os);
 
  private:
   OperandNum operandNum_;
@@ -746,28 +689,7 @@ class FloatArithCode: public EFSA {
   string dest(){return dest_;};
   void dest(string n){dest_ = n;};
 
-  void codePrint(ostream& os) {
-	if (operandNum_==FloatArithCode::OperandNum::BINARY){	
-		switch(name()){	//FADD, FSUB, FDIV, FMUL, FNEG
-			case EFSA::OperandName::FADD:
-				os<<"FADD";
-				break;
-			case EFSA::OperandName::FSUB:
-				os<<"FSUB";
-				break;
-			case EFSA::OperandName::FDIV:
-				os<<"FDIV";
-				break;
-			case EFSA::OperandName::FMUL:
-				os<<"FMUL";
-				break;
-			default:
-				break;
-
-		}
-		os<<" "<<dest()<<" "<<leftOperand()<<" "<<rightOperand()<<endl;
-	}
-   }
+  void codePrint(ostream& os);
 
  private:
   OperandNum operandNum_;
@@ -791,30 +713,7 @@ class IntRelationCode: public EFSA {
   string right(){return right_;};
   void right(string n){right_ = n;};
 
-  void codePrint(ostream& os){
-	switch (name()){
-		case EFSA::OperandName::GT:
-			os<<"GT"<<" "<<left_<<" "<<right_;
-			break;
-		case EFSA::OperandName::GE:
-			os<<"GE"<<" "<<left_<<" "<<right_;
-			break;
-		case EFSA::OperandName::UGT:
-			os<<"UGT"<<" "<<left_<<" "<<right_;
-			break;
-		case EFSA::OperandName::UGE:
-			os<<"UGE"<<" "<<left_<<" "<<right_;
-			break;
-		case EFSA::OperandName::EQ:
-			os<<"EQ"<<" "<<left_<<" "<<right_;
-			break;
-		case EFSA::OperandName::NE:
-			os<<"NE"<<" "<<left_<<" "<<right_;
-			break;
-		default:
-			break;
-	}
-  };
+  void codePrint(ostream& os);
 
  private:
   string left_;
@@ -837,24 +736,7 @@ class FloatRelationCode: public EFSA {
   void right(string n){right_ = n;};
 
 
-  void codePrint(ostream& os){
-	switch (name()){
-		case EFSA::OperandName::FGT:
-			os<<"FGT"<<" "<<left_<<" "<<right_;
-			break;
-		case EFSA::OperandName::FGE:
-			os<<"FGE"<<" "<<left_<<" "<<right_;
-			break;
-		case EFSA::OperandName::FEQ:
-			os<<"FEQ"<<" "<<left_<<" "<<right_;
-			break;
-		case EFSA::OperandName::FNE:
-			os<<"FNE"<<" "<<left_<<" "<<right_;
-			break;
-		default:
-			break;
-	}
-  };
+  void codePrint(ostream& os);
 
  private:
   string left_;
@@ -869,16 +751,7 @@ class LabelCode: public EFSA {
   LabelCode(string name, int target=0):
     EFSA(EFSA::OperandName::LABEL, EFSA::OperatorType::LABEL){name_=name; target_=target;};
 
-  void codePrint(ostream& os){
-	os<<name_;
-	if (target_==1)
-		os<<":";
-	os<<endl;
-	/*
-	if (name_=="RuleEnd")
-		os<<endl;
-	};*/
-  }
+  void codePrint(ostream& os);
   
   string name(){return name_;};
   void name(string n){name_ = n;};
@@ -904,33 +777,7 @@ class MoveCode: public EFSA {
   string dest(){return dest_;};
   void dest(string n){dest_ = n;};
 
-  void codePrint(ostream& os) {		//MOVL, MOVS
-	switch (name()){
-		case EFSA::OperandName::LDI:
-			os<<"LDI"<<" "<<dest_<<" "<<from_<<endl;
-			break;
-		case EFSA::OperandName::LDF:
-			os<<"LDF"<<" "<<dest_<<" "<<from_<<endl;
-			break;
-		case EFSA::OperandName::STI:
-			os<<"STI"<<" "<<from_<<" "<<dest_<<endl;
-			break;
-		case EFSA::OperandName::STF:
-			os<<"STF"<<" "<<from_<<" "<<dest_<<endl;
-			break;
-		case EFSA::OperandName::MOVI:
-			os<<"MOVI"<<" "<<from_<<" "<<dest_<<endl;
-			break;
-		case EFSA::OperandName::MOVF:
-			os<<"MOVF"<<" "<<from_<<" "<<dest_<<endl;
-			break;
-		case EFSA::OperandName::MOVIF:
-			os<<"MOVIF"<<" "<<from_<<" "<<dest_<<endl;
-			break;
-		default:
-			break;
-	}
-   }
+  void codePrint(ostream& os);
 
  private:
   string from_;
@@ -951,23 +798,8 @@ class JumpCode: public EFSA {
   LabelCode* label(){return label_;};
   void label(LabelCode* n){label_ = n;};
 
-  void codePrint(ostream& os){
-	switch(name())
-	{
-		case EFSA::OperandName::JMP:
-			os<<"JMP"<<" ";
-			label_->codePrint(os);
-			break;
-		case EFSA::OperandName::JMPC:
-			os<<"JMPC"<<" ";
-			cond_->codePrint(os);
-			os<<" ";
-			label_->codePrint(os);
-			break;
-		default:
-			break;
-	}
-  };
+  void codePrint(ostream& os);
+
  private:
   EFSA* cond_;
   LabelCode* label_;
