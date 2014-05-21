@@ -888,7 +888,7 @@ class LabelCode: public EFSA {
 
  private:
   string name_;
-  int target_;	//1: target label	0: not target label, used in JMP 
+  int target_;	//1: target label	0: not target label, used in JMP/JMPC
 };
 
 /****************************************************************/
