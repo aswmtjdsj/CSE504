@@ -992,7 +992,7 @@ EFSAlist* RuleNode::codeGen() {
 	codeList->addCodeList(reaction()->codeGen());	
 
 	//codeList->addCode(new LabelCode("RuleEnd", 1));
-	codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL, new LabelCode("GlobalBegin")));
+	codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL, new LabelCode("GlobalBegin")););
 
 	return codeList;
 }
