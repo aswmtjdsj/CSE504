@@ -27,5 +27,7 @@ SymTab.o: SymTab.h SymTab.C
 clean:
 	-echo "Removing all object files!"
 	-rm -f demo *.o
+	-echo "Removing all output files!"
+	-rm -f *.output
 	-echo "Removing intermediate C files!"
 	-rm -f E--_parser.C
