@@ -984,6 +984,18 @@ void WhileNode::print(ostream& os, int indent) const{
 }
 
 
+int RuleNode::regAlloc() {
+    for (int i=AVAIL_REG_SIZE+1; i<=EVENT_NAME_REG_SIZE; i++){
+	if (intReg[i]==0){
+		intReg[i]=1;
+		regNum(i);
+		return i;
+	}
+    }
+    return REG_FAILED;
+}
+
+
 void EFSAlist::codePrint(ostream& os) {
 	vector <EFSA*>::iterator it = codeList.begin();
 	for(;it!=codeList.end();it++) {
@@ -1222,9 +1234,9 @@ EFSAlist* IfNode::codeGen() {
 	EFSA* conditionCode = codeList->getLastCode();
 	codeList->removeLastCode();
 	
-	string l1 = "Label"+std::to_string(labelNum);
+	string l1 = LABEL_PREFIX+std::to_string(labelNum);
 	labelNum++;
-	string l2 = "Label"+std::to_string(labelNum);
+	string l2 = LABEL_PREFIX+std::to_string(labelNum);
 	labelNum++;
 	JumpCode* jumpCode1 = new JumpCode(EFSA::OperandName::JMPC, conditionCode, new LabelCode(l1));
 	codeList->addCode(jumpCode1);
@@ -1252,11 +1264,11 @@ EFSAlist* WhileNode::codeGen()
 	EFSAlist* codeList = NULL;
 	codeList = new EFSAlist();
 
-	string l1 = "Label"+std::to_string(labelNum);
+	string l1 = LABEL_PREFIX+std::to_string(labelNum);
 	labelNum++;
-	string l2 = "Label"+std::to_string(labelNum);
+	string l2 = LABEL_PREFIX+std::to_string(labelNum);
 	labelNum++;
-	string l3 = "Label"+std::to_string(labelNum);
+	string l3 = LABEL_PREFIX+std::to_string(labelNum);
 	labelNum++;
 	codeList->addCode(new LabelCode(l1,1));
 	
@@ -1287,23 +1299,23 @@ EFSAlist* RefExprNode::codeGen() {
 
 
 int OpNode::tempIntVarAlloc() {
-	for (int i=0; i<AVAIL_REG_SIZE; i++){
+	for (int i=0; i<=AVAIL_REG_SIZE; i++){
 		if (intReg[i]==0){
 			intReg[i] = 1;
 			return i;
 		}
          }
-    return -2;
+    return REG_FAILED;
 }
 
 int OpNode::tempFloatVarAlloc() {
-	for (int i=0; i<AVAIL_REG_SIZE; i++){
+	for (int i=0; i<=AVAIL_REG_SIZE; i++){
 		if (floatReg[i]==0){
 			floatReg[i] = 1;
 			return i;
 		}
          }
-    return -2;
+    return REG_FAILED;
 }
 
 void OpNode::tempIntVarRelease(int i) {
