@@ -2262,7 +2262,10 @@ EFSAlist* InvocationNode::codeGen() {
 	codeList->addCode(new LabelCode("//CallBegin"));
 
     // push actual param
-    // need 
+    FunctionEntry * function_def = (FunctionEntry *)symTabEntry();
+    function_def->type();
+    
+    // push return var
     
     // push return address
 	string l_ret = "L"+std::to_string(labelNum);
