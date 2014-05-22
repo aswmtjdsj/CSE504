@@ -1469,7 +1469,7 @@ EFSAlist* OpNode::codeGen() {
                 case OpNode::OpCode::DIV:  iOperandName=EFSA::OperandName::DIV; fOperandName=EFSA::OperandName::FDIV; break;
                 default: break;
             }
-            if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()!=-1){	//expr+expr
+            if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()!=-1){	//expr op expr
                 if (arg_[0]->regIF()==0){	//int
                     //string leftReg = "R"+std::to_string(arg_[0]->regNum());
                     //string rightReg = "R"+std::to_string(arg_[1]->regNum());
@@ -1510,7 +1510,7 @@ EFSAlist* OpNode::codeGen() {
                     regIF(1);
                 }
             }
-            else if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()==-1){	//expr+value
+            else if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()==-1){	//expr op value
                 if (arg_[0]->regIF()==0){	//int
                     //string leftReg = "R"+std::to_string(arg_[0]->regNum());
                     string leftReg = getReg(arg_[0]->regNum(), 0);
@@ -1518,8 +1518,11 @@ EFSAlist* OpNode::codeGen() {
                     string rightReg = "";
                     ValueNode* vn = (ValueNode*)arg_[1];
                     Type* type = vn->type();
+                    int optFlag = -1;
                     if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
                         rightReg = std::to_string(vn->value()->ival());
+                        if ((opCode()==OpNode::OpCode::PLUS || opCode()==OpNode::OpCode::MINUS) && rightReg=="0")
+                            optFlag = 0;
                     }
                     else if (type->tag()==Type::TypeTag::DOUBLE){
                         rightReg = std::to_string(vn->value()->dval());
@@ -1529,10 +1532,15 @@ EFSAlist* OpNode::codeGen() {
                     //string destReg = "R"+std::to_string(destRegNum);
                     string destReg = getReg(destRegNum, 0);
                     if (arg_[0]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
-                        tempIntVarRelease(arg_[0]->regNum());
-
-                    IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, iOperandName, destReg, leftReg, rightReg);
-                    codeList->addCode(code);
+                    tempIntVarRelease(arg_[0]->regNum());
+                    if (optFlag==0){
+                            MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, leftReg, destReg);
+                            codeList->addCode(code);
+                    }
+                    else{
+                            IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, iOperandName, destReg, leftReg, rightReg);
+                            codeList->addCode(code);                           
+                    }
                     regNum(destRegNum);
                     regIF(0);
                 }
@@ -1561,15 +1569,18 @@ EFSAlist* OpNode::codeGen() {
                     regIF(1);
                 }
             }
-            else if (arg_[0]->regNum()==-1 && arg_[1]->regNum()!=-1){	//value+expr
+            else if (arg_[0]->regNum()==-1 && arg_[1]->regNum()!=-1){	//value op expr
                 if (arg_[1]->regIF()==0){	//int
                     //string rightReg = "R"+std::to_string(arg_[1]->regNum());
                     string rightReg = getReg(arg_[1]->regNum(), 0);
                     string leftReg = "";
                     ValueNode* vn = (ValueNode*)arg_[0];
                     Type* type = vn->type();
+                    int optFlag = -1;
                     if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
                         leftReg = std::to_string(vn->value()->ival());
+                        if (opCode()==OpNode::OpCode::PLUS && leftReg=="0")
+                                optFlag = 0;
                     }
                     else if (type->tag()==Type::TypeTag::DOUBLE){
                         leftReg = std::to_string(vn->value()->dval());
@@ -1579,10 +1590,16 @@ EFSAlist* OpNode::codeGen() {
                     //string destReg = "R"+std::to_string(destRegNum);
                     string destReg = getReg(destRegNum, 0);
                     if (arg_[1]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
-                        tempIntVarRelease(arg_[1]->regNum());
+                    tempIntVarRelease(arg_[1]->regNum());
 
-                    IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, iOperandName, destReg, leftReg, rightReg);
-                    codeList->addCode(code);
+                    if (optFlag==0){
+                        MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, rightReg, destReg);
+                        codeList->addCode(code);
+                    }
+                    else{
+                        IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, iOperandName, destReg, leftReg, rightReg);
+                        codeList->addCode(code);
+                    }
                     regNum(destRegNum);
                     regIF(0);
                 }
@@ -1610,7 +1627,7 @@ EFSAlist* OpNode::codeGen() {
                     regIF(1);
                 }
             }
-            else if (arg_[0]->regNum()==-1 && arg_[1]->regNum()==-1){	//value+value
+            else if (arg_[0]->regNum()==-1 && arg_[1]->regNum()==-1){	//value op value
                 string leftReg = "";
                 string rightReg = "";
                 string destReg = "";
