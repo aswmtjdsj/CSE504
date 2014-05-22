@@ -427,13 +427,17 @@ evenparamlist:
 }
 |TOK_IDENT                                        
 {
+    VariableEntry* v = new VariableEntry($1, VariableEntry::VarKind::PARAM_VAR, NULL, NULL, yylinenum, yycolumnno, yyfilename);
     $$ = new vector<VariableEntry*>;
-    $$->push_back(new VariableEntry($1, VariableEntry::VarKind::PARAM_VAR, NULL, NULL, yylinenum, yycolumnno, yyfilename));
+    $$->push_back(v);
+    stm.insert(v);
 }
 |evenparamlist TOK_COMMA TOK_IDENT                
 {
     //$$ = $1;
-    $$->push_back(new VariableEntry($3, VariableEntry::VarKind::PARAM_VAR, NULL, NULL, yylinenum, yycolumnno, yyfilename));
+    VariableEntry* v = new VariableEntry($3, VariableEntry::VarKind::PARAM_VAR, NULL, NULL, yylinenum, yycolumnno, yyfilename);
+    $$->push_back(v);
+    stm.insert(v);
 }
 ;
 
