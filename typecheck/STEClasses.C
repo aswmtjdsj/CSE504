@@ -264,7 +264,8 @@ EFSAlist* GlobalEntry::codeGen() {
 
 	// SP init
 	string from = std::to_string(0);
-	string dest = "R"+std::to_string(SP_REG);
+	//string dest = "R"+std::to_string(SP_REG);
+	string dest = getReg(SP_REG, 0);
 	MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, from, dest);
 	codeList->addCode(code);
 
