@@ -221,17 +221,18 @@ main(int argc, char *argv[], char *envp[]) {
   if (ge != NULL) {
 	//cout << "Finished parsing, here is the AST\n";
 	//ge->print(cout, 0);
-/*  ge->typeCheck();
+  ge->typeCheck();
   cout << endl;
   ge->typePrint(cout, 0);
-  cout << endl;*/
+  cout << endl;
   
   EFSAlist* codeList = ge->codeGen();
   codeList->codePrint(cout);
-/*  Optimizer* optimizer = new Optimizer();
+  Optimizer* optimizer = new Optimizer();
   optimizer->generateBasicBlock(codeList->getCodeList());
+  optimizer->algebraEquivalence();
   optimizer->printBasicBlock(cout);
-  */
+  
   }
 #endif
 }
