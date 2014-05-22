@@ -227,11 +227,9 @@ main(int argc, char *argv[], char *envp[]) {
   ge->typePrint(cout, 0);
   cout << endl;
   EFSAlist* codeList = ge->codeGen();
-  eventMatch(ge);
   codeList->codePrint(cout);
   Optimizer* optimizer = new Optimizer();
   optimizer->generateBasicBlock(codeList->getCodeList());
-  cout<<endl;
   optimizer->printBasicBlock(cout);
   }
 #endif
