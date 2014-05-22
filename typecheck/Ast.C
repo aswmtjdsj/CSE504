@@ -2264,31 +2264,50 @@ EFSAlist* InvocationNode::codeGen() {
 	codeList = new EFSAlist();
 	codeList->addCode(new LabelCode("//CallBegin"));
 
-    // push actual param
     FunctionEntry * function_def = (FunctionEntry *)symTabEntry();
-    function_def->type();
-    
+    // push actual param
+    vector<Type*> * params_entry = function_def->type()->argTypes();
+    for(auto param_idx = params_entry->begin(); param_idx != params_entry->end(); param_idx++) {
+        Type * current_param = *param_idx;
+
+    }
+
     // push return var
+    const Type * ret_value_entry = function_def->type()->retType();
+    if(ret_value_entry != NULL) {
+        if(Type::isFloat(ret_value_entry->tag())) {
+            int ret_reg = EFSA::floatRegAlloc();
+            regNum(ret_reg);
+            regIF(FLOAT_FLAG);
+        }
+        else if(Type::isInt(ret_value_entry->tag())) {
+            int ret_reg = EFSA::intRegAlloc();
+            regNum(ret_reg);
+            regIF(INT_FLAG);
+        }
+    }
+    else {
+    }
     
     // push return address
 	string l_ret = "L"+std::to_string(labelNum);
 	labelNum++;
+
     // move label to reg
-    string from = l_ret;
     int temp_reg = EFSA::intRegAlloc();
-    string dest = "R"+std::to_string(temp_reg);
-    MoveCode * movl_reg = new MoveCode(EFSA::OperandName::MOVL, from, dest);
+    string temp_reg_name = "R"+std::to_string(temp_reg);
+    MoveCode * movl_reg = new MoveCode(EFSA::OperandName::MOVL, l_ret, temp_reg_name);
     codeList->addCode(movl_reg);
     EFSA::intRegFree(temp_reg);
+
     // move reg to sp->mem_addr
-    from = dest;
-    dest = "R"+std::to_string(SP_REG);
-    MoveCode * stir_sl = new MoveCode(EFSA::OperandName::STI, from, dest);
-    codeList->addCode(stir_sl );
+    string sp_reg = "R"+std::to_string(SP_REG);
+    MoveCode * stir_sp = new MoveCode(EFSA::OperandName::STI, temp_reg_name, sp_reg);
+    codeList->addCode(stir_sp);
+
     // add sp by 1 -> push
-    string sp_reg = dest;
-    IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::ADD, sp_reg , sp_reg, std::to_string(1));
-    codeList->addCode(code);
+    IntArithCode* add_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::ADD, sp_reg, sp_reg, std::to_string(1));
+    codeList->addCode(add_code);
 
     // jump to function by function-name-label
 	LabelCode* label = new LabelCode(((FunctionEntry *)symTabEntry())->name());
@@ -2298,6 +2317,47 @@ EFSAlist* InvocationNode::codeGen() {
     // return label
     LabelCode * label_return = new LabelCode(l_ret, TAR_LB);
 	codeList->addCode(label_return);
+
+    // get return value from sp->memory to register
+    if(ret_value_entry != NULL) {
+
+        // get new temp register
+        temp_reg = EFSA::intRegAlloc();
+        temp_reg_name = "R"+std::to_string(temp_reg);
+
+        // move sp to reg
+        MoveCode * movsp_r = new MoveCode(EFSA::OperandName::MOVI, sp_reg, temp_reg_name);
+        codeList->addCode(movsp_r);
+
+        // add reg by 1 -> return value addr
+        IntArithCode* add_reg_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::ADD, temp_reg_name, temp_reg_name, std::to_string(1));
+        codeList->addCode(add_reg_code);
+
+        // ldi sp+1 to ret_reg
+        int ret_reg = regNum();
+
+        string ret_reg_name;
+
+        if(Type::isFloat(ret_value_entry->tag())) {
+            ret_reg_name = "F"+std::to_string(ret_reg);
+            MoveCode * ldfspp_ret = new MoveCode(EFSA::OperandName::LDF, temp_reg_name, ret_reg_name); // dest, from
+            codeList->addCode(ldfspp_ret);
+            //delete ldfspp_ret;
+        }
+        else if(Type::isInt(ret_value_entry->tag())) {
+            ret_reg_name = "F"+std::to_string(ret_reg);
+            MoveCode * ldispp_ret = new MoveCode(EFSA::OperandName::LDI, temp_reg_name, ret_reg_name); // dest, from
+            codeList->addCode(ldispp_ret);
+            //delete ldispp_ret;
+        }
+
+        // eliminate temp reg
+        EFSA::intRegFree(temp_reg);
+
+    }
+    else {
+    }
 	codeList->addCode(new LabelCode("//CallEnd"));
-	return codeList;
+
+    return codeList;
 }
