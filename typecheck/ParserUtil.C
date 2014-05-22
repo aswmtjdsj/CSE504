@@ -60,7 +60,7 @@ string getReg(string strOldReg) {
 // @return string register string in format RXXX for int reg, FXXX for float reg
 // @param int iType, 0 for int, 1 for float
 // Yansong
-string getReg(int iRegNumber, int iType = 0) {
+string getReg(int iRegNumber, int iType) {
 	stringstream ss;
 	ss << iRegNumber;
 	string strRegName = ss.str();
