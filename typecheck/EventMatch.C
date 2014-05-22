@@ -4,7 +4,7 @@
 #include "EventMatch.h"
 
 //Generating main part of matching
-const EFSAlist* EventMatch::getMatchCodeList(GlobalEntry *ge) {
+EFSAlist* EventMatch::getMatchCodeList(GlobalEntry *ge) {
 	EFSAlist* elCodeList = new EFSAlist();
 	elCodeList->addCode(new LabelCode("MatchBegin", 1));
 	//IN R998
@@ -41,7 +41,7 @@ const EFSAlist* EventMatch::getMatchCodeList(GlobalEntry *ge) {
 }
 
 //Generating code for reading parameters
-const EFSAlist* getReadParamCodeList(PrimitivePatNode *ppn) {
+EFSAlist* EventMatch::getReadParamCodeList(PrimitivePatNode *ppn) {
 	int iRegNum = EVENT_PARAM_REG_MAX - EVENT_PARAM_REG_MIN + 1;
 	//assign registers from low to high
 	int iIRegMin = EVENT_PARAM_REG_MIN;
@@ -49,7 +49,7 @@ const EFSAlist* getReadParamCodeList(PrimitivePatNode *ppn) {
 	int iFRegMin = iIRegMax + 1;
 	int iFRegMax = EVENT_PARAM_REG_MAX;
 
-	EFSAlist* elCodeList = nullptr;
+	EFSAlist* elCodeList = new EFSAlist;
 	// any
 	auto ptrTypeVector = ppn->event()->type()->argTypes();
 	if (ptrTypeVector == nullptr) {
@@ -80,6 +80,6 @@ const EFSAlist* getReadParamCodeList(PrimitivePatNode *ppn) {
 	return elCodeList;
 }
 
-const EFSA* EventMatch::getExitCode() {
+EFSA* EventMatch::getExitCode() {
 	return new LabelCode(strExitLabel_, 1);
 }

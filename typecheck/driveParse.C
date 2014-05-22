@@ -10,7 +10,6 @@
 #include "SymTab.h"
 #include "Value.h"
 #include "Optimizer.h"
-#include "EventMatch.C"
 using namespace std;
 
 #include "E--.tab.h"
@@ -227,10 +226,6 @@ main(int argc, char *argv[], char *envp[]) {
   ge->typePrint(cout, 0);
   cout << endl;
   EFSAlist* codeList = ge->codeGen();
-<<<<<<< HEAD
-=======
-  //eventMatch(ge)->codePrint(cout);
->>>>>>> d12b19cdb95eb8f45b7c4de4888878d7b1503897
   codeList->codePrint(cout);
   Optimizer* optimizer = new Optimizer();
   optimizer->generateBasicBlock(codeList->getCodeList());
