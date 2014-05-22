@@ -6,6 +6,7 @@ public:
 	EFSAlist* getMatchCodeList(GlobalEntry *ge);
 	EFSAlist* getReadParamCodeList(PrimitivePatNode *ppn);
 	EFSA* getExitCode();
+	
 private:
 	string strExitLabel_ = "EXIT";
 };

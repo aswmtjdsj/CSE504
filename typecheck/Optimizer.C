@@ -35,7 +35,8 @@ void Optimizer::algebraEquivalence(){
 
 			}
 		}
-	}*/
+	}
+	*/
 }
 
 void Optimizer::printBasicBlock(ostream& os){

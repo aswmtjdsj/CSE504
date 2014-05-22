@@ -239,6 +239,9 @@ EFSAlist* GlobalEntry::codeGen() {
 			codeList->addCode(new MoveCode(EFSA::OperandName::MOVS, pn->event()->name(), getReg(regNum, 0)));
 		}
 	}	
+
+	//Event Match
+	//codeList->addCodeList(EventMatch::getMatchCodeList(this));
 	
 	// Variable Init
 	if (symTab()){
