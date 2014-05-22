@@ -363,15 +363,19 @@ EFSAlist* FunctionEntry::codeGen() {
     vector < pair<int,int> > local_var_reg_num_array;
 	for(; st_iter != symTab()->end(); ++st_iter) {
         if((*st_iter)->kind() == SymTabEntry::Kind::VARIABLE_KIND) {
+            codeList->addCodeList(((VariableEntry*)(*st_iter))->codeGen());
 
-            if(Type::isFloat((*st_iter)->type()->tag())) {
+            local_var_reg_num_array.push_back(make_pair(((VariableEntry*)(*st_iter))->regNum(), ((VariableEntry*)(*st_iter))->regIF()));
+
+
+            /*if(Type::isFloat((*st_iter)->type()->tag())) {
                 int var_reg = EFSA::floatRegAlloc();
                 local_var_reg_num_array.push_back(make_pair(var_reg, FLOAT_FLAG));
             }
             else if(Type::isInt((*st_iter)->type()->tag())) {
                 int var_reg = EFSA::intRegAlloc();
                 local_var_reg_num_array.push_back(make_pair(var_reg, INT_FLAG));
-            }
+            }*/
         }
 	}
     

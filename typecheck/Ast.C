@@ -1290,14 +1290,12 @@ EFSAlist* RuleNode::codeGen() {
 }
 
 EFSAlist* ReturnStmtNode::codeGen() {
-    cout << "qiuqiuqiu" << endl;
     EFSAlist* codeList = NULL;
     codeList = new EFSAlist();
     return codeList;
 }
 
 EFSAlist* ExprStmtNode::codeGen() {
-    cout << "pipapa" << endl;
     EFSAlist* codeList = NULL;
     codeList = new EFSAlist();	
     codeList->addCodeList(expr_->codeGen());
@@ -1311,7 +1309,6 @@ EFSAlist* CompoundStmtNode::codeGen() {
     list<StmtNode*>::const_iterator iter;
     for (iter = stmts()->begin(); iter != stmts()->end(); ++iter)
     {
-    cout << "diudiu" << endl;
         if (*iter != NULL)
         {
             codeList->addCodeList((*iter)->codeGen());
