@@ -9,7 +9,7 @@
 #include "STEClasses.h"
 #include "SymTab.h"
 #include "Value.h"
-
+#include "EventMatch.C"
 using namespace std;
 
 #include "E--.tab.h"
@@ -226,6 +226,7 @@ main(int argc, char *argv[], char *envp[]) {
   ge->typePrint(cout, 0);
   cout << endl;
   EFSAlist* codeList = ge->codeGen();
+//eventMatch(ge)->codePrint(cout);
   codeList->codePrint(cout);
   }
 #endif
