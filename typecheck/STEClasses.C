@@ -327,5 +327,10 @@ int VariableEntry::regAlloc(){
 
 EFSAlist* FunctionEntry::codeGen() {
     EFSAlist* codeList = new EFSAlist();
+
+    // jump by function-name-label
+    LabelCode* label = new LabelCode(name(), TAR_LB);
+    codeList->addCode(label);
+    
     return codeList;
 }
