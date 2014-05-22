@@ -68,7 +68,7 @@ EFSAlist* EventMatch::getReadParamCodeList(RuleNode* pRuleNode) {
 		ircpCond, lcpSkipLabel));
 
 	int iCurIReg = iIRegMin;
-	int iCurFReg = iFRegMax;
+	int iCurFReg = iFRegMin;
 	printString_("(");
 	for (auto it = ptrTypeVector->begin(); it != ptrTypeVector->end(); it++) {
 		if (it != ptrTypeVector->begin()) printString_(", ");
@@ -81,8 +81,8 @@ EFSAlist* EventMatch::getReadParamCodeList(RuleNode* pRuleNode) {
 		}
 		if (type->isFloat(type->tag())) {
 			elCodeList_->addCode(new InCode(EFSA::OperandName::INF,
-				getReg(iCurFReg)));
-				printReg_(getReg(iCurFReg));
+				getReg(iCurFReg, 1)));
+				printReg_(getReg(iCurFReg, 1));
 				iCurFReg++;
 		}
 		if (iCurIReg > iIRegMax || iCurFReg > iFRegMax) {

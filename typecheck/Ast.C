@@ -1954,7 +1954,7 @@ EFSAlist* InvocationNode::codeGen() {
     codeList->addCode(add_code);
 
     FunctionEntry * function_def = (FunctionEntry *)symTabEntry();
-    // push return var, haven't pushed yet
+    // push return var, nothing inside yet
     const Type * ret_value_entry = function_def->type()->retType();
     // suppose no void function return 
     if(Type::isFloat(ret_value_entry->tag())) {
@@ -1967,6 +1967,9 @@ EFSAlist* InvocationNode::codeGen() {
         regNum(ret_reg);
         regIF(INT_FLAG);
     }
+    // add sp by 1 -> push
+    IntArithCode* push_ret_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::ADD, sp_reg, sp_reg, std::to_string(1));
+    codeList->addCode(push_ret_code);
 
     // push actual param
 
