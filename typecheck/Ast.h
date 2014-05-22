@@ -559,15 +559,15 @@ class RuleNode: public AstNode {
   const StmtNode* reaction() const { return reaction_; };   
   StmtNode* reaction() { return reaction_; };   
 
-//Yansong
-  const string label() { return strRuleLabel_; };
-
   void print(ostream& os, int indent=0) const;
   void typePrint(ostream& os, int indent=0) const;
   const Type* typeCheck();
 
   int regNum() const { return regNum_; };
   void regNum(int n) { regNum_=n; };
+
+  string ruleLabel() const { return ruleLabel_; };
+  void ruleLabel(string str) { ruleLabel_=str; };
   
   int regAlloc();
 
@@ -578,8 +578,7 @@ class RuleNode: public AstNode {
   BasePatNode *pat_;
   StmtNode *reaction_;
   int regNum_;
-  static int iLabelNum_; // Yansong
-  string strRuleLabel_;
+  string ruleLabel_;
    
   RuleNode(const RuleNode&);
 };
