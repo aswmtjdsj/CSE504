@@ -266,10 +266,26 @@ EFSAlist* GlobalEntry::codeGen() {
 		}
 	}
 
+	// FUNCTION Init
+	if (symTab()){
+		SymTab::iterator it = symTab()->begin();
+		for (;it!=symTab()->end();++it) {
+			if ((*it) && (*it)->kind() == SymTabEntry::Kind::FUNCTION_KIND) {
+				FunctionEntry* ve = (FunctionEntry*)(*it);
+				EFSAlist* cl = ve->codeGen();
+				if (cl!=NULL)
+					codeList->addCodeList(cl);
+			}
+		}
+	}
+
+    // jump by function-name-label
+    LabelCode* label = new LabelCode("SP_INIT", TAR_LB);
+    codeList->addCode(label);
 	// SP init
 	string from = std::to_string(0);
 	//string dest = "R"+std::to_string(SP_REG);
-	string dest = getReg(SP_REG, 0);
+	string dest = getReg(SP_REG, INT_FLAG);
 	MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, from, dest);
 	codeList->addCode(code);
 
@@ -334,5 +350,83 @@ int VariableEntry::regAlloc(){
 
 EFSAlist* FunctionEntry::codeGen() {
     EFSAlist* codeList = new EFSAlist();
+
+    // jump by function-name-label
+    LabelCode* label = new LabelCode(name(), TAR_LB);
+    codeList->addCode(label);
+
+    // get sp
+    string sp_reg_name = getReg(SP_REG, INT_FLAG);
+
+    // init local var
+	SymTab::iterator st_iter = symTab()->begin();
+    vector < pair<int,int> > local_var_reg_num_array;
+	for(; st_iter != symTab()->end(); ++st_iter) {
+        if((*st_iter)->kind() == SymTabEntry::Kind::VARIABLE_KIND) {
+
+            if(Type::isFloat((*st_iter)->type()->tag())) {
+                int var_reg = EFSA::floatRegAlloc();
+                local_var_reg_num_array.push_back(make_pair(var_reg, FLOAT_FLAG));
+            }
+            else if(Type::isInt((*st_iter)->type()->tag())) {
+                int var_reg = EFSA::intRegAlloc();
+                local_var_reg_num_array.push_back(make_pair(var_reg, INT_FLAG));
+            }
+        }
+	}
+    
+    // pop stack to load AP to LV
+    for(auto ridx = local_var_reg_num_array.rbegin(); ridx != local_var_reg_num_array.rend(); ridx++) {
+        string param_reg_name = getReg(ridx->first, ridx->second);
+        if(ridx->second == FLOAT_FLAG) {
+            MoveCode * ldfspp_param = new MoveCode(EFSA::OperandName::LDF, param_reg_name, sp_reg_name);
+            codeList->addCode(ldfspp_param);
+        }
+        else if(ridx->second == INT_FLAG) {
+            MoveCode * ldispp_param = new MoveCode(EFSA::OperandName::LDI, param_reg_name, sp_reg_name);
+            codeList->addCode(ldispp_param);
+        }
+        // sub sp by 1 -> pop
+        IntArithCode* sub_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::SUB, sp_reg_name, sp_reg_name, std::to_string(1));
+        codeList->addCode(sub_code);
+    }
+
+    // compound statement code gen
+    // inside:: return statement to pop return 
+    codeList->addCode(new LabelCode("//BodyBegin"));
+    //codeList->addCodeList(body()->codeGen());
+    codeList->addCode(new LabelCode("//BodyEnd"));
+
+    // release local var
+    for(auto idx = local_var_reg_num_array.begin(); idx != local_var_reg_num_array.end(); idx++) {
+        if(idx->second == FLOAT_FLAG) {
+            EFSA::floatRegFree(idx->first);
+        }
+        else if(idx->second == INT_FLAG) {
+            EFSA::intRegFree(idx->first);
+        }
+    }
+
+    // pop jump back label
+    // get new temp register
+    int temp_reg = EFSA::intRegAlloc();
+    //temp_reg_name = "R"+std::to_string(temp_reg);
+    string temp_reg_name = getReg(temp_reg, INT_FLAG);
+
+    MoveCode * ldispp_l = new MoveCode(EFSA::OperandName::LDI, temp_reg_name, sp_reg_name); // dest, from
+    codeList->addCode(ldispp_l);
+
+    // sub sp by 1 -> pop
+    IntArithCode* sub_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::SUB, sp_reg_name, sp_reg_name, std::to_string(1));
+    codeList->addCode(sub_code);
+
+    // jump to label ( function return address)
+    LabelCode* label_reg = new LabelCode(temp_reg_name);
+    JumpCode* jumpCode = new JumpCode(EFSA::OperandName::JMPI, NULL, label_reg);
+    codeList->addCode(jumpCode);
+    
+    // eliminate temp reg
+    EFSA::intRegFree(temp_reg);
+
     return codeList;
 }

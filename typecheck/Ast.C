@@ -1182,6 +1182,10 @@ void JumpCode::codePrint(ostream& os){
             os<<"JMP"<<" ";
             label_->codePrint(os);
             break;
+        case EFSA::OperandName::JMPI:
+            os<<"JMPI"<<" ";
+            label_->codePrint(os);
+            break;
         case EFSA::OperandName::JMPC:
             os<<"JMPC"<<" ";
             cond_->codePrint(os);
@@ -2454,7 +2458,7 @@ EFSAlist* InvocationNode::codeGen() {
 
     // move reg to sp->mem_addr
     //string sp_reg = "R"+std::to_string(SP_REG);
-    string sp_reg = getReg(SP_REG, 0);
+    string sp_reg = getReg(SP_REG, INT_FLAG);
     MoveCode * stir_sp = new MoveCode(EFSA::OperandName::STI, temp_reg_name, sp_reg);
     codeList->addCode(stir_sp);
 
@@ -2554,11 +2558,10 @@ EFSAlist* InvocationNode::codeGen() {
     codeList->addCode(label_return);
 
     // get return value from sp->memory to register
-
     // get new temp register
     temp_reg = EFSA::intRegAlloc();
     //temp_reg_name = "R"+std::to_string(temp_reg);
-    temp_reg_name = getReg(temp_reg, 0);
+    temp_reg_name = getReg(temp_reg, INT_FLAG);
 
     // move sp to reg
     MoveCode * movsp_r = new MoveCode(EFSA::OperandName::MOVI, sp_reg, temp_reg_name);
@@ -2574,21 +2577,24 @@ EFSAlist* InvocationNode::codeGen() {
 
     if(Type::isFloat(ret_value_entry->tag())) {
         //ret_reg_name = "F"+std::to_string(ret_reg);
-        ret_reg_name = getReg(ret_reg,1);
+        ret_reg_name = getReg(ret_reg, FLOAT_FLAG);
         MoveCode * ldfspp_ret = new MoveCode(EFSA::OperandName::LDF, temp_reg_name, ret_reg_name); // dest, from
         codeList->addCode(ldfspp_ret);
         //delete ldfspp_ret;
+        
+        // eliminate temp reg
+        EFSA::intRegFree(temp_reg);
     }
     else if(Type::isInt(ret_value_entry->tag())) {
         //ret_reg_name = "R"+std::to_string(ret_reg);
-        ret_reg_name = getReg(ret_reg, 0);
+        ret_reg_name = getReg(ret_reg, INT_FLAG);
         MoveCode * ldispp_ret = new MoveCode(EFSA::OperandName::LDI, temp_reg_name, ret_reg_name); // dest, from
         codeList->addCode(ldispp_ret);
         //delete ldispp_ret;
+        
+        // eliminate temp reg
+        EFSA::floatRegFree(temp_reg);
     }
-
-    // eliminate temp reg
-    EFSA::intRegFree(temp_reg);
 
     codeList->addCode(new LabelCode("//CallEnd"));
 
