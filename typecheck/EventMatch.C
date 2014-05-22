@@ -68,7 +68,7 @@ EFSAlist* EventMatch::getReadParamCodeList(RuleNode* pRuleNode) {
 		ircpCond, lcpSkipLabel));
 
 	int iCurIReg = iIRegMin;
-	int iCurFReg = iFRegMax;
+	int iCurFReg = iFRegMin;
 	printString_("(");
 	for (auto it = ptrTypeVector->begin(); it != ptrTypeVector->end(); it++) {
 		if (it != ptrTypeVector->begin()) printString_(", ");
