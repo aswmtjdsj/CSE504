@@ -28,24 +28,22 @@ void Optimizer::generateBasicBlock(vector<EFSA*> codeList){
 void Optimizer::algebraEquivalence(){
 	
 	for (auto iter=blockList_.begin(); iter!=blockList_.end(); iter++) {
-		/*
 		vector<EFSA*>* codeList = (*iter)->getCodeListPtr();
 		for (auto it=codeList->begin(); it!=codeList->end(); it++){
 			//(*it) = new LabelCode("zdd");
-			/*
 			EFSA* temp = (*it);
 			if (temp->operatorType()==EFSA::OperatorType::INT_ARITH){
 				IntArithCode* code = (IntArithCode*) temp;
 				if (code->name()==EFSA::OperandName::ADD){
 					if (code->leftOperand()=="0"){
-						//(*it) = new MoveCode(EFSA::OperandName::MOVI, code->rightOperand(), code->dest());
+						(*it) = new MoveCode(EFSA::OperandName::MOVI, code->rightOperand(), code->dest());
 						cout<<"zdd"<<endl;
 					}
 					else if (code->rightOperand()=="0"){
 					}
 				}
 			}
-		}*/
+		}
 	}
 	
 }

@@ -251,10 +251,6 @@ EFSAlist* GlobalEntry::codeGen() {
 			(*iter)->ruleSkipLabel(l2);
 		}
 	}	
-
-	//Event Match
-	EventMatch em(LABEL_PROG_EXIT);
-	codeList->addCodeList(em.getMatchCodeList(this));
 	
 	// Variable Init
 	if (symTab()){
@@ -281,6 +277,10 @@ EFSAlist* GlobalEntry::codeGen() {
 			}
 		}
 	}
+
+	//Event Match
+	EventMatch em(LABEL_PROG_EXIT);
+	codeList->addCodeList(em.getMatchCodeList(this));
 
     // jump by function-name-label
     LabelCode* label = new LabelCode("SP_INIT", TAR_LB);
