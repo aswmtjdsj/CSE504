@@ -305,3 +305,8 @@ int VariableEntry::regAlloc(){
 	}
 	return -1;
 }
+
+EFSAlist* FunctionEntry::codeGen() {
+    EFSAlist* codeList = new EFSAlist();
+    return codeList;
+}

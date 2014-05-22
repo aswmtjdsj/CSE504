@@ -140,6 +140,8 @@ class FunctionEntry: public SymTabEntry {
   CompoundStmtNode* body() {return body_;};
   void body(CompoundStmtNode* n) { body_ = n;};
 
+  EFSAlist* codeGen();
+
   void print(ostream& os, int indent) const;
   const Type* typeCheck();
   void typePrint(ostream& os, int indent) const;
