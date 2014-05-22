@@ -12,8 +12,15 @@
     event open5 (string a1 , int a2 , unsigned int a3);
     event open6 (string a1 , int a2 , unsigned int a3);
 
-    int biu(int a, int b);
-    double qiu(int a, int b);
+    int biu(int a, int b) {
+        a = b;
+    }
+    double qiu(int a, int b) {
+        a = b;
+    }
+    double diu(double a, int b) {
+        a = 1.;
+    }
 
     string file ;
     int flags;
@@ -39,7 +46,11 @@
     open2(file, flags, mode) -> {
 
         a = biu(3,4);
+        a = biu(a,b);
+        a = biu(a+b,b);
         f = qiu(1,2);
+        f = diu(1., 2);
+        f = diu(f, 2);
         a=(a-b)+((4-d)*(a+c))+(a-5)+(1-2);
 	
 	w=(x-y)+(y-3.5)+(z+w)+((0.4-y)*(1.0-2.0))+(x-y)*(y-3.5)+(z+w);
