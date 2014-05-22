@@ -2285,7 +2285,11 @@ EFSAlist* InvocationNode::codeGen() {
             }
         }
     }*/
-    vector<ExprNode*>* ap = params;
+    vector<ExprNode*>* ap = params();
+    for (auto iter= ap->begin(); iter!=ap->end(); iter++){
+        if  ((*iter)->exprNodeType()==ExprNode::ExprNodeType::VALUE_NODE)
+                cout<<(*iter)->value()->ival()<<endl;
+    }
 
     // push return var
     const Type * ret_value_entry = function_def->type()->retType();
