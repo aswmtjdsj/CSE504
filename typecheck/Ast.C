@@ -1296,7 +1296,6 @@ EFSAlist* ExprStmtNode::codeGen() {
     EFSAlist* codeList = NULL;
     codeList = new EFSAlist();	
     codeList->addCodeList(expr_->codeGen());
-
     return codeList;
 }
 

@@ -220,20 +220,18 @@ main(int argc, char *argv[], char *envp[]) {
   labelNum = 0;
   if (ge != NULL) {
 	//cout << "Finished parsing, here is the AST\n";
-	ge->print(cout, 0);
+  //ge->print(cout, 0);
   ge->typeCheck();
   cout << endl;
-  ge->typePrint(cout, 0);
+  //ge->typePrint(cout, 0);
   cout << endl;
   
   EFSAlist* codeList = ge->codeGen();
-  codeList->codePrint(cout);
+  //codeList->codePrint(cout);
+  /*
   Optimizer* optimizer = new Optimizer();
   optimizer->codeOptimize(codeList->getCodeList());
-  optimizer->printBasicBlock(cout);
-  //optimizer->generateBasicBlock(codeList->getCodeList());
-  //optimizer->algebraEquivalence();
-  //optimizer->printBasicBlock(cout);
+  optimizer->printBasicBlock(cout);*/
   
   }
 #endif
