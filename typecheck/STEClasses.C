@@ -245,7 +245,10 @@ EFSAlist* GlobalEntry::codeGen() {
 			//generate rule label
 			string l1 = LABEL_PREFIX+std::to_string(labelNum);
 			labelNum++;
+			string l2 = LABEL_PREFIX+std::to_string(labelNum);
+			labelNum++;
 			(*iter)->ruleLabel(l1);
+			(*iter)->ruleSkipLabel(l2);
 		}
 	}	
 
