@@ -868,7 +868,7 @@ private:
 //Yansong
 class PrintCode: public EFSA {
 public:
-	PrintCode(EFSA::OperandName name, string str, string strReg = "") : EFSA(name, EFSA::OperatorType::PRINT) { str_ = str; reg_ = strReg; };
+	PrintCode(EFSA::OperandName name, string str, string strReg = "") : EFSA(name, EFSA::OperatorType::PRINT), str_(str), reg_(strReg) {};
 	void codePrint(ostream &os);
 private:
 	string str_;

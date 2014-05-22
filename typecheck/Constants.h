@@ -25,4 +25,5 @@
 #define GLOBAL_BEGIN "Begin"
 
 #define LABEL_PROG_EXIT "EXIT"
+#define EXIT_INPUT_ASCII "10"
 #endif
