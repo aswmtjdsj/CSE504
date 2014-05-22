@@ -1232,7 +1232,7 @@ void PrintCode::codePrint(ostream &os) {
 		os << "PRTF " << reg_ << endl;
 		break;
         default:
-                  break;
+                break;
 	}
 }
 
