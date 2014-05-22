@@ -394,7 +394,7 @@ EFSAlist* FunctionEntry::codeGen() {
     // compound statement code gen
     // inside:: return statement to pop return 
     codeList->addCode(new LabelCode("//BodyBegin"));
-    //codeList->addCodeList(body()->codeGen());
+    codeList->addCodeList(body()->codeGen());
     codeList->addCode(new LabelCode("//BodyEnd"));
 
     // release local var
