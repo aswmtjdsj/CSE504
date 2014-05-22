@@ -3,10 +3,10 @@
 
 EFSAlist* eventMatch(GlobalEntry *ge) {
 	const string strExitLabel = "EXIT";
-	EFSAlist* elCodeList = new EFSAlist();
-	elCodeList->addCode(new LabelCode("Globalbegin", 1));
+	//EFSAlist* elCodeList = new EFSAlist();
+	//elCodeList->addCode(new LabelCode("Globalbegin", 1));
 	//IN R998
-	elCodeList->addCode(new InCode(EFSA::OperandName::IN, getReg(EVENT_NAME_REG)));
+/*	elCodeList->addCode(new InCode(EFSA::OperandName::IN, getReg(EVENT_NAME_REG)));
 	//JMPC EQ R998 0 EXIT
 	IntRelationCode* ircpCond = new IntRelationCode(EFSA::OperandName::EQ,
 		getReg(EVENT_NAME_REG), "0");
@@ -30,4 +30,5 @@ EFSAlist* eventMatch(GlobalEntry *ge) {
 				ircpCond, lcpLabel));
 		}	
 	}
+*/
 }
