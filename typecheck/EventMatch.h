@@ -3,10 +3,14 @@
 
 class EventMatch {
 public:
+	EventMatch(string str) : strExitLabel_(str) {};
 	EFSAlist* getMatchCodeList(GlobalEntry *ge);
 	EFSAlist* getReadParamCodeList(PrimitivePatNode *ppn);
 	EFSA* getExitCode();
-	
+
+	string strExitLabel(){return strExitLabel_;}
+	void strExitLabel(string str){strExitLabel_=str;}
+
 private:
-	string strExitLabel_ = "EXIT";
+	string strExitLabel_ ;
 };

@@ -1199,6 +1199,8 @@ void PrintCode::codePrint(ostream &os) {
 	case EFSA::OperandName::PRTF:
 		os << "PRTF " << reg_ << endl;
 		break;
+        default:
+                  break;
 	}
 }
 
@@ -1234,7 +1236,7 @@ EFSAlist* RuleNode::codeGen() {
     codeList->addCode(new LabelCode(l1, 1));
     ruleLabel(l1);
 
-    EventMatch em;
+    EventMatch em("EXIT");
     codeList->addCodeList(em.getReadParamCodeList(patNode)); //em, Yansong
     codeList->addCodeList(reaction()->codeGen());	
 

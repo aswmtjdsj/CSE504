@@ -12,7 +12,7 @@ EFSAlist* EventMatch::getMatchCodeList(GlobalEntry *ge) {
 	//JMPC EQ R998 0 EXIT
 	IntRelationCode* ircpCond = new IntRelationCode(EFSA::OperandName::EQ,
 		getReg(EVENT_NAME_REG), "0");
-	LabelCode* lcpExitLabel = new LabelCode(strExitLabel_);
+	LabelCode* lcpExitLabel = new LabelCode(strExitLabel());
 	elCodeList->addCode(new JumpCode(EFSA::OperandName::JMPC, ircpCond, lcpExitLabel));
 
 	int iCnt = 0;
@@ -81,5 +81,5 @@ EFSAlist* EventMatch::getReadParamCodeList(PrimitivePatNode *ppn) {
 }
 
 EFSA* EventMatch::getExitCode() {
-	return new LabelCode(strExitLabel_, 1);
+	return new LabelCode(strExitLabel(), 1);
 }

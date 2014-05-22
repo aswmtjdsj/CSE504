@@ -1,6 +1,7 @@
 #include "STEClasses.h"
 #include "Value.h"
 #include "ParserUtil.h"
+#include "EventMatch.h"
 
 const Type* GlobalEntry::typeCheck() {
 	SymTab::iterator st_iter = symTab()->begin();
@@ -241,7 +242,8 @@ EFSAlist* GlobalEntry::codeGen() {
 	}	
 
 	//Event Match
-	//codeList->addCodeList(EventMatch::getMatchCodeList(this));
+	EventMatch em("EXIT");
+	codeList->addCodeList(em.getMatchCodeList(this));
 	
 	// Variable Init
 	if (symTab()){
@@ -269,6 +271,10 @@ EFSAlist* GlobalEntry::codeGen() {
 			codeList->addCodeList((*it)->codeGen());
 		}
 	}	
+
+	//Event Match
+	EventMatch em1("EXIT");
+	codeList->addCode(em1.getExitCode());
 	
 	return codeList;
 }
