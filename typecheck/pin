@@ -6,6 +6,7 @@ event z(int b);
 
 int biu(int a, int b) {
     a = b;
+    return a + b;
 }
 
 
