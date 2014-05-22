@@ -28,6 +28,7 @@ string newName(const string& type);
 string itoa(int i);
 string getReg(string strOldReg);
 string getReg(int iRegNumber, int iType = 0);
+string numToString(int i);
 
 #include "all.h"
 #include "Ast.h"

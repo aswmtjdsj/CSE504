@@ -10,6 +10,8 @@
 #define JMP_LB (0)
 #define TAR_LB (1)
 
+#define EVENT_PARAM_REG_ MAX (950)
+#define EVENT_PARAM_REG_ MIN (931)
 #define EVENT_NAME_REG_SIZE (930)
 #define AVAIL_REG_SIZE (900)
 #define REG_SIZE (1000)

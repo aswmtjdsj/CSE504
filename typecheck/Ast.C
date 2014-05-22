@@ -1,6 +1,7 @@
 #include "Ast.h"					
 #include "ParserUtil.h"					
 
+extern int iMatchLabelInRule = 0; //Yansong
 extern const OpNode::OpInfo opInfo[];
 
 const Type* ValueNode::typeCheck() {
@@ -1169,6 +1170,37 @@ void JumpCode::codePrint(ostream& os){
     }
 }
 
+//Yansong
+void PrintCode::codePrint(ostream& os) {
+	switch (name()) {
+	case EFSA::OperandName::IN:
+		os << "IN " << strReg_ << endl;
+		break;
+	case EFSA::OperandName::INF:
+		os << "INF " << strReg_ << endl;
+		break;
+	case EFSA::OperandName::INT:
+		os << "INT " << strReg_ << endl;
+		break;
+	default:
+		break;
+	}
+}
+
+void PrintCode::codePrint(ostream &os) {
+	switch(name()) {
+	case EFSA::OperandName::PRTS:
+		os << "PRTS " << str_ << endl;
+		break;
+	case EFSA::OperandName::PRTI:
+		os << "PRTI " << reg_ << endl;
+		break;
+	case EFSA::OperandName::PRTF:
+		os << "PRTF " << reg_ << endl;
+		break;
+	}
+}
+
 void EFSAlist::addCodeList(EFSAlist* codes) {
     if (codes!=NULL){
         vector <EFSA*>::iterator it = codes->codeList.begin();
@@ -1191,7 +1223,6 @@ void EFSAlist::removeLastCode() {
     codeList.pop_back();
 }
 
-//int RuleNode::iLabelNum_ = 0;
 EFSAlist* RuleNode::codeGen() {
     EFSAlist* codeList = NULL;
     codeList = new EFSAlist();
@@ -1205,7 +1236,11 @@ EFSAlist* RuleNode::codeGen() {
     codeList->addCodeList(reaction()->codeGen());	
 
     //codeList->addCode(new LabelCode("RuleEnd", 1));
-    codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL, new LabelCode(GLOBAL_BEGIN)));
+    //codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL, new LabelCode(GLOBAL_BEGIN)));
+    //Yansong
+    codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL,
+			    new LabelCode("Match" + numToString(iMatchLabelInRule))));
+    iMatchLabelInRule++;	
 
     return codeList;
 }
