@@ -14,8 +14,8 @@ class Optimizer{
  public:
 	vector<EFSAlist*> blockList(){return blockList_;};	
 	void addBlock(EFSAlist* block);
-
 	void generateBasicBlock(vector<EFSA*> codeList);
+	void algebraEquivalence();
 	void printBasicBlock(ostream& os);
 
  private:

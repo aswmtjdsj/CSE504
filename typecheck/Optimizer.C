@@ -25,6 +25,19 @@ void Optimizer::generateBasicBlock(vector<EFSA*> codeList){
 	}
 }
 
+void Optimizer::algebraEquivalence(){
+	/*
+	for (auto iter=blockList_.begin(); iter!=blockList_.end(); iter++) {
+		EFSAlist* block = (EFSAlist*)iter;
+		for (auto it=block->getCodeList().begin(); it!=block->getCodeList().end(); it++) {
+			EFSA* code = (*it);
+			if (code->operatorType()==EFSA::OperatorType::INT_ARITH){
+
+			}
+		}
+	}*/
+}
+
 void Optimizer::printBasicBlock(ostream& os){
 	for (auto iter=blockList_.begin(); iter!=blockList_.end(); iter++) {
 		EFSAlist* block = (*iter);
