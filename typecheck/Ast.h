@@ -597,13 +597,14 @@ class EFSA {
     JUMP,
     MOVE,
     INPUT,
-    LABEL
+    LABEL,
+    IN
   };
 
   enum class OperandName {
     ADD, SUB, DIV, MUL, MOD, NEG, AND, OR, XOR, FADD, FSUB, FDIV, FMUL, FNEG, GT, GE,
     UGT, UGE, EQ, NE, FGT, FGE, FEQ, FNE, LABEL, MOVL, MOVS, MOVI, MOVF, MOVIF, LDI, 
-    LDF, STI, STF, JMP, JMPC, JMPI, JMPCI
+    LDF, STI, STF, JMP, JMPC, JMPI, JMPCI, IN, INF, INT
   };
 
   virtual void codePrint(ostream& os) = 0;
@@ -848,24 +849,24 @@ class JumpCode: public EFSA {
 //Yansong
 class InCode: public EFSA {
 public:
-	InCode(EFSA::OperandName name, string strReg) : EFSA(name, EFSA::OperandType::IN) { iRegNumber_ = iRegNumber };
+	InCode(EFSA::OperandName name, string strRegName) : EFSA(name, EFSA::OperatorType::IN) { strReg_ = strRegName; };
 	void codePrint(ostream& os) {
 		switch (name()) {
 		case EFSA::OperandName::IN:
-			os << "IN " << strReg << endl;
+			os << "IN " << strReg_ << endl;
 			break;
 		case EFSA::OperandName::INF:
-			os << "INF " << strReg << endl;
+			os << "INF " << strReg_ << endl;
 			break;
 		case EFSA::OperandName::INT:
-			os << "INT " << strReg << endl;
+			os << "INT " << strReg_ << endl;
 			break;
 		default:
 			break;
 		}
 	}
 private:
-	int iRegNumber_;
+	string strReg_;
 };
 
 /****************************************************************/
