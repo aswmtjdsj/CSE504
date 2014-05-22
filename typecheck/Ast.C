@@ -1109,7 +1109,8 @@ void LabelCode::codePrint(ostream& os){
 	os<<name_;
 	if (target_==1)
 		os<<":";
-	os<<endl;
+	else
+		os<<endl;
 	/*
 	if (name_=="RuleEnd")
 		os<<endl;
@@ -1199,7 +1200,7 @@ EFSAlist* RuleNode::codeGen() {
 	codeList->addCodeList(reaction()->codeGen());	
 
 	//codeList->addCode(new LabelCode("RuleEnd", 1));
-	codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL, new LabelCode("GlobalBegin")));
+	codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL, new LabelCode(GLOBAL_BEGIN)));
 
 	return codeList;
 }
@@ -2260,7 +2261,8 @@ EFSAlist* ValueNode::codeGen() {
 }
 
 EFSAlist* InvocationNode::codeGen() {
-	EFSAlist* codeList = NULL;
+	
+	EFSAlist* codeList = NULL;/*
 	codeList = new EFSAlist();
 	codeList->addCode(new LabelCode("//CallBegin"));
 
@@ -2295,6 +2297,6 @@ EFSAlist* InvocationNode::codeGen() {
     // return label
     LabelCode * label_return = new LabelCode(l_ret, TAR_LB);
 	codeList->addCode(label_return);
-	codeList->addCode(new LabelCode("//CallEnd"));
+	codeList->addCode(new LabelCode("//CallEnd"));*/
 	return codeList;
 }

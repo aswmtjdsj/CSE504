@@ -221,6 +221,9 @@ void VariableEntry::print(ostream& out, int indent) const
 EFSAlist* GlobalEntry::codeGen() {
 	EFSAlist* codeList = NULL;
 	codeList = new EFSAlist();
+	
+	codeList->addCode(new LabelCode(GLOBAL_BEGIN, 1));
+
 	//Alloc reg for rule name		
 	vector<RuleNode*>::const_iterator iter = rules_.begin();
 	for (;iter!=rules_.end();++iter) {

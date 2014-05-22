@@ -623,7 +623,7 @@ class EFSA {
               return i;
           }
       }
-      return -2;
+      return REG_FAILED;
   }
 
   static int floatRegAlloc() {
@@ -633,7 +633,7 @@ class EFSA {
               return i;
           }
       }
-      return -2;
+      return REG_FAILED;
   }
 
   static void intRegFree(int i) {
@@ -659,9 +659,10 @@ class EFSAlist{
    EFSA* getLastCode();
    void removeLastCode();
    void codePrint(ostream& os);
+   vector<EFSA*> getCodeList(){return codeList;};
 
  private:
-    vector <EFSA*> codeList;
+   vector<EFSA*> codeList;
 };
 
 

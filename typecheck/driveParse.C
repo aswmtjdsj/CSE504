@@ -9,6 +9,7 @@
 #include "STEClasses.h"
 #include "SymTab.h"
 #include "Value.h"
+#include "Optimizer.h"
 
 using namespace std;
 
@@ -227,6 +228,8 @@ main(int argc, char *argv[], char *envp[]) {
   cout << endl;
   EFSAlist* codeList = ge->codeGen();
   codeList->codePrint(cout);
+  Optimizer* optimizer = new Optimizer();
+  optimizer->generateBasicBlock(codeList->getCodeList());
   }
 #endif
 }
