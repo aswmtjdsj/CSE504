@@ -2259,7 +2259,7 @@ EFSAlist* OpNode::codeGen() {
 EFSAlist* ValueNode::codeGen() {
 	return NULL;
 }
-FSAlist* InvocationNode::codeGen() {
+EFSAlist* InvocationNode::codeGen() {
 EFSAlist* codeList = NULL;
 codeList = new EFSAlist();
 codeList->addCode(new LabelCode("//CallBegin"));
