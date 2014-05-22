@@ -1293,6 +1293,26 @@ EFSAlist* RuleNode::codeGen() {
 EFSAlist* ReturnStmtNode::codeGen() {
     EFSAlist* codeList = NULL;
     codeList = new EFSAlist();
+    codeList->addCodeList(expr_->codeGen());
+
+    // get sp
+    string sp_reg_name = getReg(SP_REG, INT_FLAG);
+
+    // sub sp by 1 -> pop
+    IntArithCode* sub_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::SUB, sp_reg_name, sp_reg_name, std::to_string(1));
+    codeList->addCode(sub_code);
+
+    // store return value to stack
+    string ret_value_reg_name = getReg(expr_->regNum(), expr_->regIF());
+    if(expr_->regIF() == FLOAT_FLAG) {
+        MoveCode * stfr_sp = new MoveCode(EFSA::OperandName::STF, ret_value_reg_name, sp_reg_name);
+        codeList->addCode(stfr_sp);
+    }
+    else if(expr_->regIF() == INT_FLAG) {
+        MoveCode * stir_sp = new MoveCode(EFSA::OperandName::STI, ret_value_reg_name, sp_reg_name);
+        codeList->addCode(stir_sp);
+    }
+
     return codeList;
 }
 
