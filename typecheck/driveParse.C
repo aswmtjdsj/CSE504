@@ -228,11 +228,13 @@ main(int argc, char *argv[], char *envp[]) {
   cout << endl;
   /*
   EFSAlist* codeList = ge->codeGen();
+<<<<<<< HEAD
+=======
   //eventMatch(ge)->codePrint(cout);
+>>>>>>> d12b19cdb95eb8f45b7c4de4888878d7b1503897
   codeList->codePrint(cout);
   Optimizer* optimizer = new Optimizer();
   optimizer->generateBasicBlock(codeList->getCodeList());
-  cout<<endl;
   optimizer->printBasicBlock(cout);
   */
   }

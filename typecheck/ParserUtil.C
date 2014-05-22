@@ -61,9 +61,7 @@ string getReg(string strOldReg) {
 // @param int iType, 0 for int, 1 for float
 // Yansong
 string getReg(int iRegNumber, int iType) {
-	stringstream ss;
-	ss << iRegNumber;
-	string strRegName = ss.str();
+	string strRegName = numToString(iRegNumber);
 	for (auto i = 0; i < 3 - strRegName.length(); i++) {
 		strRegName = "0" + strRegName;
 	}
@@ -78,3 +76,10 @@ string getReg(int iRegNumber, int iType) {
 	}
 	return strRegName;
 }
+
+string numToString(int i) {
+	stringstream ss;
+	ss << i;
+	return ss.str();
+}
+
