@@ -41,9 +41,9 @@ void Optimizer::algebraEquivalence(){
 	
 }
 
-void codeOptimize(vector<EFSA*> codeList){
-	//generateBasicBlock(codeList->getCodeList());
-  	//algebraEquivalence();
+void Optimizer::codeOptimize(vector<EFSA*> codeList){
+	generateBasicBlock(codeList);
+  	algebraEquivalence();
 }
 
 void Optimizer::printBasicBlock(ostream& os){

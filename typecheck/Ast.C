@@ -1012,11 +1012,6 @@ void EFSAlist::dealDuplicateLabel(){
              }
             ++iter;
      }
-     /*
-     for (int i=0; i<codeList.size(); i++){
-            if (markList[i]==1)
-                cout<<i<<endl;
-     }*/
      
      iter = codeList.begin();
      int j =1;
@@ -1027,7 +1022,7 @@ void EFSAlist::dealDuplicateLabel(){
                     j++;
              }
      }
-     
+     //codeList->addCode(new PrintCode(EFSA::OperandName::PRTS, "\"\""));
 }
 
 
