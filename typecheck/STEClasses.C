@@ -5,14 +5,17 @@
 
 const Type* GlobalEntry::typeCheck() {
 	SymTab::iterator st_iter = symTab()->begin();
-	for(; st_iter != symTab()->end(); ++st_iter) {
-		if((*st_iter)->name() != "any")
+	while (st_iter != symTab()->end())
+	{
+		if ((*st_iter)->name() != "any")
 			(*st_iter)->typeCheck();
+		++st_iter;
 	}
 	vector<RuleNode*>::iterator ru_iter = rules_.begin();
-	for(; ru_iter != rules_.end(); ++ru_iter) {
-		//cout << "rule typecheck!" << endl;
+	while (ru_iter != rules_.end())
+	{
 		(*ru_iter)->typeCheck();
+		++ru_iter;
 	}
 	return NULL;
 }
@@ -32,22 +35,29 @@ const Type* VariableEntry::typeCheck() {
 	}
 	return NULL;
 }
+
+
 const Type* FunctionEntry::typeCheck() {
 	if(body())
 		body()->typeCheck();
 	return NULL;
 }
 
-void GlobalEntry::typePrint(ostream& out, int indent) const {
+void GlobalEntry::typePrint(ostream& out, int indent) const 
+{
 	SymTab::const_iterator st_iter = symTab()->begin();
-	for(; st_iter != symTab()->end(); ++st_iter) {
+	while(st_iter != symTab()->end())
+	{
 		if((*st_iter)->name() != "any")
-			(*st_iter)->typePrint(out, indent);
+			(*st_iter)->typePrint(out, indent);		
+		++st_iter;
 	}
 	out << endl;
 	vector<RuleNode*>::const_iterator ru_iter = rules_.begin();
-	for(; ru_iter != rules_.end(); ++ru_iter) {
+	while (ru_iter != rules_.end())
+	{
 		(*ru_iter)->typePrint(out, indent);
+		++ru_iter;
 	}
 }
 
@@ -128,27 +138,21 @@ void FunctionEntry::typePrint(ostream& out, int indent) const {
 	}
 	cout << ";" << endl;
 }
-/*void GlobalEntry::print(ostream& out, int indent) const{};
-void EventEntry::print(ostream& out, int indent) const{};
-void BlockEntry::print(ostream& out, int indent) const{};
-void ClassEntry::print(ostream& out, int indent) const{};
-void FunctionEntry::print(ostream& out, int indent) const{};
-void VariableEntry::print(ostream& out, int indent) const{};*/
-
 
 void GlobalEntry::print(ostream& out, int indent) const
 {
 	SymTab::const_iterator iter = symTab()->begin();
-	for (; iter != symTab()->end(); ++iter)
+	while (iter != symTab()->end())
 	{
-		//out << (*iter)->name() << endl;
 		if ((*iter)->name() != "any") (*iter)->print(out, indent);
+		++iter;
 	}
-	vector<RuleNode*>::const_iterator iter1;
-	for (iter1 = rules_.begin(); iter1 != rules_.end(); iter1++)
+	vector<RuleNode*>::const_iterator iter1 = rules_.begin();
+	while (iter1 != rules_.end())
 	{
 		(*iter1)->print(out, indent);
 		out << endl;
+		iter1++;
 	}
 }
 
@@ -246,7 +250,7 @@ EFSAlist* GlobalEntry::codeGen() {
 	}	
 
 	//Event Match
-	EventMatch em("EXIT");
+	EventMatch em(LABEL_PROG_EXIT);
 	codeList->addCodeList(em.getMatchCodeList(this));
 	
 	// Variable Init
@@ -278,7 +282,7 @@ EFSAlist* GlobalEntry::codeGen() {
 	}	
 
 	//Event Match
-	EventMatch em1("EXIT");
+	EventMatch em1(LABEL_PROG_EXIT);
 	codeList->addCode(em1.getExitCode());
 
 	codeList->dealDuplicateLabel();

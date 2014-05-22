@@ -28,22 +28,17 @@ void Optimizer::generateBasicBlock(vector<EFSA*> codeList){
 void Optimizer::algebraEquivalence(){
 	
 	for (auto iter=blockList_.begin(); iter!=blockList_.end(); iter++) {
-		EFSAlist* block = (*iter);
-		/*
-		vector<EFSA*> codeList= block->getCodeList();
-		for (auto it=codeList.begin(); it!=codeList.end(); it++){
+		
+		vector<EFSA*>* codeList = (*iter)->getCodeListPtr();
+		for (auto it=codeList->begin(); it!=codeList->end(); it++){
 			EFSA* code = (*it);
-			if (code->operatorType()==EFSA::OperatorType::INT_ARITH)
-				code = new LabelCode("aaa");
-			
-			EFSA* code = (*it);
-			(*it)=new LabelCode("aaa");
-			if (code->operatorType()==EFSA::OperatorType::INT_ARITH){
-				//cout<<"zdd"<<endl;
-				//(*it)=new LabelCode("aaa");
-			}
+			// fixed by Yansong
+			//if (code->operatorType()==EFSA::OperatorType::INT_ARITH){
+			//	(*it)=new LabelCode("aaa", 1);
+			//}
 		}
-		*/
+
+		
 		/*
 		for (auto it=block->getCodeList().begin(); it!=block->getCodeList().end(); it++) {
 			EFSA* code = (*it);
