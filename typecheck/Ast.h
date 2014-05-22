@@ -21,7 +21,7 @@ class SymTabEntry;
 class VariableEntry;
 class EFSA;
 class EFSAlist;
-int labelNum;
+extern int labelNum;
 
 /*****************************************************************************
    Here is the class hierarchy:

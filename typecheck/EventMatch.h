@@ -3,9 +3,9 @@
 
 class EventMatch {
 public:
-	const EFSAlist* getMatchCodeList(GlobalEntry *ge);
-	const EFSAlist* getReadParamCodeList(PrimitivePatNode *ppn);
-	const EFSA* getExitCode();
+	EFSAlist* getMatchCodeList(GlobalEntry *ge);
+	EFSAlist* getReadParamCodeList(PrimitivePatNode *ppn);
+	EFSA* getExitCode();
 private:
 	string strExitLabel_ = "EXIT";
 };

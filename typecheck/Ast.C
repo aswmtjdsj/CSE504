@@ -1,5 +1,6 @@
 #include "Ast.h"					
 #include "ParserUtil.h"					
+#include "EventMatch.h"
 
 extern int iMatchLabelInRule = 0; //Yansong
 extern const OpNode::OpInfo opInfo[];
@@ -1171,7 +1172,7 @@ void JumpCode::codePrint(ostream& os){
 }
 
 //Yansong
-void PrintCode::codePrint(ostream& os) {
+void InCode::codePrint(ostream& os) {
 	switch (name()) {
 	case EFSA::OperandName::IN:
 		os << "IN " << strReg_ << endl;
@@ -1233,6 +1234,8 @@ EFSAlist* RuleNode::codeGen() {
     codeList->addCode(new LabelCode(l1, 1));
     ruleLabel(l1);
 
+    EventMatch em;
+    codeList->addCodeList(em.getReadParamCodeList(patNode)); //em, Yansong
     codeList->addCodeList(reaction()->codeGen());	
 
     //codeList->addCode(new LabelCode("RuleEnd", 1));
