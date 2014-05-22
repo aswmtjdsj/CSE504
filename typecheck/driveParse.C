@@ -9,6 +9,7 @@
 #include "STEClasses.h"
 #include "SymTab.h"
 #include "Value.h"
+#include "Optimizer.h"
 #include "EventMatch.C"
 using namespace std;
 
@@ -228,6 +229,10 @@ main(int argc, char *argv[], char *envp[]) {
   EFSAlist* codeList = ge->codeGen();
 //eventMatch(ge)->codePrint(cout);
   codeList->codePrint(cout);
+  Optimizer* optimizer = new Optimizer();
+  optimizer->generateBasicBlock(codeList->getCodeList());
+  cout<<endl;
+  optimizer->printBasicBlock(cout);
   }
 #endif
 }

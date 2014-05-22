@@ -19,5 +19,6 @@
 #define FLOAT_FLAG (1)
 
 #define LABEL_PREFIX "L"
+#define GLOBAL_BEGIN "Begin"
 
 #endif
