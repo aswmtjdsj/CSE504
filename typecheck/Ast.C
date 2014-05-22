@@ -1022,7 +1022,8 @@ void EFSAlist::dealDuplicateLabel(){
                     j++;
              }
      }
-     //codeList->addCode(new PrintCode(EFSA::OperandName::PRTS, "\"\""));
+    iter = codeList.begin() + codeList.size();
+    codeList.insert (iter,1,new PrintCode(EFSA::OperandName::PRTS, "\"\""));
 }
 
 
@@ -1064,7 +1065,7 @@ void IntArithCode::codePrint(ostream& os) {
                 break;
 
         }
-        os<<" "<<dest()<<" "<<leftOperand()<<" "<<rightOperand()<<endl;
+        os<<" "<<leftOperand()<<" "<<rightOperand()<<" "<<dest()<<endl;
     }
 }
 
@@ -1087,7 +1088,7 @@ void FloatArithCode::codePrint(ostream& os) {
                 break;
 
         }
-        os<<" "<<dest()<<" "<<leftOperand()<<" "<<rightOperand()<<endl;
+        os<<" "<<leftOperand()<<" "<<rightOperand()<<" "<<dest()<<endl;
     }
 }
 

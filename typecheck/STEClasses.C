@@ -380,15 +380,15 @@ EFSAlist* FunctionEntry::codeGen() {
         IntArithCode* sub_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::SUB, sp_reg_name, sp_reg_name, std::to_string(1));
         codeList->addCode(sub_code);
 
-        // 
+        // store value from stack to reg
         string param_reg_name = getReg(ridx->first, ridx->second);
         if(ridx->second == FLOAT_FLAG) {
-            MoveCode * ldfspp_param = new MoveCode(EFSA::OperandName::LDF, param_reg_name, sp_reg_name);
-            codeList->addCode(ldfspp_param);
+            MoveCode * stfspp_param = new MoveCode(EFSA::OperandName::STF, param_reg_name, sp_reg_name);
+            codeList->addCode(stfspp_param);
         }
         else if(ridx->second == INT_FLAG) {
-            MoveCode * ldispp_param = new MoveCode(EFSA::OperandName::LDI, param_reg_name, sp_reg_name);
-            codeList->addCode(ldispp_param);
+            MoveCode * stispp_param = new MoveCode(EFSA::OperandName::STI, param_reg_name, sp_reg_name);
+            codeList->addCode(stispp_param);
         }
     }
 
@@ -419,8 +419,8 @@ EFSAlist* FunctionEntry::codeGen() {
     //temp_reg_name = "R"+std::to_string(temp_reg);
     string temp_reg_name = getReg(temp_reg, INT_FLAG);
 
-    MoveCode * ldispp_l = new MoveCode(EFSA::OperandName::LDI, temp_reg_name, sp_reg_name); // dest, from
-    codeList->addCode(ldispp_l);
+    MoveCode * stispp_l = new MoveCode(EFSA::OperandName::STI, temp_reg_name, sp_reg_name); // dest, from
+    codeList->addCode(stispp_l);
 
     // jump to label ( function return address)
     LabelCode* label_reg = new LabelCode(temp_reg_name);
