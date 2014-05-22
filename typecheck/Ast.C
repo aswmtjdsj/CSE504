@@ -2266,47 +2266,21 @@ EFSAlist* ValueNode::codeGen() {
 }
 
 EFSAlist* InvocationNode::codeGen() {
+    /*
+     * return address
+    +* |
+    +* |
+    +* V
+    +* return value 
+    +* |
+    +* |
+    +* V
+    +* AP
+     * */
+
     EFSAlist* codeList = NULL;
     codeList = new EFSAlist();
     codeList->addCode(new LabelCode("//CallBegin"));
-
-    FunctionEntry * function_def = (FunctionEntry *)symTabEntry();
-    // push actual param
-
-	/*VariableEntry* v;
-    SymTab * func_sym_tab = function_def->symTab();
-
-    for(SymTab::iterator iter = func_sym_tab->begin(); iter != func_sym_tab->end(); ++iter) {
-        if((*iter)->kind() == SymTabEntry::Kind::VARIABLE_KIND) {
-            v = (VariableEntry*)(*iter);
-			cout << v->type()->fullName() << " " << v->name() << " " << v -> regNum() << endl;
-            if (v->varKind() == VariableEntry::VarKind::PARAM_VAR)
-            {
-            }
-        }
-    }*/
-    vector<ExprNode*>* ap = params();
-    for (auto iter= ap->begin(); iter!=ap->end(); iter++){
-        if  ((*iter)->exprNodeType()==ExprNode::ExprNodeType::VALUE_NODE)
-                cout<<(*iter)->value()->ival()<<endl;
-    }
-
-    // push return var
-    const Type * ret_value_entry = function_def->type()->retType();
-    if(ret_value_entry != NULL) {
-        if(Type::isFloat(ret_value_entry->tag())) {
-            int ret_reg = EFSA::floatRegAlloc();
-            regNum(ret_reg);
-            regIF(FLOAT_FLAG);
-        }
-        else if(Type::isInt(ret_value_entry->tag())) {
-            int ret_reg = EFSA::intRegAlloc();
-            regNum(ret_reg);
-            regIF(INT_FLAG);
-        }
-    }
-    else {
-    }
 
     // push return address
     string l_ret = "L"+std::to_string(labelNum);
@@ -2328,6 +2302,84 @@ EFSAlist* InvocationNode::codeGen() {
     IntArithCode* add_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::ADD, sp_reg, sp_reg, std::to_string(1));
     codeList->addCode(add_code);
 
+    FunctionEntry * function_def = (FunctionEntry *)symTabEntry();
+    // push return var, haven't pushed yet
+    const Type * ret_value_entry = function_def->type()->retType();
+    // suppose no void function return 
+    if(Type::isFloat(ret_value_entry->tag())) {
+        int ret_reg = EFSA::floatRegAlloc();
+        regNum(ret_reg);
+        regIF(FLOAT_FLAG);
+    }
+    else if(Type::isInt(ret_value_entry->tag())) {
+        int ret_reg = EFSA::intRegAlloc();
+        regNum(ret_reg);
+        regIF(INT_FLAG);
+    }
+
+    // push actual param
+
+    vector<ExprNode*>* ap = params();
+    // from right to left
+    for (auto iter = ap->rbegin(); iter!=ap->rend(); iter++){
+        if((*iter)->exprNodeType() == ExprNode::ExprNodeType::VALUE_NODE) {
+            //cout<<(*iter)->value()->ival()<<endl;
+            if(Type::isInt((*iter) -> type() -> tag())) {
+                int param_val = (*iter)->value()->ival();
+                // move int val to reg
+                temp_reg = EFSA::intRegAlloc();
+                temp_reg_name = "R"+std::to_string(temp_reg);
+                MoveCode * movi_reg = new MoveCode(EFSA::OperandName::MOVI, std::to_string(param_val), temp_reg_name);
+                codeList->addCode(movi_reg);
+
+                // move reg to sp->memory
+                MoveCode * stir_sp = new MoveCode(EFSA::OperandName::STI, temp_reg_name, sp_reg);
+                codeList->addCode(stir_sp);
+
+                EFSA::intRegFree(temp_reg);
+
+            }
+            else if(Type::isFloat((*iter) -> type() -> tag())) {
+                float param_val = (*iter)->value()-> dval();
+                // move float val to sp->memory
+                temp_reg = EFSA::floatRegAlloc();
+                temp_reg_name = "F"+std::to_string(temp_reg);
+                MoveCode * movf_reg = new MoveCode(EFSA::OperandName::MOVF, std::to_string(param_val), temp_reg_name);
+                codeList->addCode(movf_reg);
+
+                // move reg to sp->memory
+                MoveCode * stfr_sp = new MoveCode(EFSA::OperandName::STF, temp_reg_name, sp_reg);
+                codeList->addCode(stfr_sp);
+
+                EFSA::intRegFree(temp_reg);
+
+            }
+        }
+        else if((*iter)->exprNodeType() == ExprNode::ExprNodeType::REF_EXPR_NODE || (*iter)->exprNodeType() == ExprNode::ExprNodeType::OP_NODE) {
+            if((*iter)->exprNodeType() == ExprNode::ExprNodeType::REF_EXPR_NODE) {
+                (*iter)->codeGen();
+            }
+            else if((*iter)->exprNodeType() == ExprNode::ExprNodeType::OP_NODE) {
+                codeList->addCodeList((*iter)->codeGen());
+            }
+            int param_reg = (*iter)->regNum();
+            if((*iter)->regIF() == INT_FLAG) {
+                string param_reg_int = "R"+std::to_string(param_reg);
+                MoveCode * stir_sp = new MoveCode(EFSA::OperandName::STI, param_reg_int, sp_reg);
+                codeList->addCode(stir_sp);
+            }
+            else if((*iter)->regIF() == FLOAT_FLAG) {
+                string param_reg_float = "F"+std::to_string(param_reg);
+                MoveCode * stfr_sp = new MoveCode(EFSA::OperandName::STF, param_reg_float, sp_reg);
+                codeList->addCode(stfr_sp);
+            }
+        }
+
+        // add sp by 1 -> push
+        IntArithCode* add_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::ADD, sp_reg, sp_reg, std::to_string(1));
+        codeList->addCode(add_code);
+    }
+
     // jump to function by function-name-label
     LabelCode* label = new LabelCode(((FunctionEntry *)symTabEntry())->name());
     JumpCode* jumpCode = new JumpCode(EFSA::OperandName::JMP, NULL, label);
@@ -2338,44 +2390,39 @@ EFSAlist* InvocationNode::codeGen() {
     codeList->addCode(label_return);
 
     // get return value from sp->memory to register
-    if(ret_value_entry != NULL) {
 
-        // get new temp register
-        temp_reg = EFSA::intRegAlloc();
-        temp_reg_name = "R"+std::to_string(temp_reg);
+    // get new temp register
+    temp_reg = EFSA::intRegAlloc();
+    temp_reg_name = "R"+std::to_string(temp_reg);
 
-        // move sp to reg
-        MoveCode * movsp_r = new MoveCode(EFSA::OperandName::MOVI, sp_reg, temp_reg_name);
-        codeList->addCode(movsp_r);
+    // move sp to reg
+    MoveCode * movsp_r = new MoveCode(EFSA::OperandName::MOVI, sp_reg, temp_reg_name);
+    codeList->addCode(movsp_r);
 
-        // add reg by 1 -> return value addr
-        IntArithCode* add_reg_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::ADD, temp_reg_name, temp_reg_name, std::to_string(1));
-        codeList->addCode(add_reg_code);
+    // add reg by 1 -> return value addr
+    IntArithCode* add_reg_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::ADD, temp_reg_name, temp_reg_name, std::to_string(1));
+    codeList->addCode(add_reg_code);
 
-        // ldi sp+1 to ret_reg
-        int ret_reg = regNum();
+    // ldi sp+1->memory to ret_reg
+    int ret_reg = regNum();
+    string ret_reg_name;
 
-        string ret_reg_name;
-
-        if(Type::isFloat(ret_value_entry->tag())) {
-            ret_reg_name = "F"+std::to_string(ret_reg);
-            MoveCode * ldfspp_ret = new MoveCode(EFSA::OperandName::LDF, temp_reg_name, ret_reg_name); // dest, from
-            codeList->addCode(ldfspp_ret);
-            //delete ldfspp_ret;
-        }
-        else if(Type::isInt(ret_value_entry->tag())) {
-            ret_reg_name = "F"+std::to_string(ret_reg);
-            MoveCode * ldispp_ret = new MoveCode(EFSA::OperandName::LDI, temp_reg_name, ret_reg_name); // dest, from
-            codeList->addCode(ldispp_ret);
-            //delete ldispp_ret;
-        }
-
-        // eliminate temp reg
-        EFSA::intRegFree(temp_reg);
-
+    if(Type::isFloat(ret_value_entry->tag())) {
+        ret_reg_name = "F"+std::to_string(ret_reg);
+        MoveCode * ldfspp_ret = new MoveCode(EFSA::OperandName::LDF, temp_reg_name, ret_reg_name); // dest, from
+        codeList->addCode(ldfspp_ret);
+        //delete ldfspp_ret;
     }
-    else {
+    else if(Type::isInt(ret_value_entry->tag())) {
+        ret_reg_name = "R"+std::to_string(ret_reg);
+        MoveCode * ldispp_ret = new MoveCode(EFSA::OperandName::LDI, temp_reg_name, ret_reg_name); // dest, from
+        codeList->addCode(ldispp_ret);
+        //delete ldispp_ret;
     }
+
+    // eliminate temp reg
+    EFSA::intRegFree(temp_reg);
+
     codeList->addCode(new LabelCode("//CallEnd"));
 
     return codeList;
