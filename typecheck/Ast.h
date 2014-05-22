@@ -21,7 +21,7 @@ class SymTabEntry;
 class VariableEntry;
 class EFSA;
 class EFSAlist;
-extern int labelNum;
+int labelNum;
 
 /*****************************************************************************
    Here is the class hierarchy:
@@ -605,7 +605,7 @@ class EFSA {
   enum class OperandName {
     ADD, SUB, DIV, MUL, MOD, NEG, AND, OR, XOR, FADD, FSUB, FDIV, FMUL, FNEG, GT, GE,
     UGT, UGE, EQ, NE, FGT, FGE, FEQ, FNE, LABEL, MOVL, MOVS, MOVI, MOVF, MOVIF, LDI, 
-    LDF, STI, STF, JMP, JMPC, JMPI, JMPCI, IN, INF, INT
+    LDF, STI, STF, JMP, JMPC, JMPI, JMPCI, IN, INF, INT, PRTS, PRTI, PRTF
   };
 
   virtual void codePrint(ostream& os) = 0;
@@ -852,23 +852,21 @@ class JumpCode: public EFSA {
 class InCode: public EFSA {
 public:
 	InCode(EFSA::OperandName name, string strRegName) : EFSA(name, EFSA::OperatorType::IN) { strReg_ = strRegName; };
-	void codePrint(ostream& os) {
-		switch (name()) {
-		case EFSA::OperandName::IN:
-			os << "IN " << strReg_ << endl;
-			break;
-		case EFSA::OperandName::INF:
-			os << "INF " << strReg_ << endl;
-			break;
-		case EFSA::OperandName::INT:
-			os << "INT " << strReg_ << endl;
-			break;
-		default:
-			break;
-		}
-	}
+	void codePrint(ostream& os);
 private:
 	string strReg_;
+};
+
+/****************************************************************/
+
+//Yansong
+class PrintCode: public EFSA {
+public:
+	PrintCode(EFSA::OperandName name, string str, string strReg = "") : EFSA(name, EFSA::OperatorType::PRINT) { str_ = str; reg_ = strReg; };
+	void codePrint(ostream &os);
+private:
+	string str_;
+	string reg_;
 };
 
 /****************************************************************/

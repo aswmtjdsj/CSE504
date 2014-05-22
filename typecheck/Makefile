@@ -24,6 +24,7 @@ Error.o: Error.h Error.C
 ParserUtil.o: ParserUtil.h ParserUtil.C
 SymTab.o: SymTab.h SymTab.C
 Optimizer.o: Optimizer.h Optimizer.C
+EventMatch.o: EventMatch.h EventMatch.C
 
 clean:
 	-echo "Removing all object files!"
