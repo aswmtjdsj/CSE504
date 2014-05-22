@@ -231,6 +231,8 @@ main(int argc, char *argv[], char *envp[]) {
   codeList->codePrint(cout);
   Optimizer* optimizer = new Optimizer();
   optimizer->generateBasicBlock(codeList->getCodeList());
+  cout<<endl;
+  optimizer->printBasicBlock(cout);
   }
 #endif
 }

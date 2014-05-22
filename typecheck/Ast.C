@@ -1197,10 +1197,6 @@ EFSAlist* RuleNode::codeGen() {
 	codeList = new EFSAlist();
 	PrimitivePatNode* patNode = (PrimitivePatNode*)pat();
 
-	// Yansong
-	//strRuleLabel_ = "Rule";//+ iLabelNum_;
-	//iLabelNum_++;
-
 	string l1 = LABEL_PREFIX+std::to_string(labelNum);
 	labelNum++;
 	codeList->addCode(new LabelCode(l1, 1));

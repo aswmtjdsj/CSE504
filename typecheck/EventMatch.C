@@ -1,7 +1,7 @@
 #include "all.h"
 #include "ParserUtil.h"
 
-EFSAlist* eventMatch(GlobalEntry *ge) {
+EFSAlist* eventMatch(GlobalEntry *ge) {/*
 	const string strExitLabel = "EXIT";
 	EFSAlist* elCodeList = new EFSAlist();
 	elCodeList->addCode(new LabelCode("Globalbegin", 1));
@@ -29,5 +29,6 @@ EFSAlist* eventMatch(GlobalEntry *ge) {
 			elCodeList->addCode(new JumpCode(EFSA::OperandName::JMPC,
 				ircpCond, lcpLabel));
 		}	
-	}
+	}*/
+	return NULL;
 }
