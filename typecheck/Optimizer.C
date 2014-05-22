@@ -33,28 +33,17 @@ void Optimizer::algebraEquivalence(){
 		for (auto it=codeList->begin(); it!=codeList->end(); it++){
 			EFSA* code = (*it);
 			// fixed by Yansong
-			//if (code->operatorType()==EFSA::OperatorType::INT_ARITH){
-			//	(*it)=new LabelCode("aaa", 1);
-			//}
-		}
-
-		
-		/*
-		for (auto it=block->getCodeList().begin(); it!=block->getCodeList().end(); it++) {
-			EFSA* code = (*it);
-			//(*it)=new LabelCode("aaa");
-			
 			if (code->operatorType()==EFSA::OperatorType::INT_ARITH){
-				(*it)=new LabelCode("aaa");
-			}
-			
-			if (code->operatorType()==EFSA::OperatorType::INT_ARITH){
-				cout<<"zdd"<<endl;
+				(*it)=new LabelCode("aaa", 1);
 			}
 		}
-		*/
 	}
 	
+}
+
+void codeOptimize(vector<EFSA*> codeList){
+	//generateBasicBlock(codeList->getCodeList());
+  	//algebraEquivalence();
 }
 
 void Optimizer::printBasicBlock(ostream& os){

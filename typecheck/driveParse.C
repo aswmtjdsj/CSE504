@@ -228,7 +228,9 @@ main(int argc, char *argv[], char *envp[]) {
   
   EFSAlist* codeList = ge->codeGen();
   codeList->codePrint(cout);
-  //Optimizer* optimizer = new Optimizer();
+  Optimizer* optimizer = new Optimizer();
+  //optimizer->codeOptimize(codeList->getCodeList());
+  //optimizer->printBasicBlock(cout);
   //optimizer->generateBasicBlock(codeList->getCodeList());
   //optimizer->algebraEquivalence();
   //optimizer->printBasicBlock(cout);
