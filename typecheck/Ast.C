@@ -1476,6 +1476,10 @@ EFSAlist* OpNode::codeGen() {
                     string leftReg = getReg(arg_[0]->regNum(), 0);
                     string rightReg = getReg(arg_[1]->regNum(), 0);
 
+                    int optFlag = -1;
+                    if (leftReg==rightReg && opCode()==OpNode::OpCode::MINUS)
+                        optFlag = 0;
+
                     int destRegNum = tempIntVarAlloc();
                     //string destReg = "R"+std::to_string(destRegNum);
                     string destReg = getReg(destRegNum, 0);
@@ -1521,8 +1525,10 @@ EFSAlist* OpNode::codeGen() {
                     int optFlag = -1;
                     if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
                         rightReg = std::to_string(vn->value()->ival());
-                        if ((opCode()==OpNode::OpCode::PLUS || opCode()==OpNode::OpCode::MINUS) && rightReg=="0")
+                        if (((opCode()==OpNode::OpCode::PLUS || opCode()==OpNode::OpCode::MINUS) && rightReg=="0") || ((opCode()==OpNode::OpCode::MULT || opCode()==OpNode::OpCode::DIV) && rightReg=="1"))
                             optFlag = 0;
+                        else if (opCode()==OpNode::OpCode::MULT && rightReg=="0")
+                            optFlag = 1;
                     }
                     else if (type->tag()==Type::TypeTag::DOUBLE){
                         rightReg = std::to_string(vn->value()->dval());
@@ -1535,6 +1541,10 @@ EFSAlist* OpNode::codeGen() {
                     tempIntVarRelease(arg_[0]->regNum());
                     if (optFlag==0){
                             MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, leftReg, destReg);
+                            codeList->addCode(code);
+                    }
+                    else if (optFlag==1){
+                            MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, "0", destReg);
                             codeList->addCode(code);
                     }
                     else{
@@ -1579,8 +1589,10 @@ EFSAlist* OpNode::codeGen() {
                     int optFlag = -1;
                     if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
                         leftReg = std::to_string(vn->value()->ival());
-                        if (opCode()==OpNode::OpCode::PLUS && leftReg=="0")
+                        if ((opCode()==OpNode::OpCode::PLUS && leftReg=="0") || (opCode()==OpNode::OpCode::MULT && leftReg=="1"))
                                 optFlag = 0;
+                         else if (opCode()==OpNode::OpCode::MULT && leftReg=="0")
+                                optFlag = 1;
                     }
                     else if (type->tag()==Type::TypeTag::DOUBLE){
                         leftReg = std::to_string(vn->value()->dval());
@@ -1594,6 +1606,10 @@ EFSAlist* OpNode::codeGen() {
 
                     if (optFlag==0){
                         MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, rightReg, destReg);
+                        codeList->addCode(code);
+                    }
+                    else if (optFlag==1){
+                        MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, "0", destReg);
                         codeList->addCode(code);
                     }
                     else{
