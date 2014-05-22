@@ -160,22 +160,4 @@ class EventEntry: public SymTabEntry {
   void typePrint(ostream& out, int indent=0) const;
 
 };  
-
-/*class WLoopEntry: public SymTabEntry 
-{
-  public:
-    WLoopEntry(string name, int line = 0, int column = 0, string file = "")
-    :SymTabEntry(name, SymTabEntry::Kind::WHILE_LOOP_KIND, line, column, file) 
-    {body_ = nullptr;};
-    ~WLoopEntry() {};
-
-    const WhileNode* body() const { return body_;};
-    WhileNode* body() {return body_;};
-    void body(WhileNode* n) { body_ = n;};
-
-    void print(ostream& os, int indent) const;
-
-  private:
-    WhileNode* body_;
-};*/
 #endif

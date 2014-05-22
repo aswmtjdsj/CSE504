@@ -665,6 +665,11 @@ class EFSAlist{
    void removeLastCode();
    void codePrint(ostream& os);
    vector<EFSA*> getCodeList(){return codeList;};
+<<<<<<< HEAD
+   void dealDuplicateLabel();
+=======
+   vector<EFSA*>* getCodeListPtr(){ return &codeList; };
+>>>>>>> 448199443ce007726906838d0c2e46f8fc934112
 
  private:
    vector<EFSA*> codeList;

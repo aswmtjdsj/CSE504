@@ -62,7 +62,8 @@ string getReg(string strOldReg) {
 // Yansong
 string getReg(int iRegNumber, int iType) {
 	string strRegName = numToString(iRegNumber);
-	for (auto i = 0; i < 3 - strRegName.length(); i++) {
+	int iNumZero = 3 - strRegName.length();
+	for (auto i = 0; i < iNumZero; i++) {
 		strRegName = "0" + strRegName;
 	}
 

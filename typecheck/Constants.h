@@ -23,4 +23,5 @@
 #define LABEL_PREFIX "L"
 #define GLOBAL_BEGIN "Begin"
 
+#define LABEL_PROG_EXIT "EXIT"
 #endif
