@@ -226,13 +226,8 @@ main(int argc, char *argv[], char *envp[]) {
   ge->typePrint(cout, 0);
   cout << endl;
   
-<<<<<<< HEAD
   EFSAlist* codeList = ge->codeGen();
   codeList->codePrint(cout);
-=======
-  //EFSAlist* codeList = ge->codeGen();
- // codeList->codePrint(cout);
->>>>>>> 448199443ce007726906838d0c2e46f8fc934112
   //Optimizer* optimizer = new Optimizer();
   //optimizer->generateBasicBlock(codeList->getCodeList());
   //optimizer->algebraEquivalence();
