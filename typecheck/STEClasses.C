@@ -63,7 +63,13 @@ void VariableEntry::typePrint(ostream& out, int indent) const {
 
 void EventEntry::typePrint(ostream& out, int indent) const {
 
-	out << "event " << name() << "(";
+	out << "event " << name();
+	if (symTab() == NULL)
+	{
+		out << ";";
+		return;
+	}
+	else out << "(";
 	SymTab::const_iterator iter = symTab()->begin();
 	while (iter != symTab()->end())
 	{
