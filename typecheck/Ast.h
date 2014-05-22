@@ -568,6 +568,8 @@ class RuleNode: public AstNode {
 
   string ruleLabel() const { return ruleLabel_; };
   void ruleLabel(string str) { ruleLabel_=str; };
+  string ruleSkipLabel() const { return ruleSkipLabel_; };
+  void ruleSkipLabel(string str) { ruleSkipLabel_ = str; };
   
   int regAlloc();
 
@@ -579,6 +581,7 @@ class RuleNode: public AstNode {
   StmtNode *reaction_;
   int regNum_;
   string ruleLabel_;
+  string ruleSkipLabel_;
    
   RuleNode(const RuleNode&);
 };

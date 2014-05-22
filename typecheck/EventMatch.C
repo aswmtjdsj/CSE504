@@ -9,6 +9,7 @@ EFSAlist* EventMatch::getMatchCodeList(GlobalEntry *ge) {
 	elCodeList->addCode(new LabelCode("MatchBegin", 1));
 	//IN R998
 	elCodeList->addCode(new InCode(EFSA::OperandName::IN, getReg(EVENT_NAME_REG)));
+	elCodeList->addCode(new MoveCode(EFSA::OperandName::MOVI, "0", getReg(EVENT_STATE_REG)));
 	//JMPC EQ R998 0 EXIT
 	IntRelationCode* ircpCond = new IntRelationCode(EFSA::OperandName::EQ,
 		getReg(EVENT_NAME_REG), "0");
@@ -41,7 +42,7 @@ EFSAlist* EventMatch::getMatchCodeList(GlobalEntry *ge) {
 }
 
 //Generating code for reading parameters
-EFSAlist* EventMatch::getReadParamCodeList(PrimitivePatNode *ppn) {
+EFSAlist* EventMatch::getReadParamCodeList(RuleNode* pRuleNode) {
 	int iRegNum = EVENT_PARAM_REG_MAX - EVENT_PARAM_REG_MIN + 1;
 	//assign registers from low to high
 	int iIRegMin = EVENT_PARAM_REG_MIN;
@@ -51,11 +52,18 @@ EFSAlist* EventMatch::getReadParamCodeList(PrimitivePatNode *ppn) {
 
 	EFSAlist* elCodeList = new EFSAlist;
 	// any
+	PrimitivePatNode* ppn = (PrimitivePatNode*)(pRuleNode->pat());
 	auto ptrTypeVector = ppn->event()->type()->argTypes();
 	if (ptrTypeVector == nullptr) {
 		return nullptr;
 	}
 	
+	IntRelationCode *ircpCond = new IntRelationCode(EFSA::OperandName::EQ,
+		getReg(EVENT_STATE_REG), "1");
+	LabelCode* lcpSkipLabel = new LabelCode(pRuleNode->ruleSkipLabel());
+	elCodeList->addCode(new JumpCode(EFSA::OperandName::JMPC,
+		ircpCond, lcpSkipLabel));
+
 	int iCurIReg = iIRegMin;
 	int iCurFReg = iFRegMax;
 	for (auto it = ptrTypeVector->begin(); it != ptrTypeVector->end(); it++) {

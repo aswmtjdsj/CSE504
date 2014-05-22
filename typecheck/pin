@@ -5,7 +5,12 @@ int e;
 event z(int b);
 
 int biu(int a, int b) {
+<<<<<<< HEAD
     d = e;
+=======
+    a = b;
+    return a + b;
+>>>>>>> 61d92d4f13a0de579f37b0ae355bc01db331c108
 }
 
 

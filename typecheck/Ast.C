@@ -1261,7 +1261,6 @@ void EFSAlist::removeLastCode() {
 EFSAlist* RuleNode::codeGen() {
     EFSAlist* codeList = NULL;
     codeList = new EFSAlist();
-    PrimitivePatNode* patNode = (PrimitivePatNode*)pat();
     /*
     string l1 = LABEL_PREFIX+std::to_string(labelNum);
     labelNum++;
@@ -1271,12 +1270,14 @@ EFSAlist* RuleNode::codeGen() {
     codeList->addCode(new LabelCode(ruleLabel(), 1));
 
     EventMatch em(LABEL_PROG_EXIT);
-    codeList->addCodeList(em.getReadParamCodeList(patNode)); //em, Yansong
+    codeList->addCodeList(em.getReadParamCodeList(this)); //em, Yansong
+    codeList->addCode(new LabelCode(ruleSkipLabel(), 1));
     codeList->addCodeList(reaction()->codeGen());	
 
     //codeList->addCode(new LabelCode("RuleEnd", 1));
     //codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL, new LabelCode(GLOBAL_BEGIN)));
     //Yansong
+    codeList->addCode(new MoveCode(EFSA::OperandName::MOVI, "1", getReg(EVENT_STATE_REG)));
     codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL,
 			    new LabelCode("Match" + numToString(iMatchLabelInRule))));
     iMatchLabelInRule++;	
@@ -1285,14 +1286,32 @@ EFSAlist* RuleNode::codeGen() {
 }
 
 EFSAlist* ReturnStmtNode::codeGen() {
-    cout << "qiuqiuqiu" << endl;
     EFSAlist* codeList = NULL;
     codeList = new EFSAlist();
+    codeList->addCodeList(expr_->codeGen());
+
+    // get sp
+    string sp_reg_name = getReg(SP_REG, INT_FLAG);
+
+    // sub sp by 1 -> pop
+    IntArithCode* sub_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::SUB, sp_reg_name, sp_reg_name, std::to_string(1));
+    codeList->addCode(sub_code);
+
+    // store return value to stack
+    string ret_value_reg_name = getReg(expr_->regNum(), expr_->regIF());
+    if(expr_->regIF() == FLOAT_FLAG) {
+        MoveCode * stfr_sp = new MoveCode(EFSA::OperandName::STF, ret_value_reg_name, sp_reg_name);
+        codeList->addCode(stfr_sp);
+    }
+    else if(expr_->regIF() == INT_FLAG) {
+        MoveCode * stir_sp = new MoveCode(EFSA::OperandName::STI, ret_value_reg_name, sp_reg_name);
+        codeList->addCode(stir_sp);
+    }
+
     return codeList;
 }
 
 EFSAlist* ExprStmtNode::codeGen() {
-    cout << "pipapa" << endl;
     EFSAlist* codeList = NULL;
     codeList = new EFSAlist();	
     codeList->addCodeList(expr_->codeGen());
@@ -1305,7 +1324,6 @@ EFSAlist* CompoundStmtNode::codeGen() {
     list<StmtNode*>::const_iterator iter;
     for (iter = stmts()->begin(); iter != stmts()->end(); ++iter)
     {
-    cout << "diudiu" << endl;
         if (*iter != NULL)
         {
             codeList->addCodeList((*iter)->codeGen());
