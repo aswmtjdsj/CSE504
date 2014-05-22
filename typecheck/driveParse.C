@@ -225,13 +225,14 @@ main(int argc, char *argv[], char *envp[]) {
   cout << endl;
   ge->typePrint(cout, 0);
   cout << endl;
-  /*
+  
   EFSAlist* codeList = ge->codeGen();
   codeList->codePrint(cout);
   Optimizer* optimizer = new Optimizer();
   optimizer->generateBasicBlock(codeList->getCodeList());
+  optimizer->algebraEquivalence();
   optimizer->printBasicBlock(cout);
-  */
+  
   }
 #endif
 }

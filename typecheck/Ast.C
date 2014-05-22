@@ -1230,11 +1230,13 @@ EFSAlist* RuleNode::codeGen() {
     EFSAlist* codeList = NULL;
     codeList = new EFSAlist();
     PrimitivePatNode* patNode = (PrimitivePatNode*)pat();
-
+    /*
     string l1 = LABEL_PREFIX+std::to_string(labelNum);
     labelNum++;
     codeList->addCode(new LabelCode(l1, 1));
     ruleLabel(l1);
+    */
+    codeList->addCode(new LabelCode(ruleLabel(), 1));
 
     EventMatch em("EXIT");
     codeList->addCodeList(em.getReadParamCodeList(patNode)); //em, Yansong
