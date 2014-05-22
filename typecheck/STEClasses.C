@@ -262,6 +262,22 @@ EFSAlist* GlobalEntry::codeGen() {
 		}
 	}
 
+	// FUNCTION Init
+	if (symTab()){
+		SymTab::iterator it = symTab()->begin();
+		for (;it!=symTab()->end();++it) {
+			if ((*it) && (*it)->kind() == SymTabEntry::Kind::FUNCTION_KIND) {
+				FunctionEntry* ve = (FunctionEntry*)(*it);
+				EFSAlist* cl = ve->codeGen();
+				if (cl!=NULL)
+					codeList->addCodeList(cl);
+			}
+		}
+	}
+
+    // jump by function-name-label
+    LabelCode* label = new LabelCode("SP_INIT", TAR_LB);
+    codeList->addCode(label);
 	// SP init
 	string from = std::to_string(0);
 	//string dest = "R"+std::to_string(SP_REG);
