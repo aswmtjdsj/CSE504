@@ -61,7 +61,7 @@ EFSAlist* EventMatch::getReadParamCodeList(PrimitivePatNode *ppn) {
 	for (auto it = ptrTypeVector->begin(); it != ptrTypeVector->end(); it++) {
 		auto type = *it;
 		if (type->isInt(type->tag())) {
-			elCodeList->addCode(new InCode(EFSA::OperandName::INT, 
+			elCodeList->addCode(new InCode(EFSA::OperandName::INI, 
 				getReg(iCurIReg)));
 				iCurIReg++;
 		}
