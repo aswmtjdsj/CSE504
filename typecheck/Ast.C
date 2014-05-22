@@ -2,7 +2,7 @@
 #include "ParserUtil.h"					
 #include "EventMatch.h"
 
-extern int iMatchLabelInRule = 0; //Yansong
+int iMatchLabelInRule = 0; //Yansong
 extern const OpNode::OpInfo opInfo[];
 
 const Type* ValueNode::typeCheck() {
@@ -1180,8 +1180,8 @@ void InCode::codePrint(ostream& os) {
 	case EFSA::OperandName::INF:
 		os << "INF " << strReg_ << endl;
 		break;
-	case EFSA::OperandName::INT:
-		os << "INT " << strReg_ << endl;
+	case EFSA::OperandName::INI:
+		os << "INI " << strReg_ << endl;
 		break;
 	default:
 		break;

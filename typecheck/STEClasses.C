@@ -237,7 +237,7 @@ EFSAlist* GlobalEntry::codeGen() {
 		if ((*iter)) {
 			int regNum = (*iter)->regAlloc();
 			PrimitivePatNode* pn = (PrimitivePatNode*)((*iter)->pat());
-			codeList->addCode(new MoveCode(EFSA::OperandName::MOVS, pn->event()->name(), getReg(regNum, 0)));
+			codeList->addCode(new MoveCode(EFSA::OperandName::MOVI, numToString(static_cast<int>(pn->event()->name()[0])), getReg(regNum, 0)));
 			//generate rule label
 			string l1 = LABEL_PREFIX+std::to_string(labelNum);
 			labelNum++;

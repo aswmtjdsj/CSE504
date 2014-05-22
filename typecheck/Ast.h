@@ -605,7 +605,7 @@ class EFSA {
   enum class OperandName {
     ADD, SUB, DIV, MUL, MOD, NEG, AND, OR, XOR, FADD, FSUB, FDIV, FMUL, FNEG, GT, GE,
     UGT, UGE, EQ, NE, FGT, FGE, FEQ, FNE, LABEL, MOVL, MOVS, MOVI, MOVF, MOVIF, LDI, 
-    LDF, STI, STF, JMP, JMPC, JMPI, JMPCI, IN, INF, INT, PRTS, PRTI, PRTF
+    LDF, STI, STF, JMP, JMPC, JMPI, JMPCI, IN, INF, INI, PRTS, PRTI, PRTF
   };
 
   virtual void codePrint(ostream& os) = 0;
