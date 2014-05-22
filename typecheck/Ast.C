@@ -1109,7 +1109,8 @@ void LabelCode::codePrint(ostream& os){
 	os<<name_;
 	if (target_==1)
 		os<<":";
-	os<<endl;
+	else
+		os<<endl;
 	/*
 	if (name_=="RuleEnd")
 		os<<endl;
@@ -1195,15 +1196,20 @@ EFSAlist* RuleNode::codeGen() {
 	EFSAlist* codeList = NULL;
 	codeList = new EFSAlist();
 	PrimitivePatNode* patNode = (PrimitivePatNode*)pat();
+
 	// Yansong
-	strRuleLabel_ = "Rule";//+ iLabelNum_;
+	//strRuleLabel_ = "Rule";//+ iLabelNum_;
 	//iLabelNum_++;
-	codeList->addCode(new LabelCode(strRuleLabel_, 1));
+
+	string l1 = LABEL_PREFIX+std::to_string(labelNum);
+	labelNum++;
+	codeList->addCode(new LabelCode(l1, 1));
+	ruleLabel(l1);
 
 	codeList->addCodeList(reaction()->codeGen());	
 
 	//codeList->addCode(new LabelCode("RuleEnd", 1));
-	codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL, new LabelCode("GlobalBegin")));
+	codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL, new LabelCode(GLOBAL_BEGIN)));
 
 	return codeList;
 }
@@ -2262,11 +2268,10 @@ EFSAlist* OpNode::codeGen() {
 EFSAlist* ValueNode::codeGen() {
 	return NULL;
 }
-
 EFSAlist* InvocationNode::codeGen() {
-	EFSAlist* codeList = NULL;
-	codeList = new EFSAlist();
-	codeList->addCode(new LabelCode("//CallBegin"));
+EFSAlist* codeList = NULL;
+codeList = new EFSAlist();
+codeList->addCode(new LabelCode("//CallBegin"));
 
     FunctionEntry * function_def = (FunctionEntry *)symTabEntry();
     // push actual param
@@ -2294,8 +2299,8 @@ EFSAlist* InvocationNode::codeGen() {
     }
     
     // push return address
-	string l_ret = "L"+std::to_string(labelNum);
-	labelNum++;
+string l_ret = "L"+std::to_string(labelNum);
+labelNum++;
 
     // move label to reg
     int temp_reg = EFSA::intRegAlloc();
@@ -2314,13 +2319,13 @@ EFSAlist* InvocationNode::codeGen() {
     codeList->addCode(add_code);
 
     // jump to function by function-name-label
-	LabelCode* label = new LabelCode(((FunctionEntry *)symTabEntry())->name());
-	JumpCode* jumpCode = new JumpCode(EFSA::OperandName::JMP, NULL, label);
-	codeList->addCode(jumpCode);
+LabelCode* label = new LabelCode(((FunctionEntry *)symTabEntry())->name());
+JumpCode* jumpCode = new JumpCode(EFSA::OperandName::JMP, NULL, label);
+codeList->addCode(jumpCode);
 
     // return label
     LabelCode * label_return = new LabelCode(l_ret, TAR_LB);
-	codeList->addCode(label_return);
+codeList->addCode(label_return);
 
     // get return value from sp->memory to register
     if(ret_value_entry != NULL) {
@@ -2361,7 +2366,7 @@ EFSAlist* InvocationNode::codeGen() {
     }
     else {
     }
-	codeList->addCode(new LabelCode("//CallEnd"));
+codeList->addCode(new LabelCode("//CallEnd"));
 
     return codeList;
 }
