@@ -997,6 +997,28 @@ int RuleNode::regAlloc() {
     return REG_FAILED;
 }
 
+void EFSAlist::dealDuplicateLabel(){    
+    int markList[codeList.size()];
+    for (int i=0; i<codeList.size(); i++)
+        markList[i]=0;
+    vector<EFSA*>::iterator iter=codeList.begin();
+    while (iter!=codeList.end()){
+            vector<EFSA*>::iterator iter1 = iter;
+            iter1++;
+            if (iter1==codeList.end())
+                    break;
+             if ((*iter)->operatorType()==EFSA::OperatorType::LABEL && (*iter1)->operatorType()==EFSA::OperatorType::LABEL){
+                    markList[(int)(iter-codeList.begin())]=1;
+             }
+            ++iter;
+     }
+     iter=codeList.begin();
+     for (int i=0; i<codeList.size(); i++){
+             if (markList[i]==1)
+                    codeList.insert (iter+i+1,1,new PrintCode(EFSA::OperandName::PRTS, "\"\""));
+     }
+}
+
 
 void EFSAlist::codePrint(ostream& os) {
     vector <EFSA*>::iterator it = codeList.begin();

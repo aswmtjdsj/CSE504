@@ -280,6 +280,8 @@ EFSAlist* GlobalEntry::codeGen() {
 	//Event Match
 	EventMatch em1("EXIT");
 	codeList->addCode(em1.getExitCode());
+
+	codeList->dealDuplicateLabel();
 	
 	return codeList;
 }

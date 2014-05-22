@@ -665,6 +665,7 @@ class EFSAlist{
    void removeLastCode();
    void codePrint(ostream& os);
    vector<EFSA*> getCodeList(){return codeList;};
+   void dealDuplicateLabel();
 
  private:
    vector<EFSA*> codeList;
