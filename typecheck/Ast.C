@@ -1190,11 +1190,15 @@ void EFSAlist::removeLastCode() {
 	codeList.pop_back();
 }
 
+//int RuleNode::iLabelNum_ = 0;
 EFSAlist* RuleNode::codeGen() {
 	EFSAlist* codeList = NULL;
 	codeList = new EFSAlist();
 	PrimitivePatNode* patNode = (PrimitivePatNode*)pat();
-	codeList->addCode(new LabelCode(patNode->event()->name(), 1));
+	// Yansong
+	strRuleLabel_ = "Rule";//+ iLabelNum_;
+	//iLabelNum_++;
+	codeList->addCode(new LabelCode(strRuleLabel_, 1));
 
 	codeList->addCodeList(reaction()->codeGen());	
 

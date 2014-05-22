@@ -559,6 +559,9 @@ class RuleNode: public AstNode {
   const StmtNode* reaction() const { return reaction_; };   
   StmtNode* reaction() { return reaction_; };   
 
+//Yansong
+  const string label() { return strRuleLabel_; };
+
   void print(ostream& os, int indent=0) const;
   void typePrint(ostream& os, int indent=0) const;
   const Type* typeCheck();
@@ -575,6 +578,8 @@ class RuleNode: public AstNode {
   BasePatNode *pat_;
   StmtNode *reaction_;
   int regNum_;
+  static int iLabelNum_; // Yansong
+  string strRuleLabel_;
    
   RuleNode(const RuleNode&);
 };
@@ -594,13 +599,14 @@ class EFSA {
     JUMP,
     MOVE,
     INPUT,
-    LABEL
+    LABEL,
+    IN
   };
 
   enum class OperandName {
     ADD, SUB, DIV, MUL, MOD, NEG, AND, OR, XOR, FADD, FSUB, FDIV, FMUL, FNEG, GT, GE,
     UGT, UGE, EQ, NE, FGT, FGE, FEQ, FNE, LABEL, MOVL, MOVS, MOVI, MOVF, MOVIF, LDI, 
-    LDF, STI, STF, JMP, JMPC, JMPI, JMPCI
+    LDF, STI, STF, JMP, JMPC, JMPI, JMPCI, IN, INF, INT
   };
 
   virtual void codePrint(ostream& os) = 0;
@@ -839,6 +845,30 @@ class JumpCode: public EFSA {
  private:
   EFSA* cond_;
   LabelCode* label_;
+};
+
+/****************************************************************/
+//Yansong
+class InCode: public EFSA {
+public:
+	InCode(EFSA::OperandName name, string strRegName) : EFSA(name, EFSA::OperatorType::IN) { strReg_ = strRegName; };
+	void codePrint(ostream& os) {
+		switch (name()) {
+		case EFSA::OperandName::IN:
+			os << "IN " << strReg_ << endl;
+			break;
+		case EFSA::OperandName::INF:
+			os << "INF " << strReg_ << endl;
+			break;
+		case EFSA::OperandName::INT:
+			os << "INT " << strReg_ << endl;
+			break;
+		default:
+			break;
+		}
+	}
+private:
+	string strReg_;
 };
 
 /****************************************************************/
