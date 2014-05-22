@@ -5,7 +5,7 @@ class EventMatch {
 public:
 	EventMatch(string str) : strExitLabel_(str) {};
 	EFSAlist* getMatchCodeList(GlobalEntry *ge);
-	EFSAlist* getReadParamCodeList(PrimitivePatNode *ppn);
+	EFSAlist* getReadParamCodeList(RuleNode* pRuleNode);
 	EFSA* getExitCode();
 
 	string strExitLabel(){return strExitLabel_;}

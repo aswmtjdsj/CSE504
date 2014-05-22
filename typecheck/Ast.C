@@ -1255,7 +1255,6 @@ void EFSAlist::removeLastCode() {
 EFSAlist* RuleNode::codeGen() {
     EFSAlist* codeList = NULL;
     codeList = new EFSAlist();
-    PrimitivePatNode* patNode = (PrimitivePatNode*)pat();
     /*
     string l1 = LABEL_PREFIX+std::to_string(labelNum);
     labelNum++;
@@ -1265,12 +1264,14 @@ EFSAlist* RuleNode::codeGen() {
     codeList->addCode(new LabelCode(ruleLabel(), 1));
 
     EventMatch em(LABEL_PROG_EXIT);
-    codeList->addCodeList(em.getReadParamCodeList(patNode)); //em, Yansong
+    codeList->addCodeList(em.getReadParamCodeList(this)); //em, Yansong
+    codeList->addCode(new LabelCode(ruleSkipLabel(), 1));
     codeList->addCodeList(reaction()->codeGen());	
 
     //codeList->addCode(new LabelCode("RuleEnd", 1));
     //codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL, new LabelCode(GLOBAL_BEGIN)));
     //Yansong
+    codeList->addCode(new MoveCode(EFSA::OperandName::MOVI, "1", getReg(EVENT_STATE_REG)));
     codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL,
 			    new LabelCode("Match" + numToString(iMatchLabelInRule))));
     iMatchLabelInRule++;	
