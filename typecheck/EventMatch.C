@@ -82,7 +82,7 @@ EFSAlist* EventMatch::getReadParamCodeList(RuleNode* pRuleNode) {
 		if (type->isFloat(type->tag())) {
 			elCodeList_->addCode(new InCode(EFSA::OperandName::INF,
 				getReg(iCurFReg)));
-				printReg_(getReg(iCurFReg));
+				printReg_(getReg(iCurFReg, 1));
 				iCurFReg++;
 		}
 		if (iCurIReg > iIRegMax || iCurFReg > iFRegMax) {
