@@ -1238,7 +1238,7 @@ EFSAlist* RuleNode::codeGen() {
     */
     codeList->addCode(new LabelCode(ruleLabel(), 1));
 
-    EventMatch em("EXIT");
+    EventMatch em(LABEL_PROG_EXIT);
     codeList->addCodeList(em.getReadParamCodeList(patNode)); //em, Yansong
     codeList->addCodeList(reaction()->codeGen());	
 

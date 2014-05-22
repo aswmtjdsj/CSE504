@@ -246,7 +246,7 @@ EFSAlist* GlobalEntry::codeGen() {
 	}	
 
 	//Event Match
-	EventMatch em("EXIT");
+	EventMatch em(LABEL_PROG_EXIT);
 	codeList->addCodeList(em.getMatchCodeList(this));
 	
 	// Variable Init
@@ -278,7 +278,7 @@ EFSAlist* GlobalEntry::codeGen() {
 	}	
 
 	//Event Match
-	EventMatch em1("EXIT");
+	EventMatch em1(LABEL_PROG_EXIT);
 	codeList->addCode(em1.getExitCode());
 	
 	return codeList;
