@@ -81,7 +81,7 @@ EFSAlist* EventMatch::getReadParamCodeList(RuleNode* pRuleNode) {
 		}
 		if (type->isFloat(type->tag())) {
 			elCodeList_->addCode(new InCode(EFSA::OperandName::INF,
-				getReg(iCurFReg)));
+				getReg(iCurFReg, 1)));
 				printReg_(getReg(iCurFReg, 1));
 				iCurFReg++;
 		}
