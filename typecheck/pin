@@ -1,15 +1,14 @@
 
-int d;
-int e;
+int d = 1;
+int e = 1;
+int f;
 
 event z(int b);
 
 int biu(int a, int b) {
-    a = b;
     return a + b;
 }
 
-
-z(ab) -> {
+z(f) -> {
     d = biu(d, e);
 }

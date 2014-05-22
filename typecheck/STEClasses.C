@@ -267,6 +267,8 @@ EFSAlist* GlobalEntry::codeGen() {
 
 	// FUNCTION Init
 	if (symTab()){
+
+        codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL, new LabelCode("MatchBegin")));
 		SymTab::iterator it = symTab()->begin();
 		for (;it!=symTab()->end();++it) {
 			if ((*it) && (*it)->kind() == SymTabEntry::Kind::FUNCTION_KIND) {
