@@ -1012,11 +1012,22 @@ void EFSAlist::dealDuplicateLabel(){
              }
             ++iter;
      }
-     iter=codeList.begin();
+     /*
      for (int i=0; i<codeList.size(); i++){
-             if (markList[i]==1)
-                    codeList.insert (iter+i+1,1,new PrintCode(EFSA::OperandName::PRTS, "\"\""));
+            if (markList[i]==1)
+                cout<<i<<endl;
+     }*/
+     
+     iter = codeList.begin();
+     int j =1;
+     for (int i=0; i<codeList.size(); i++){
+             if (markList[i]==1){
+                    codeList.insert (iter+i+j,1,new PrintCode(EFSA::OperandName::PRTS, "\"\""));
+                    iter=codeList.begin();
+                    j++;
+             }
      }
+     
 }
 
 
@@ -1280,12 +1291,14 @@ EFSAlist* RuleNode::codeGen() {
 }
 
 EFSAlist* ReturnStmtNode::codeGen() {
+    cout << "qiuqiuqiu" << endl;
     EFSAlist* codeList = NULL;
     codeList = new EFSAlist();
     return codeList;
 }
 
 EFSAlist* ExprStmtNode::codeGen() {
+    cout << "pipapa" << endl;
     EFSAlist* codeList = NULL;
     codeList = new EFSAlist();	
     codeList->addCodeList(expr_->codeGen());
@@ -1299,6 +1312,7 @@ EFSAlist* CompoundStmtNode::codeGen() {
     list<StmtNode*>::const_iterator iter;
     for (iter = stmts()->begin(); iter != stmts()->end(); ++iter)
     {
+    cout << "diudiu" << endl;
         if (*iter != NULL)
         {
             codeList->addCodeList((*iter)->codeGen());

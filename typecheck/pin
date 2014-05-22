@@ -1,0 +1,14 @@
+
+int d;
+int e;
+
+event z(int b);
+
+int biu(int a, int b) {
+    a = b;
+}
+
+
+z(ab) -> {
+    d = biu(d, e);
+}
