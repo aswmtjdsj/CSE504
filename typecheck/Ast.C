@@ -191,6 +191,24 @@ const Type* OpNode::typeCheck() {
         //type((Type*)tl);
         return type();
     }
+    //PRINT
+    if (opCode() == OpCode::PRINT)
+    {
+        if (tl != NULL)
+        {
+            if (!(Type::isNumeric(tl->tag()) || Type::isString(tl->tag())))
+            {
+                errMsg("wrong print format!", line(), column(), file().c_str());
+            }
+            else
+            {
+                type((Type *)tl);
+                return type();
+            }
+
+        }
+    }
+
     //BITAND, BITOR, BITXOR, SHL, SHR,
     if(opCode() >= OpCode::BITAND && opCode() <=OpCode::SHR && biOp == true) {
         bool lflag = true, rflag = true;
@@ -1222,15 +1240,25 @@ void InCode::codePrint(ostream& os) {
 }
 
 void PrintCode::codePrint(ostream &os) {
+    string str;
+    if (reg_ == "" && str_ != "") {
+        str = str_;
+    } else if (reg_ != "" && str_ == "") {
+        str = reg_;
+    } else {
+        cerr << "PrintCode::codePrint():Must specify a register name or constant string";
+        return;
+    }
+
     switch(name()) {
         case EFSA::OperandName::PRTS:
-            os << "PRTS " << str_ << endl;
+            os << "PRTS " << str << endl;
             break;
         case EFSA::OperandName::PRTI:
-            os << "PRTI " << reg_ << endl;
+            os << "PRTI " << str << endl;
             break;
         case EFSA::OperandName::PRTF:
-            os << "PRTF " << reg_ << endl;
+            os << "PRTF " << str << endl;
             break;
         default:
             break;
@@ -1273,12 +1301,15 @@ EFSAlist* RuleNode::codeGen() {
     EventMatch em(LABEL_PROG_EXIT);
     codeList->addCodeList(em.getReadParamCodeList(this)); //em, Yansong
     codeList->addCode(new LabelCode(ruleSkipLabel(), 1));
+	codeList->addCodeList(em.getLineNumPrintCode(this));
     codeList->addCodeList(reaction()->codeGen());	
 
     //codeList->addCode(new LabelCode("RuleEnd", 1));
     //codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL, new LabelCode(GLOBAL_BEGIN)));
     //Yansong
-    codeList->addCode(new MoveCode(EFSA::OperandName::MOVI, "1", getReg(EVENT_STATE_REG)));
+	if (((PrimitivePatNode*)pat())->event() != nullptr) {
+    	codeList->addCode(new MoveCode(EFSA::OperandName::MOVI, "1", getReg(EVENT_STATE_REG)));
+    }
     codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL,
                 new LabelCode("Match" + numToString(iMatchLabelInRule))));
     iMatchLabelInRule++;	
