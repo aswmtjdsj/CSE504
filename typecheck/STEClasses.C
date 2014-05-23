@@ -31,7 +31,11 @@ const Type* VariableEntry::typeCheck() {
 		else if(t_init->isSubType(type())) { // super type
 		}
 		else
+		{
 			errMsg("Assignment between incompatible types", line(), column(), file().c_str());
+			exit (1);
+		}	
+			
 	}
 	return NULL;
 }
