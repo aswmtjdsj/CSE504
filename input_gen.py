@@ -12,7 +12,7 @@ def gogogo():
     n = int(raw_input("input event number: "))
     opt = raw_input("manually(M)(default)? automatically(A)? ")
     event_list = []
-    if opt == 'M':
+    if opt == 'A':
         m = int(raw_input("param number: "))
         for i in range(n):
             pass
