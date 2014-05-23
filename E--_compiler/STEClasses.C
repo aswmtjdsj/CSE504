@@ -372,14 +372,18 @@ EFSAlist* FunctionEntry::codeGen() {
     // get sp
     string sp_reg_name = getReg(SP_REG, INT_FLAG);
 
-    // init local var
+    // init param var
 	SymTab::iterator st_iter = symTab()->begin();
     vector < pair<int,int> > local_var_reg_num_array;
 	for(; st_iter != symTab()->end(); ++st_iter) {
         if((*st_iter)->kind() == SymTabEntry::Kind::VARIABLE_KIND) {
-            codeList->addCodeList(((VariableEntry*)(*st_iter))->codeGen());
-
-            local_var_reg_num_array.push_back(make_pair(((VariableEntry*)(*st_iter))->regNum(), ((VariableEntry*)(*st_iter))->regIF()));
+            
+            // only params code gen fisrt
+            if (((VariableEntry*)(*st_iter))->varKind() == VariableEntry::VarKind::PARAM_VAR)
+            {
+                codeList->addCodeList(((VariableEntry*)(*st_iter))->codeGen());
+                local_var_reg_num_array.push_back(make_pair(((VariableEntry*)(*st_iter))->regNum(), ((VariableEntry*)(*st_iter))->regIF()));
+            }
         }
 	}
     
@@ -401,6 +405,19 @@ EFSAlist* FunctionEntry::codeGen() {
             codeList->addCode(ldispp_param);
         }
     }
+
+    // init local var
+	st_iter = symTab()->begin();
+	for(; st_iter != symTab()->end(); ++st_iter) {
+        if((*st_iter)->kind() == SymTabEntry::Kind::VARIABLE_KIND) {
+
+            // local vars code gen later
+            if (((VariableEntry*)(*st_iter))->varKind() != VariableEntry::VarKind::PARAM_VAR)
+            {
+                codeList->addCodeList(((VariableEntry*)(*st_iter))->codeGen());
+            }
+        }
+	}
 
     /*// push AP to stack
     // right to left
