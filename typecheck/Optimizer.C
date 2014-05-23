@@ -63,5 +63,26 @@ void Optimizer::printBasicBlock(ostream& os){
 }
 
 void Optimizer::duplicateMoveEliminate(){
-	
+	for (auto it=blockList_.begin(); it!=blockList_.end(); it++) {
+		/*
+		vector<EFSA*>* codeList = (*it)->getCodeListPtr();
+		int markList[codeList->size()];
+		for (int i=0; i<codeList->size(); i++)
+		        markList[i]=0;
+		vector<EFSA*>::iterator iter=codeList->begin();
+		while (iter!=codeList->end()){
+		        vector<EFSA*>::iterator iter1 = iter;
+		        iter1++;
+		        if (iter1==codeList->end())
+		                    break;
+		         if ((*iter)->operatorType()==EFSA::OperatorType::MOVE && (*iter1)->operatorType()==EFSA::OperatorType::MOVE){
+		                    MoveCode* code1 = (*iter);
+		                    MoveCode* code2 = (*iter1);
+		                    if (code1->dest()==code2->from())
+		                    	markList[(int)(iter-codeList->begin())]=1;
+			}
+		 	++iter;
+		}
+		*/
+	}
 }
