@@ -1035,13 +1035,13 @@ void EFSAlist::dealDuplicateLabel(){
     int j =1;
     for (int i=0; i<codeList.size(); i++){
         if (markList[i]==1){
-            codeList.insert (iter+i+j,1,new PrintCode(EFSA::OperandName::PRTS, "\"\""));
+            codeList.insert (iter+i+j,1,new PrintCode(EFSA::OperandName::PRTS, ""));
             iter=codeList.begin();
             j++;
         }
     }
     iter = codeList.begin() + codeList.size();
-    codeList.insert (iter,1,new PrintCode(EFSA::OperandName::PRTS, "\"\""));
+    codeList.insert (iter,1,new PrintCode(EFSA::OperandName::PRTS, ""));
 }
 
 
@@ -1808,7 +1808,21 @@ EFSAlist* OpNode::codeGen() {
             }
         }
         else if (opCode()==OpNode::OpCode::UMINUS){
-            
+            /*
+            if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==0) { //  - ireg
+                  int destRegNum = tempIntVarAlloc();
+
+                  string destReg = getReg(destRegNum, 0);
+                  string leftReg = getReg(arg_[0]->regNum(), 0);
+                  IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::UNARY, EFSA::OperandName::NEG, destReg, leftReg, NULL);
+                  regNum(destRegNum);
+                  regIF(0);
+            }
+            else if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==1) {  //   - freg
+            }
+            else {      //  - value
+
+            }*/
         }
          else if (opCode()==OpNode::OpCode::ASSIGN){
             if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==0) { //intReg=?
