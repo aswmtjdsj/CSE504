@@ -1261,15 +1261,23 @@ void InCode::codePrint(ostream& os) {
     }
 }
 
+string PrintCode::parseEscape_(string str) {
+    string strRes = "";
+    map<string, string> mapEscapeChar{{"\n", "\\n"}, {"\\", "\\\\"}};
+    for (int i = 0; i < str.length(); i++) {
+        if (mapEscapeChar.find(str.substr(i,1)) != mapEscapeChar.end()) {
+            strRes = strRes + mapEscapeChar[str.substr(i,1)];
+        }
+    }
+    return strRes;
+}
+
 void PrintCode::codePrint(ostream &os) {
     string str;
-    if (reg_ == "" && str_ != "") {
-        str = str_;
-    } else if (reg_ != "" && str_ == "") {
-        str = reg_;
+    if (reg_ == "") {
+        str = parseEscape_(str_);
     } else {
-        cerr << "PrintCode::codePrint():Must specify a register name or constant string";
-        return;
+        str = reg_;
     }
 
     switch(name()) {
