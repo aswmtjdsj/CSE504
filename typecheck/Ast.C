@@ -191,6 +191,24 @@ const Type* OpNode::typeCheck() {
         //type((Type*)tl);
         return type();
     }
+    //PRINT
+    if (opCode() == OpCode::PRINT)
+    {
+        if (tl != NULL)
+        {
+            if (!(Type::isNumeric(tl->tag()) || Type::isString(tl->tag())))
+            {
+                errMsg("wrong print format!", line(), column(), file().c_str());
+            }
+            else
+            {
+                type((Type *)tl);
+                return type();
+            }
+
+        }
+    }
+
     //BITAND, BITOR, BITXOR, SHL, SHR,
     if(opCode() >= OpCode::BITAND && opCode() <=OpCode::SHR && biOp == true) {
         bool lflag = true, rflag = true;
