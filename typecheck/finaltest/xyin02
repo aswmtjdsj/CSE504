@@ -1,21 +1,30 @@
+int a = 1;
 int d = 1;
 int e = 1;
 int f;
 
 event z(int b);
 
-int order(int p) {
-    while(p >= 0) {
-        print "while[p]: ";
-        print p;
-        print "\n";
+int func(int p) {
+    /*while(p >= 0) {
         p = p - 1;
-    }
+    }*/
+    print "p: ";
+    print p;
+    print "\n";
     return 0;
 }
 
 z(f) -> {
-    print "while(10): ";
+    print "show 1000000 function calls won't let the register overflow>>>>\n";
+    print "while(1000000): ";
     print "\n";
-    d = order(10);
+    while(a < 1000000) {
+        print "func[";
+        print a;
+        print "]: ";
+        print "\n";
+        d = func(a);
+        a = a + 1;
+    }
 }

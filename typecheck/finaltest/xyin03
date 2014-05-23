@@ -1,0 +1,40 @@
+int a = 1;
+int d = 1;
+int e = 1;
+int f;
+
+event z(int b);
+
+int func_b(int a) {
+    print "\nfucn_b(a) = \n";
+    print "a * 3 if a > 2\n";
+    print "a * 4 otherwise\n";
+    if(a > 2) {
+        return a * 3;
+    }
+    else {
+        return a * 4;
+    }
+}
+
+int func_a(int p, int q) {
+    print "\nfucn_a(d, e) = func_b(d) + func_b(d)\n";
+    return func_b(p) + func_b(q);
+}
+
+z(f) -> {
+    print "show function call another function>>>>\n";
+    d = 2;
+    print "d = ";
+    print d;
+    print "\n";
+    e = 3;
+    print "e = ";
+    print e;
+    print "\n";
+
+    d = func_a(d, e);
+    print "\nfucn_a(d, e) = ";
+    print d;
+    print "\n";
+}
