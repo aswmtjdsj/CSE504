@@ -483,7 +483,7 @@ TOK_SEMICOLON
         if($1)
         {
             $$ = new ExprStmtNode($1, yylinenum, yycolumnno, yyfilename);
-            cout << "there is an ptr!" << endl;
+            //cout << "there is an ptr!" << endl;
         }
         else
             $$ = NULL;   

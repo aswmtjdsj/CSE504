@@ -1274,7 +1274,7 @@ void PrintCode::codePrint(ostream &os) {
 
     switch(name()) {
         case EFSA::OperandName::PRTS:
-            os << "PRTS " << str << endl;
+            os << "PRTS " << "\"" << str << "\"" << endl;
             break;
         case EFSA::OperandName::PRTI:
             os << "PRTI " << str << endl;

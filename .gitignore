@@ -1,3 +1,5 @@
 *.o
 *~
 typecheck/demo
+typecheck/driveParse.C
+typecheck/E--.tab.h
