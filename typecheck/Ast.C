@@ -1273,12 +1273,15 @@ EFSAlist* RuleNode::codeGen() {
     EventMatch em(LABEL_PROG_EXIT);
     codeList->addCodeList(em.getReadParamCodeList(this)); //em, Yansong
     codeList->addCode(new LabelCode(ruleSkipLabel(), 1));
+	codeList->addCodeList(em.getLineNumPrintCode(this));
     codeList->addCodeList(reaction()->codeGen());	
 
     //codeList->addCode(new LabelCode("RuleEnd", 1));
     //codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL, new LabelCode(GLOBAL_BEGIN)));
     //Yansong
-    codeList->addCode(new MoveCode(EFSA::OperandName::MOVI, "1", getReg(EVENT_STATE_REG)));
+	if (((PrimitivePatNode*)pat())->event() != nullptr) {
+    	codeList->addCode(new MoveCode(EFSA::OperandName::MOVI, "1", getReg(EVENT_STATE_REG)));
+    }
     codeList->addCode(new JumpCode(EFSA::OperandName::JMP, NULL,
                 new LabelCode("Match" + numToString(iMatchLabelInRule))));
     iMatchLabelInRule++;	

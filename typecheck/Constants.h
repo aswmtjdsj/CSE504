@@ -11,6 +11,7 @@
 #define TAR_LB (1)
 
 #define EVENT_STATE_REG (997)
+#define EVENT_INPUT_NUM_REG (996)
 #define EVENT_PARAM_REG_MAX (950)
 #define EVENT_PARAM_REG_MIN (931)
 #define EVENT_NAME_REG_SIZE (930)
@@ -26,4 +27,10 @@
 
 #define LABEL_PROG_EXIT "EXIT"
 #define EXIT_INPUT_ASCII "10"
+#define EVENT_INPUT_NEXT_ASCII "10"
+#define LABEL_EVENT_ERR_TOO_MANY "e0"
+#define LABEL_EVENT_ERR_TOO_FEW "e1"
+#define LABEL_EVENT_MATCH_BEGIN "MatchBegin"
+
+#define EVENT_DEBUG
 #endif

@@ -7,6 +7,8 @@ public:
 	EFSAlist* getMatchCodeList(GlobalEntry *ge);
 	EFSAlist* getReadParamCodeList(RuleNode* pRuleNode);
 	EFSA* getExitCode();
+	EFSAlist* getLineNumPrintCode(RuleNode* pRuleNode);
+	EFSAlist* getInitializer();
 
 	string strExitLabel(){return strExitLabel_;}
 	void strExitLabel(string str){strExitLabel_=str;}
