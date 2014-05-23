@@ -1054,7 +1054,7 @@ void EFSAlist::codePrint(ostream& os) {
 
 void IntArithCode::codePrint(ostream& os) {
     if (operandNum_==IntArithCode::OperandNum::BINARY){	
-        switch(name()){	//ADD, SUB, DIV, MUL, MOD, NEG, AND, OR and XOR
+        switch(name()){	//ADD, SUB, DIV, MUL, MOD, AND, OR and XOR
             case EFSA::OperandName::ADD:
                 os<<"ADD";
                 break;
@@ -1085,6 +1085,17 @@ void IntArithCode::codePrint(ostream& os) {
         }
         os<<" "<<leftOperand()<<" "<<rightOperand()<<" "<<dest()<<endl;
     }
+    else if (operandNum_==IntArithCode::OperandNum::UNARY){    
+        switch(name()){ //NEG
+                    case EFSA::OperandName::NEG:
+                        os<<"NEG";
+                        break;
+                    default:
+                        break;
+
+                }
+                os<<" "<<leftOperand()<<" "<<dest()<<endl;
+    }
 }
 
 void FloatArithCode::codePrint(ostream& os) {
@@ -1107,6 +1118,17 @@ void FloatArithCode::codePrint(ostream& os) {
 
         }
         os<<" "<<leftOperand()<<" "<<rightOperand()<<" "<<dest()<<endl;
+    }
+    else if (operandNum_==FloatArithCode::OperandNum::UNARY){  
+        switch(name()){ //FNEG
+            case EFSA::OperandName::FNEG:
+                os<<"FNEG";
+                break;
+            default:
+                break;
+
+        }
+        os<<" "<<leftOperand()<<" "<<dest()<<endl;
     }
 }
 
@@ -1485,7 +1507,7 @@ EFSAlist* OpNode::codeGen() {
     EFSAlist* temp1 = arg_[0]->codeGen();
     EFSAlist* temp2 = NULL;
     if(arg_[1] != NULL) {
-        arg_[1]->codeGen();
+        temp2 = arg_[1]->codeGen();
     }
     if (temp1!=NULL)
         codeList->addCodeList(temp1);
@@ -1788,7 +1810,9 @@ EFSAlist* OpNode::codeGen() {
                 */
             }
         }
- 
+        else if (opCode()==OpNode::OpCode::UMINUS){
+            
+        }
          else if (opCode()==OpNode::OpCode::ASSIGN){
             if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==0) { //intReg=?
                 if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==0) { //move int/reg to register: MOVI <valueOrReg> <intreg>
