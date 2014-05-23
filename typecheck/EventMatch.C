@@ -8,11 +8,11 @@ EFSAlist* EventMatch::getMatchCodeList(GlobalEntry *ge) {
 	elCodeList_ = new EFSAlist();
 
 	// output error info
-	elCodeList_->addCode(new LabelCode(LABEL_EVENT_ERR_TOO_MANY, 1));	
+/*	elCodeList_->addCode(new LabelCode(LABEL_EVENT_ERR_TOO_MANY, 1));	
 	printString_("Input:Line ");
 	printReg_(getReg(EVENT_INPUT_NUM_REG));
 	printString_(":Too many parameters input!\\n");
-
+*/
 	// match begin
 	elCodeList_->addCode(new JumpCode(EFSA::OperandName::JMP, nullptr,
 		new LabelCode(LABEL_EVENT_MATCH_BEGIN)));
@@ -117,13 +117,13 @@ EFSAlist* EventMatch::getReadParamCodeList(RuleNode* pRuleNode) {
 	printString_(")\\n");
 #endif
 	// if too many parameters input
-	elCodeList_->addCode(new InCode(EFSA::OperandName::INI, getReg(iCurIReg)));
+/*	elCodeList_->addCode(new InCode(EFSA::OperandName::INI, getReg(iCurIReg)));
 	ircpCond = new IntRelationCode(EFSA::OperandName::NE, getReg(iCurIReg),
 		EVENT_INPUT_NEXT_ASCII);
 	LabelCode* lcpErrTooMany = new LabelCode(LABEL_EVENT_ERR_TOO_MANY);
 	elCodeList_->addCode(new JumpCode(EFSA::OperandName::JMPC, ircpCond,
 		lcpErrTooMany));
-
+*/
 	return elCodeList_;
 }
 
@@ -140,7 +140,7 @@ void EventMatch::printReg_(string strReg) {
 }
 
 void EventMatch::printString_(string str) {
-	string strTarget = "\"" + str + "\"";
+	string strTarget = str;
 	elCodeList_->addCode(new PrintCode(EFSA::OperandName::PRTS, strTarget));
 }
 
@@ -155,9 +155,10 @@ EFSAlist* EventMatch::getLineNumPrintCode(RuleNode* pRuleNode) {
 }
 
 EFSAlist* EventMatch::getInitializer() {
-	elCodeList_ = new EFSAlist();
+/*	elCodeList_ = new EFSAlist();
 	// initialize input count reg
 	elCodeList_->addCode(new MoveCode(EFSA::OperandName::MOVI, "0",
 		getReg(EVENT_INPUT_NUM_REG)));
-	return elCodeList_;
+	return elCodeList_;*/
+	return nullptr;
 }
