@@ -1349,14 +1349,48 @@ EFSAlist* ReturnStmtNode::codeGen() {
     codeList->addCode(sub_code);
 
     // store return value to stack
-    string ret_value_reg_name = getReg(expr_->regNum(), expr_->regIF());
-    if(expr_->regIF() == FLOAT_FLAG) {
-        MoveCode * stfr_sp = new MoveCode(EFSA::OperandName::STF, ret_value_reg_name, sp_reg_name);
-        codeList->addCode(stfr_sp);
+    // literal value
+    if(expr_->exprNodeType()==ExprNode::ExprNodeType::VALUE_NODE) {
+        if(Type::isFloat(expr_->type()->tag())) {
+            double literal_val = expr_->value()->dval();
+            string ret_double_name = std::to_string(literal_val);
+
+            // float literal to reg
+            int temp_reg = EFSA::floatRegAlloc();
+            string temp_reg_name = getReg(temp_reg, FLOAT_FLAG);
+            MoveCode * movfl_fr = new MoveCode(EFSA::OperandName::MOVF, ret_double_name, temp_reg_name);
+            codeList->addCode(movfl_fr);
+
+            // save reg to sp->mem
+            MoveCode * stf_sp = new MoveCode(EFSA::OperandName::STF, temp_reg_name, sp_reg_name);
+            codeList->addCode(stf_sp);
+            EFSA::floatRegFree(temp_reg);
+        }
+        else if(Type::isInt(expr_->type()->tag())) {
+            int literal_val = expr_->value()->ival();
+            string ret_int_name = std::to_string(literal_val);
+
+            // int literal to reg
+            int temp_reg = EFSA::intRegAlloc();
+            string temp_reg_name = getReg(temp_reg, INT_FLAG);
+            MoveCode * movil_ir = new MoveCode(EFSA::OperandName::MOVI, ret_int_name, temp_reg_name);
+            codeList->addCode(movil_ir);
+
+            MoveCode * sti_sp = new MoveCode(EFSA::OperandName::STI, temp_reg_name, sp_reg_name);
+            codeList->addCode(sti_sp);
+            EFSA::intRegFree(temp_reg);
+        }
     }
-    else if(expr_->regIF() == INT_FLAG) {
-        MoveCode * stir_sp = new MoveCode(EFSA::OperandName::STI, ret_value_reg_name, sp_reg_name);
-        codeList->addCode(stir_sp);
+    else { // expr
+        string ret_value_reg_name = getReg(expr_->regNum(), expr_->regIF());
+        if(expr_->regIF() == FLOAT_FLAG) {
+            MoveCode * stfr_sp = new MoveCode(EFSA::OperandName::STF, ret_value_reg_name, sp_reg_name);
+            codeList->addCode(stfr_sp);
+        }
+        else if(expr_->regIF() == INT_FLAG) {
+            MoveCode * stir_sp = new MoveCode(EFSA::OperandName::STI, ret_value_reg_name, sp_reg_name);
+            codeList->addCode(stir_sp);
+        }
     }
 
     return codeList;

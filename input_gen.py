@@ -42,19 +42,19 @@ def gogogo():
         for j in event['params']:
             if isinstance(j, int):
                 temp = hex(j)[2:].zfill(8)
-                contents += chr(int(temp[:2:], 16))
-                contents += chr(int(temp[2:4:], 16))
-                contents += chr(int(temp[4:6:], 16))
                 contents += chr(int(temp[6::], 16))
+                contents += chr(int(temp[4:6:], 16))
+                contents += chr(int(temp[2:4:], 16))
+                contents += chr(int(temp[:2:], 16))
             elif isinstance(j, float):
                 temp = hex(struct.unpack('!i',struct.pack('!f',j))[0])
                 print temp
                 temp = temp[2:]
                 temp = temp.zfill(8)
-                contents += chr(int(temp[:2:], 16))
-                contents += chr(int(temp[2:4:], 16))
-                contents += chr(int(temp[4:6:], 16))
                 contents += chr(int(temp[6::], 16))
+                contents += chr(int(temp[4:6:], 16))
+                contents += chr(int(temp[2:4:], 16))
+                contents += chr(int(temp[:2:], 16))
 
     print contents
     print >> f, contents
