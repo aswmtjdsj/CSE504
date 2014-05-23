@@ -1366,14 +1366,48 @@ EFSAlist* ReturnStmtNode::codeGen() {
     codeList->addCode(sub_code);
 
     // store return value to stack
-    string ret_value_reg_name = getReg(expr_->regNum(), expr_->regIF());
-    if(expr_->regIF() == FLOAT_FLAG) {
-        MoveCode * stfr_sp = new MoveCode(EFSA::OperandName::STF, ret_value_reg_name, sp_reg_name);
-        codeList->addCode(stfr_sp);
+    // literal value
+    if(expr_->exprNodeType()==ExprNode::ExprNodeType::VALUE_NODE) {
+        if(Type::isFloat(expr_->type()->tag())) {
+            double literal_val = expr_->value()->dval();
+            string ret_double_name = std::to_string(literal_val);
+
+            // float literal to reg
+            int temp_reg = EFSA::floatRegAlloc();
+            string temp_reg_name = getReg(temp_reg, FLOAT_FLAG);
+            MoveCode * movfl_fr = new MoveCode(EFSA::OperandName::MOVF, ret_double_name, temp_reg_name);
+            codeList->addCode(movfl_fr);
+
+            // save reg to sp->mem
+            MoveCode * stf_sp = new MoveCode(EFSA::OperandName::STF, temp_reg_name, sp_reg_name);
+            codeList->addCode(stf_sp);
+            EFSA::floatRegFree(temp_reg);
+        }
+        else if(Type::isInt(expr_->type()->tag())) {
+            int literal_val = expr_->value()->ival();
+            string ret_int_name = std::to_string(literal_val);
+
+            // int literal to reg
+            int temp_reg = EFSA::intRegAlloc();
+            string temp_reg_name = getReg(temp_reg, INT_FLAG);
+            MoveCode * movil_ir = new MoveCode(EFSA::OperandName::MOVI, ret_int_name, temp_reg_name);
+            codeList->addCode(movil_ir);
+
+            MoveCode * sti_sp = new MoveCode(EFSA::OperandName::STI, temp_reg_name, sp_reg_name);
+            codeList->addCode(sti_sp);
+            EFSA::intRegFree(temp_reg);
+        }
     }
-    else if(expr_->regIF() == INT_FLAG) {
-        MoveCode * stir_sp = new MoveCode(EFSA::OperandName::STI, ret_value_reg_name, sp_reg_name);
-        codeList->addCode(stir_sp);
+    else { // expr
+        string ret_value_reg_name = getReg(expr_->regNum(), expr_->regIF());
+        if(expr_->regIF() == FLOAT_FLAG) {
+            MoveCode * stfr_sp = new MoveCode(EFSA::OperandName::STF, ret_value_reg_name, sp_reg_name);
+            codeList->addCode(stfr_sp);
+        }
+        else if(expr_->regIF() == INT_FLAG) {
+            MoveCode * stir_sp = new MoveCode(EFSA::OperandName::STI, ret_value_reg_name, sp_reg_name);
+            codeList->addCode(stir_sp);
+        }
     }
 
     return codeList;
@@ -1527,6 +1561,7 @@ EFSAlist* OpNode::codeGen() {
         codeList->addCodeList(temp1);
     if (temp2!=NULL)
         codeList->addCodeList(temp2);
+
 
     //ADD, SUB, DIV, MUL, MOD, NEG, AND, OR and XOR.
     if (opCode()==OpNode::OpCode::PLUS  || opCode()==OpNode::OpCode::MINUS || opCode()==OpNode::OpCode::MULT || opCode()==OpNode::OpCode::DIV){
@@ -1825,21 +1860,56 @@ EFSAlist* OpNode::codeGen() {
             }
         }
         else if (opCode()==OpNode::OpCode::UMINUS){
-            /*
-            if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==0) { //  - ireg
+            if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==0) { //  - ireg         
                   int destRegNum = tempIntVarAlloc();
-
                   string destReg = getReg(destRegNum, 0);
                   string leftReg = getReg(arg_[0]->regNum(), 0);
-                  IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::UNARY, EFSA::OperandName::NEG, destReg, leftReg, NULL);
+                  IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::UNARY, EFSA::OperandName::NEG, destReg, leftReg, "");
+                  codeList->addCode(code);
                   regNum(destRegNum);
-                  regIF(0);
+                  regIF(0);          
             }
-            else if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==1) {  //   - freg
+            else if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==1) {  //   - freg              
+                  int destRegNum = tempFloatVarAlloc();
+                  string destReg = getReg(destRegNum, 1);
+                  string leftReg = getReg(arg_[0]->regNum(), 1);
+                  FloatArithCode* code = new FloatArithCode(FloatArithCode::OperandNum::UNARY, EFSA::OperandName::FNEG, destReg, leftReg, "");
+                  codeList->addCode(code);
+                  regNum(destRegNum);
+                  regIF(1);        
             }
             else {      //  - value
+                string leftReg = "";
+                string destReg = "";
 
-            }*/
+                ValueNode* vn1 = (ValueNode*)arg_[0];
+                Type* type1 = vn1->type();
+                bool flag1 = false;
+                if (type1->tag()==Type::TypeTag::DOUBLE){
+                    flag1 = true;
+                }
+
+                if (flag1){      //float
+                    double i = 0.0;
+                        i = vn1->value()->dval();
+                    int r = tempFloatVarAlloc();
+                    regNum(r);
+                    destReg = getReg(r, 1);
+                    regIF(1);
+                    FloatArithCode* code = new FloatArithCode(FloatArithCode::OperandNum::UNARY, EFSA::OperandName::FNEG, destReg, std::to_string (i), "");
+                    codeList->addCode(code);
+                }
+                else{
+                    int i = vn1->value()->ival();
+
+                    int r = tempIntVarAlloc();
+                    regNum(r);
+                    destReg = getReg(r, 0);
+                    regIF(0);
+                    IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::UNARY, EFSA::OperandName::NEG, destReg, std::to_string (i), "");
+                    codeList->addCode(code);
+                }                  
+            }
         }
          else if (opCode()==OpNode::OpCode::ASSIGN){
             if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==0) { //intReg=?
