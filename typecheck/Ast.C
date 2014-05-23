@@ -47,6 +47,7 @@ const Type* OpNode::typeCheck() {
         if(!Type::isNumeric(tl->tag())) {
             string err = "Incompatible type for argument 1 for operator '-'";
             errMsg(err, line(), column(), file().c_str());
+            exit (1);
         }
         if(tl->tag() == Type::UINT) {
             Type *t = new Type(Type::INT);
@@ -72,11 +73,13 @@ const Type* OpNode::typeCheck() {
             string err = "Incompatible type for argument 1 for operator '" + op + "'";
             errMsg(err, line(), column(), file().c_str());
             lflag = false;
+            exit (1);
         } 
         if(!Type::isNumeric(tr->tag())) {
             string err = "Incompatible type for argument 2 for operator '" + op + "'";
             errMsg(err, line(), column(), file().c_str());
             rflag = false;
+            exit (1);
         }
         if(lflag == false && rflag == false) {}
         else if(tl->fullName() == tr->fullName()) {
@@ -99,9 +102,15 @@ const Type* OpNode::typeCheck() {
     //MOD
     if(opCode() == OpCode::MOD && biOp == true) {
         if(!Type::isInt(tl->tag()))
+        {            
             errMsg("Incompatible type for argument 1 for operator `%'", line(), column(), file().c_str());
+            exit (1);
+        }        
         if(!Type::isInt(tr->tag()))
+        {
             errMsg("Incompatible type for argument 2 for operator `%'", line(), column(), file().c_str());
+            exit (1);
+        }
         if(tl->fullName() == tr->fullName());
         else if(tl->isSubType(tr) && Type::isInt(tr->tag())) {
             l->coercedType(tr);
@@ -131,10 +140,12 @@ const Type* OpNode::typeCheck() {
         if(!(Type::isNumeric(tl->tag()) || Type::isBool(tl->tag()) || Type::isString(tl->tag()))) {
             string err = "Error:Incompatible type for argument 1 for operator '" + op + "'";
             errMsg(err, line(), column(), file().c_str());
+            exit (1);
         }
         if(!(Type::isNumeric(tr->tag()) || Type::isBool(tr->tag()) || Type::isString(tr->tag()))) {
             string err = "Error:Incompatible type for argument 2 for operator '" + op + "'";
             errMsg(err, line(), column(), file().c_str());
+            exit (1);
         }
         Type* t = new Type(Type::BOOL);
         type((Type*)t);
@@ -148,10 +159,12 @@ const Type* OpNode::typeCheck() {
         if(!Type::isBool(tl->tag())) {
             string err = "Error:Incompatible type for argument 1 for operator '" + op + "'";
             errMsg(err, line(), column(), file().c_str());
+            exit (1);
         }
         if(!Type::isBool(tr->tag())) {
             string err = "Error:Incompatible type for argument 1 for operator '" + op + "'";
             errMsg(err, line(), column(), file().c_str());
+            exit (1);
         }
         Type* t = new Type(Type::BOOL);
         type((Type*)t);
@@ -173,7 +186,10 @@ const Type* OpNode::typeCheck() {
             r->coercedType(tl);
         }
         else
+        {
             errMsg("Assigned expression must be a subtype of target", line(), column(), file().c_str());
+            exit (1);
+        }
         Type* t = new Type(Type::BOOL);
         type(t);
         return type();
@@ -182,6 +198,7 @@ const Type* OpNode::typeCheck() {
     if(opCode() == OpCode::BITNOT && uOp == true) {
         if(!Type::isIntegral(tl->tag())) {
             errMsg("Incompatible type for argument 1 for operator '~'", line(), column(), file().c_str());
+            exit (1);
         }
         if(!Type::isUnsigned(tl->tag())) {
             Type* ut = new Type(Type::UINT);
@@ -199,6 +216,7 @@ const Type* OpNode::typeCheck() {
             if (!(Type::isNumeric(tl->tag()) || Type::isString(tl->tag())))
             {
                 errMsg("wrong print format!", line(), column(), file().c_str());
+                exit (1);
             }
             else
             {
@@ -224,11 +242,13 @@ const Type* OpNode::typeCheck() {
             string err = "Incompatible type for argument 1 for operator '" + op + "'";
             errMsg(err, line(), column(), file().c_str());
             lflag = false;
+            exit (1);
         } 
         if(!Type::isIntegral(tr->tag())) {
             string err = "Incompatible type for argument 2 for operator '" + op + "'";
             errMsg(err, line(), column(), file().c_str());
             rflag = false;
+            exit (1);
         }
         if(lflag == false && rflag == false) {}
         else if(tl->fullName() == tr->fullName()) {
@@ -269,6 +289,7 @@ const Type* PatNode::typeCheck() {
         case PatNodeKind::NEG: {
                                    if(hasSeqOps()) {
                                        errMsg("invalid use of negation", line(), column(), file().c_str());
+                                       exit (1);
                                    }
                                    pat1_->typeCheck();
                                    break;
@@ -313,6 +334,7 @@ const Type* PrimitivePatNode::typeCheck() {
     else {
         string s = "Event " + ee_->name() + " requires " + itoa(formal->size()) + " arguments";
         errMsg(s, line(), column(), file().c_str());
+        exit (1);
     }
     if(condition()) {
         condition()->typeCheck();
@@ -336,12 +358,14 @@ const Type* InvocationNode::typeCheck() {
             else {
                 string err = "Type mismatch for argument " + itoa(i+1) + " to " + symTabEntry()->name();
                 errMsg(err, line(), column(), file().c_str());
+                exit (1);
             }
         }
     }
     else {
         string err = itoa(formal->size()) + " arguments expected for " + symTabEntry()->name();
         errMsg(err, line(), column(), file().c_str());
+        exit (1);
     }
     return ret;
 }
@@ -368,6 +392,7 @@ const Type* ReturnStmtNode::typeCheck() {
     if(tf->tag() == Type::VOID) {
         string err = "No return value expected for a void function";
         errMsg(err, line(), column(), file().c_str());
+        exit (1);
     } 
     else if(tf->fullName() == tret->fullName()) {}
     else if(tret->isSubType(tf))
@@ -375,6 +400,7 @@ const Type* ReturnStmtNode::typeCheck() {
     else {
         string err = "Return value incompatible with current function's type";
         errMsg(err, line(), column(), file().c_str());
+        exit (1);
     }
     return NULL;
 }
@@ -386,6 +412,7 @@ const Type* IfNode::typeCheck() {
     }
     if(t->tag() != Type::BOOL) {
         errMsg("Boolean argument expected", line(), column(), file().c_str());
+        exit (1);
     }
     //cout << line();
     if(thenStmt())
