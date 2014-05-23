@@ -1275,8 +1275,6 @@ string PrintCode::parseEscape_(string str) {
         }
     }
 
-//    regex pattern8("\\\\[0-7]{3}");
-//    regex_replace(strRes, pattern8, int(
     return strRes;
 }
 
