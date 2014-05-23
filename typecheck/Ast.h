@@ -873,6 +873,7 @@ public:
 private:
 	string str_;
 	string reg_;
+    string parseEscape_(string str);
 };
 
 /****************************************************************/

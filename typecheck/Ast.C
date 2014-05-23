@@ -1261,10 +1261,21 @@ void InCode::codePrint(ostream& os) {
     }
 }
 
+string PrintCode::parseEscape_(string str) {
+    string strRes = "";
+    map<string, string> mapEscapeChar{{"\n", "\\n"}, {"\\", "\\\\"}};
+    for (int i = 0; i < str.length(); i++) {
+        if (mapEscapeChar.find(str.substr(i,1)) != mapEscapeChar.end()) {
+            strRes = strRes + mapEscapeChar[str.substr(i,1)];
+        }
+    }
+    return strRes;
+}
+
 void PrintCode::codePrint(ostream &os) {
     string str;
     if (reg_ == "") {
-        str = str_;
+        str = parseEscape_(str_);
     } else {
         str = reg_;
     }
@@ -1544,6 +1555,7 @@ EFSAlist* OpNode::codeGen() {
         codeList->addCodeList(temp1);
     if (temp2!=NULL)
         codeList->addCodeList(temp2);
+
 
     //ADD, SUB, DIV, MUL, MOD, NEG, AND, OR and XOR.
     if (opCode()==OpNode::OpCode::PLUS  || opCode()==OpNode::OpCode::MINUS || opCode()==OpNode::OpCode::MULT || opCode()==OpNode::OpCode::DIV){
@@ -1842,21 +1854,56 @@ EFSAlist* OpNode::codeGen() {
             }
         }
         else if (opCode()==OpNode::OpCode::UMINUS){
-            /*
-            if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==0) { //  - ireg
+            if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==0) { //  - ireg         
                   int destRegNum = tempIntVarAlloc();
-
                   string destReg = getReg(destRegNum, 0);
                   string leftReg = getReg(arg_[0]->regNum(), 0);
-                  IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::UNARY, EFSA::OperandName::NEG, destReg, leftReg, NULL);
+                  IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::UNARY, EFSA::OperandName::NEG, destReg, leftReg, "");
+                  codeList->addCode(code);
                   regNum(destRegNum);
-                  regIF(0);
+                  regIF(0);          
             }
-            else if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==1) {  //   - freg
+            else if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==1) {  //   - freg              
+                  int destRegNum = tempFloatVarAlloc();
+                  string destReg = getReg(destRegNum, 1);
+                  string leftReg = getReg(arg_[0]->regNum(), 1);
+                  FloatArithCode* code = new FloatArithCode(FloatArithCode::OperandNum::UNARY, EFSA::OperandName::FNEG, destReg, leftReg, "");
+                  codeList->addCode(code);
+                  regNum(destRegNum);
+                  regIF(1);        
             }
             else {      //  - value
+                string leftReg = "";
+                string destReg = "";
 
-            }*/
+                ValueNode* vn1 = (ValueNode*)arg_[0];
+                Type* type1 = vn1->type();
+                bool flag1 = false;
+                if (type1->tag()==Type::TypeTag::DOUBLE){
+                    flag1 = true;
+                }
+
+                if (flag1){      //float
+                    double i = 0.0;
+                        i = vn1->value()->dval();
+                    int r = tempFloatVarAlloc();
+                    regNum(r);
+                    destReg = getReg(r, 1);
+                    regIF(1);
+                    FloatArithCode* code = new FloatArithCode(FloatArithCode::OperandNum::UNARY, EFSA::OperandName::FNEG, destReg, std::to_string (i), "");
+                    codeList->addCode(code);
+                }
+                else{
+                    int i = vn1->value()->ival();
+
+                    int r = tempIntVarAlloc();
+                    regNum(r);
+                    destReg = getReg(r, 0);
+                    regIF(0);
+                    IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::UNARY, EFSA::OperandName::NEG, destReg, std::to_string (i), "");
+                    codeList->addCode(code);
+                }                  
+            }
         }
          else if (opCode()==OpNode::OpCode::ASSIGN){
             if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==0) { //intReg=?
