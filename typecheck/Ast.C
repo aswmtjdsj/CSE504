@@ -1626,7 +1626,8 @@ EFSAlist* OpNode::codeGen() {
 
 
     //ADD, SUB, DIV, MUL, MOD, NEG, AND, OR and XOR.
-    if (opCode()==OpNode::OpCode::PLUS  || opCode()==OpNode::OpCode::MINUS || opCode()==OpNode::OpCode::MULT || opCode()==OpNode::OpCode::DIV){
+    if (opCode()==OpNode::OpCode::PLUS  || opCode()==OpNode::OpCode::MINUS || opCode()==OpNode::OpCode::MULT || opCode()==OpNode::OpCode::DIV || opCode()==OpNode::OpCode::MOD ||
+           opCode()==OpNode::OpCode::BITAND  || opCode()==OpNode::OpCode::BITOR || opCode()==OpNode::OpCode::BITXOR){
             EFSA::OperandName iOperandName;
             EFSA::OperandName fOperandName;
             switch (opCode()){
@@ -1634,6 +1635,10 @@ EFSAlist* OpNode::codeGen() {
                 case OpNode::OpCode::MINUS:  iOperandName=EFSA::OperandName::SUB; fOperandName=EFSA::OperandName::FSUB; break;
                 case OpNode::OpCode::MULT:  iOperandName=EFSA::OperandName::MUL; fOperandName=EFSA::OperandName::FMUL; break;
                 case OpNode::OpCode::DIV:  iOperandName=EFSA::OperandName::DIV; fOperandName=EFSA::OperandName::FDIV; break;
+                case OpNode::OpCode::MOD:  iOperandName=EFSA::OperandName::MOD; break;
+                case OpNode::OpCode::BITAND:  iOperandName=EFSA::OperandName::AND; break;
+                case OpNode::OpCode::BITOR:  iOperandName=EFSA::OperandName::OR; break;
+                case OpNode::OpCode::BITXOR:  iOperandName=EFSA::OperandName::XOR; break;
                 default: break;
             }
             if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()!=-1){    //expr op expr
