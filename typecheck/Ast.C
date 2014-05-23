@@ -1460,77 +1460,35 @@ EFSAlist* OpNode::codeGen() {
 
     //ADD, SUB, DIV, MUL, MOD, NEG, AND, OR and XOR.
     if (opCode()==OpNode::OpCode::PLUS  || opCode()==OpNode::OpCode::MINUS || opCode()==OpNode::OpCode::MULT || opCode()==OpNode::OpCode::DIV){
-        EFSA::OperandName iOperandName;
-        EFSA::OperandName fOperandName;
-        switch (opCode()){
-            case OpNode::OpCode::PLUS:  iOperandName=EFSA::OperandName::ADD; fOperandName=EFSA::OperandName::FADD; break;
-            case OpNode::OpCode::MINUS:  iOperandName=EFSA::OperandName::SUB; fOperandName=EFSA::OperandName::FSUB; break;
-            case OpNode::OpCode::MULT:  iOperandName=EFSA::OperandName::MUL; fOperandName=EFSA::OperandName::FMUL; break;
-            case OpNode::OpCode::DIV:  iOperandName=EFSA::OperandName::DIV; fOperandName=EFSA::OperandName::FDIV; break;
-            default: break;
-        }
-        if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()!=-1){	//expr op expr
-            if (arg_[0]->regIF()==0){	//int
-                //string leftReg = "R"+std::to_string(arg_[0]->regNum());
-                //string rightReg = "R"+std::to_string(arg_[1]->regNum());
-                string leftReg = getReg(arg_[0]->regNum(), 0);
-                string rightReg = getReg(arg_[1]->regNum(), 0);
-
-                int optFlag = -1;
-                if (leftReg==rightReg && opCode()==OpNode::OpCode::MINUS)
-                    optFlag = 0;
-
-                int destRegNum = tempIntVarAlloc();
-                //string destReg = "R"+std::to_string(destRegNum);
-                string destReg = getReg(destRegNum, 0);
-
-                if (arg_[0]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
-                    tempIntVarRelease(arg_[0]->regNum());
-                if (arg_[1]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
-                    tempIntVarRelease(arg_[1]->regNum());
-
-                IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, iOperandName, destReg, leftReg, rightReg);
-                codeList->addCode(code);
-                regNum(destRegNum);
-                regIF(0);
+            EFSA::OperandName iOperandName;
+            EFSA::OperandName fOperandName;
+            switch (opCode()){
+                case OpNode::OpCode::PLUS:  iOperandName=EFSA::OperandName::ADD; fOperandName=EFSA::OperandName::FADD; break;
+                case OpNode::OpCode::MINUS:  iOperandName=EFSA::OperandName::SUB; fOperandName=EFSA::OperandName::FSUB; break;
+                case OpNode::OpCode::MULT:  iOperandName=EFSA::OperandName::MUL; fOperandName=EFSA::OperandName::FMUL; break;
+                case OpNode::OpCode::DIV:  iOperandName=EFSA::OperandName::DIV; fOperandName=EFSA::OperandName::FDIV; break;
+                default: break;
             }
-            else if (arg_[0]->regIF()==1){	//float
-                //string leftReg = "F"+std::to_string(arg_[0]->regNum());
-                //string rightReg = "F"+std::to_string(arg_[1]->regNum());
-                string leftReg = getReg(arg_[0]->regNum(), 1);
-                string rightReg = getReg(arg_[1]->regNum(), 1);
+            if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()!=-1){    //expr op expr
+                if (arg_[0]->regIF()==0){   //int
+                    //string leftReg = "R"+std::to_string(arg_[0]->regNum());
+                    //string rightReg = "R"+std::to_string(arg_[1]->regNum());
+                    string leftReg = getReg(arg_[0]->regNum(), 0);
+                    string rightReg = getReg(arg_[1]->regNum(), 0);
 
-                int destRegNum = tempFloatVarAlloc();
-                //string destReg = "F"+std::to_string(destRegNum);
-                string destReg = getReg(destRegNum, 1);
-                if (arg_[0]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
-                    tempFloatVarRelease(arg_[0]->regNum());
-                if (arg_[1]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
-                    tempFloatVarRelease(arg_[1]->regNum());
-
-                FloatArithCode* code = new FloatArithCode(FloatArithCode::OperandNum::BINARY, fOperandName, destReg, leftReg, rightReg);
-                codeList->addCode(code);
-                regNum(destRegNum);
-                regIF(1);
-            }
-        }
-        else if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()==-1){	//expr op value
-            if (arg_[0]->regIF()==0){	//int
-                //string leftReg = "R"+std::to_string(arg_[0]->regNum());
-                string leftReg = getReg(arg_[0]->regNum(), 0);
-
-<<<<<<< HEAD
-                string rightReg = "";
-                ValueNode* vn = (ValueNode*)arg_[1];
-                Type* type = vn->type();
-                int optFlag = -1;
-                if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
-                    rightReg = std::to_string(vn->value()->ival());
-                    if (((opCode()==OpNode::OpCode::PLUS || opCode()==OpNode::OpCode::MINUS) && rightReg=="0") || ((opCode()==OpNode::OpCode::MULT || opCode()==OpNode::OpCode::DIV) && rightReg=="1"))
+                    int optFlag = -1;
+                    if (leftReg==rightReg && opCode()==OpNode::OpCode::MINUS)
                         optFlag = 0;
-                    else if (opCode()==OpNode::OpCode::MULT && rightReg=="0")
-                        optFlag = 1;
-=======
+
+                    int destRegNum = tempIntVarAlloc();
+                    //string destReg = "R"+std::to_string(destRegNum);
+                    string destReg = getReg(destRegNum, 0);
+
+                    if (arg_[0]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
+                        tempIntVarRelease(arg_[0]->regNum());
+                    if (arg_[1]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
+                        tempIntVarRelease(arg_[1]->regNum());
+
                     if (optFlag==0){
                         MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, "0", destReg);
                         codeList->addCode(code);
@@ -1541,25 +1499,29 @@ EFSAlist* OpNode::codeGen() {
                     }
                     regNum(destRegNum);
                     regIF(0);
->>>>>>> 1cf963daa33ef40d8661691ca7ebfe77729b946d
                 }
-                else if (type->tag()==Type::TypeTag::DOUBLE){
-                    rightReg = std::to_string(vn->value()->dval());
-                }
-<<<<<<< HEAD
+                else if (arg_[0]->regIF()==1){  //float
+                    //string leftReg = "F"+std::to_string(arg_[0]->regNum());
+                    //string rightReg = "F"+std::to_string(arg_[1]->regNum());
+                    string leftReg = getReg(arg_[0]->regNum(), 1);
+                    string rightReg = getReg(arg_[1]->regNum(), 1);
 
-                int destRegNum = tempIntVarAlloc();
-                //string destReg = "R"+std::to_string(destRegNum);
-                string destReg = getReg(destRegNum, 0);
-                if (arg_[0]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
-                    tempIntVarRelease(arg_[0]->regNum());
-                if (optFlag==0){
-                    MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, leftReg, destReg);
+                    int destRegNum = tempFloatVarAlloc();
+                    //string destReg = "F"+std::to_string(destRegNum);
+                    string destReg = getReg(destRegNum, 1);
+                    if (arg_[0]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
+                        tempFloatVarRelease(arg_[0]->regNum());
+                    if (arg_[1]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
+                        tempFloatVarRelease(arg_[1]->regNum());
+
+                    FloatArithCode* code = new FloatArithCode(FloatArithCode::OperandNum::BINARY, fOperandName, destReg, leftReg, rightReg);
                     codeList->addCode(code);
-=======
+                    regNum(destRegNum);
+                    regIF(1);
+                }
             }
-            else if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()==-1){	//expr op value
-                if (arg_[0]->regIF()==0){	//int
+            else if (arg_[0]->regNum()!=-1 && arg_[1]->regNum()==-1){   //expr op value
+                if (arg_[0]->regIF()==0){   //int
                     //string leftReg = "R"+std::to_string(arg_[0]->regNum());
                     string leftReg = getReg(arg_[0]->regNum(), 0);
 
@@ -1603,31 +1565,34 @@ EFSAlist* OpNode::codeGen() {
                     }
                     regNum(destRegNum);
                     regIF(0);
->>>>>>> 1cf963daa33ef40d8661691ca7ebfe77729b946d
                 }
-                else if (optFlag==1){
-                    MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, "0", destReg);
+                else if (arg_[0]->regIF()==1){  //float
+                    //string leftReg = "F"+std::to_string(arg_[0]->regNum());
+                    string leftReg = getReg(arg_[0]->regNum(), 1);
+                    string rightReg = "";
+                    ValueNode* vn = (ValueNode*)arg_[1];
+                    Type* type = vn->type();
+                    if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+                        rightReg = std::to_string(vn->value()->ival());
+                    }
+                    else if (type->tag()==Type::TypeTag::DOUBLE){
+                        rightReg = std::to_string(vn->value()->dval());
+                    }
+
+                    int destRegNum = tempFloatVarAlloc();
+                    //string destReg = "F"+std::to_string(destRegNum);
+                    string destReg = getReg(destRegNum, 1);
+                    if (arg_[0]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
+                        tempFloatVarRelease(arg_[0]->regNum());
+
+                    FloatArithCode* code = new FloatArithCode(FloatArithCode::OperandNum::BINARY, fOperandName, destReg, leftReg, rightReg);
                     codeList->addCode(code);
+                    regNum(destRegNum);
+                    regIF(1);
                 }
-                else{
-                    IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, iOperandName, destReg, leftReg, rightReg);
-                    codeList->addCode(code);                           
-                }
-                regNum(destRegNum);
-                regIF(0);
             }
-<<<<<<< HEAD
-            else if (arg_[0]->regIF()==1){	//float
-                //string leftReg = "F"+std::to_string(arg_[0]->regNum());
-                string leftReg = getReg(arg_[0]->regNum(), 1);
-                string rightReg = "";
-                ValueNode* vn = (ValueNode*)arg_[1];
-                Type* type = vn->type();
-                if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
-                    rightReg = std::to_string(vn->value()->ival());
-=======
-            else if (arg_[0]->regNum()==-1 && arg_[1]->regNum()!=-1){	//value op expr
-                if (arg_[1]->regIF()==0){	//int
+            else if (arg_[0]->regNum()==-1 && arg_[1]->regNum()!=-1){   //value op expr
+                if (arg_[1]->regIF()==0){   //int
                     //string rightReg = "R"+std::to_string(arg_[1]->regNum());
                     string rightReg = getReg(arg_[1]->regNum(), 0);
                     string leftReg = "";
@@ -1671,31 +1636,33 @@ EFSAlist* OpNode::codeGen() {
                     }
                     regNum(destRegNum);
                     regIF(0);
->>>>>>> 1cf963daa33ef40d8661691ca7ebfe77729b946d
                 }
-                else if (type->tag()==Type::TypeTag::DOUBLE){
-                    rightReg = std::to_string(vn->value()->dval());
+                else if (arg_[1]->regIF()==1){  //float
+                    //string rightReg = "F"+std::to_string(arg_[1]->regNum());
+                    string rightReg = getReg(arg_[1]->regNum(), 1);
+                    string leftReg = "";
+                    ValueNode* vn = (ValueNode*)arg_[0];
+                    Type* type = vn->type();
+                    if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+                        leftReg = std::to_string(vn->value()->ival());
+                    }
+                    else if (type->tag()==Type::TypeTag::DOUBLE){
+                        leftReg = std::to_string(vn->value()->dval());
+                    }
+                    int destRegNum = tempFloatVarAlloc();
+                    //string destReg = "F"+std::to_string(destRegNum);
+                    string destReg = getReg(destRegNum, 1);
+                    if (arg_[1]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
+                        tempFloatVarRelease(arg_[1]->regNum());
+
+                    FloatArithCode* code = new FloatArithCode(FloatArithCode::OperandNum::BINARY, fOperandName, destReg, leftReg, rightReg);
+                    codeList->addCode(code);
+                    regNum(destRegNum);
+                    regIF(1);
                 }
-
-                int destRegNum = tempFloatVarAlloc();
-                //string destReg = "F"+std::to_string(destRegNum);
-                string destReg = getReg(destRegNum, 1);
-                if (arg_[0]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
-                    tempFloatVarRelease(arg_[0]->regNum());
-
-                FloatArithCode* code = new FloatArithCode(FloatArithCode::OperandNum::BINARY, fOperandName, destReg, leftReg, rightReg);
-                codeList->addCode(code);
-                regNum(destRegNum);
-                regIF(1);
             }
-        }
-        else if (arg_[0]->regNum()==-1 && arg_[1]->regNum()!=-1){	//value op expr
-            if (arg_[1]->regIF()==0){	//int
-                //string rightReg = "R"+std::to_string(arg_[1]->regNum());
-                string rightReg = getReg(arg_[1]->regNum(), 0);
+            else if (arg_[0]->regNum()==-1 && arg_[1]->regNum()==-1){   //value op value
                 string leftReg = "";
-<<<<<<< HEAD
-=======
                 string rightReg = "";
                 string destReg = "";
 
@@ -1747,196 +1714,129 @@ EFSAlist* OpNode::codeGen() {
                     codeList->addCode(code);
                 }
                 /*
->>>>>>> 1cf963daa33ef40d8661691ca7ebfe77729b946d
                 ValueNode* vn = (ValueNode*)arg_[0];
                 Type* type = vn->type();
-                int optFlag = -1;
+                bool flag = false;
                 if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
                     leftReg = std::to_string(vn->value()->ival());
-                    if ((opCode()==OpNode::OpCode::PLUS && leftReg=="0") || (opCode()==OpNode::OpCode::MULT && leftReg=="1"))
-                        optFlag = 0;
-                    else if (opCode()==OpNode::OpCode::MULT && leftReg=="0")
-                        optFlag = 1;
                 }
                 else if (type->tag()==Type::TypeTag::DOUBLE){
                     leftReg = std::to_string(vn->value()->dval());
+                    flag = true;
                 }
-
-                int destRegNum = tempIntVarAlloc();
-                //string destReg = "R"+std::to_string(destRegNum);
-                string destReg = getReg(destRegNum, 0);
-                if (arg_[1]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
-                    tempIntVarRelease(arg_[1]->regNum());
-
-                if (optFlag==0){
-                    MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, rightReg, destReg);
-                    codeList->addCode(code);
+                vn = (ValueNode*)arg_[1];
+                type = vn->type();
+                if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+                    rightReg = std::to_string(vn->value()->ival());
                 }
-                else if (optFlag==1){
-                    MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, "0", destReg);
+                else if (type->tag()==Type::TypeTag::DOUBLE){
+                    rightReg = std::to_string(vn->value()->dval());
+                    flag = true;
+                }
+                if (flag){
+                    int r = tempFloatVarAlloc();
+                    regNum(r);
+                    //destReg = "F"+std::to_string(r);
+                    destReg = getReg(r, 1);
+                    regIF(1);
+                    FloatArithCode* code = new FloatArithCode(FloatArithCode::OperandNum::BINARY, fOperandName, destReg, leftReg, rightReg);
                     codeList->addCode(code);
                 }
                 else{
+                    int r = tempIntVarAlloc();
+                    regNum(r);
+                    //destReg = "R"+std::to_string(r);
+                    destReg = getReg(r, 0);
+                    regIF(0);
                     IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, iOperandName, destReg, leftReg, rightReg);
                     codeList->addCode(code);
                 }
-<<<<<<< HEAD
-                regNum(destRegNum);
-                regIF(0);
-            }
-            else if (arg_[1]->regIF()==1){	//float
-                //string rightReg = "F"+std::to_string(arg_[1]->regNum());
-                string rightReg = getReg(arg_[1]->regNum(), 1);
-                string leftReg = "";
-                ValueNode* vn = (ValueNode*)arg_[0];
-                Type* type = vn->type();
-                if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
-                    leftReg = std::to_string(vn->value()->ival());
-                }
-                else if (type->tag()==Type::TypeTag::DOUBLE){
-                    leftReg = std::to_string(vn->value()->dval());
-                }
-                int destRegNum = tempFloatVarAlloc();
-                //string destReg = "F"+std::to_string(destRegNum);
-                string destReg = getReg(destRegNum, 1);
-                if (arg_[1]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
-                    tempFloatVarRelease(arg_[1]->regNum());
-
-                FloatArithCode* code = new FloatArithCode(FloatArithCode::OperandNum::BINARY, fOperandName, destReg, leftReg, rightReg);
-                codeList->addCode(code);
-                regNum(destRegNum);
-                regIF(1);
-=======
                 */
->>>>>>> 1cf963daa33ef40d8661691ca7ebfe77729b946d
             }
         }
-        else if (arg_[0]->regNum()==-1 && arg_[1]->regNum()==-1){	//value op value
-            string leftReg = "";
-            string rightReg = "";
-            string destReg = "";
+ 
+         else if (opCode()==OpNode::OpCode::ASSIGN){
+            if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==0) { //intReg=?
+                if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==0) { //move int/reg to register: MOVI <valueOrReg> <intreg>
+                    //string from = "R"+std::to_string(arg_[1]->regNum());
+                    //string dest = "R"+std::to_string(arg_[0]->regNum());
+                    string from = getReg(arg_[1]->regNum(), 0);
+                    string dest = getReg(arg_[0]->regNum(), 0);
+                    MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, from, dest);
+                    codeList->addCode(code);
 
-            ValueNode* vn = (ValueNode*)arg_[0];
-            Type* type = vn->type();
-            bool flag = false;
-            if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
-                leftReg = std::to_string(vn->value()->ival());
-            }
-            else if (type->tag()==Type::TypeTag::DOUBLE){
-                leftReg = std::to_string(vn->value()->dval());
-                flag = true;
-            }
-            vn = (ValueNode*)arg_[1];
-            type = vn->type();
-            if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
-                rightReg = std::to_string(vn->value()->ival());
-            }
-            else if (type->tag()==Type::TypeTag::DOUBLE){
-                rightReg = std::to_string(vn->value()->dval());
-                flag = true;
-            }
-            if (flag){
-                int r = tempFloatVarAlloc();
-                regNum(r);
-                //destReg = "F"+std::to_string(r);
-                destReg = getReg(r, 1);
-                regIF(1);
-                FloatArithCode* code = new FloatArithCode(FloatArithCode::OperandNum::BINARY, fOperandName, destReg, leftReg, rightReg);
-                codeList->addCode(code);
-            }
-            else{
-                int r = tempIntVarAlloc();
-                regNum(r);
-                //destReg = "R"+std::to_string(r);
-                destReg = getReg(r, 0);
-                regIF(0);
-                IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, iOperandName, destReg, leftReg, rightReg);
-                codeList->addCode(code);
-            }
-        }
-    }
-
-    else if (opCode()==OpNode::OpCode::ASSIGN){
-        if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==0) {	//intReg=?
-            if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==0) {	//move int/reg to register: MOVI <valueOrReg> <intreg>
-                //string from = "R"+std::to_string(arg_[1]->regNum());
-                //string dest = "R"+std::to_string(arg_[0]->regNum());
-                string from = getReg(arg_[1]->regNum(), 0);
-                string dest = getReg(arg_[0]->regNum(), 0);
-                MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, from, dest);
-                codeList->addCode(code);
-
-                if (arg_[1]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
-                    tempIntVarRelease(arg_[1]->regNum());
-            }
-            else if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==1) {	//move float to int reg: MOVIF <freg> <intreg>
-                //string from = "F"+std::to_string(arg_[1]->regNum());
-                string from = getReg(arg_[1]->regNum(), 1);
-                //string dest = "R"+std::to_string(arg_[0]->regNum());
-                string dest = getReg(arg_[0]->regNum(), 0);
-                MoveCode* code = new MoveCode(EFSA::OperandName::MOVIF, from, dest);
-                codeList->addCode(code);
-
-                if (arg_[1]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
-                    tempFloatVarRelease(arg_[1]->regNum());
-            }
-            else if (arg_[1]->regNum()==-1)	{	//move literal to register: MOVI <valueOrReg> <intreg>
-                ValueNode* vn = (ValueNode*)arg_[1];
-                Type* type = vn->type();
-                string from = "";
-                if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
-                    from = std::to_string(vn->value()->ival());
+                    if (arg_[1]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
+                        tempIntVarRelease(arg_[1]->regNum());
                 }
-                else if (type->tag()==Type::TypeTag::DOUBLE){
-                    from = std::to_string(vn->value()->dval());	//double, could split with .
-                }
-                //string dest = "R"+std::to_string(arg_[0]->regNum());
-                string dest = getReg(arg_[0]->regNum(), 0);
-                MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, from, dest);
-                codeList->addCode(code);
-            }
-        }
-        else if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==1) {	//floatReg=?
-            if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==1) {	//move float to register: MOVF <valueOrReg> <freg>
-                //string from = "F"+std::to_string(arg_[1]->regNum());
-                //string dest = "F"+std::to_string(arg_[0]->regNum());
-                string from = getReg(arg_[1]->regNum(), 1);
-                string dest = getReg(arg_[0]->regNum(), 1);
+                else if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==1) {    //move float to int reg: MOVIF <freg> <intreg>
+                    //string from = "F"+std::to_string(arg_[1]->regNum());
+                    string from = getReg(arg_[1]->regNum(), 1);
+                    //string dest = "R"+std::to_string(arg_[0]->regNum());
+                    string dest = getReg(arg_[0]->regNum(), 0);
+                    MoveCode* code = new MoveCode(EFSA::OperandName::MOVIF, from, dest);
+                    codeList->addCode(code);
 
-                MoveCode* code = new MoveCode(EFSA::OperandName::MOVF, from, dest);
-                codeList->addCode(code);
-
-                if (arg_[1]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
-                    tempFloatVarRelease(arg_[1]->regNum());
-            }
-            else if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==0) {	//move int to float reg: MOVIF <intreg> <freg>
-                //string from = "R"+std::to_string(arg_[1]->regNum());
-                string from = getReg(arg_[1]->regNum(), 0);
-                //string dest = "F"+std::to_string(arg_[0]->regNum());
-                string dest = getReg(arg_[0]->regNum(), 1);
-                MoveCode* code = new MoveCode(EFSA::OperandName::MOVIF, from, dest);
-                codeList->addCode(code);
-
-                if (arg_[1]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
-                    tempIntVarRelease(arg_[1]->regNum());
-            }
-            else if (arg_[1]->regNum()==-1)	{	//move literal to register: MOVF <valueOrReg> <freg>
-                ValueNode* vn = (ValueNode*)arg_[1];
-                Type* type = vn->type();
-                string from = "";
-                if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
-                    from = std::to_string(vn->value()->ival());	//int, could add .
+                    if (arg_[1]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
+                        tempFloatVarRelease(arg_[1]->regNum());
                 }
-                else if (type->tag()==Type::TypeTag::DOUBLE){
-                    from = std::to_string(vn->value()->dval());	
+                else if (arg_[1]->regNum()==-1) {   //move literal to register: MOVI <valueOrReg> <intreg>
+                    ValueNode* vn = (ValueNode*)arg_[1];
+                    Type* type = vn->type();
+                    string from = "";
+                    if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+                        from = std::to_string(vn->value()->ival());
+                    }
+                    else if (type->tag()==Type::TypeTag::DOUBLE){
+                        from = std::to_string(vn->value()->dval()); //double, could split with .
+                    }
+                    //string dest = "R"+std::to_string(arg_[0]->regNum());
+                    string dest = getReg(arg_[0]->regNum(), 0);
+                    MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, from, dest);
+                    codeList->addCode(code);
                 }
-                //string dest = "F"+std::to_string(arg_[0]->regNum());
-                string dest = getReg(arg_[0]->regNum(), 1);
-                MoveCode* code = new MoveCode(EFSA::OperandName::MOVF, from, dest);
-                codeList->addCode(code);
             }
-        }
-    }
+            else if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==1) {    //floatReg=?
+                if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==1) { //move float to register: MOVF <valueOrReg> <freg>
+                    //string from = "F"+std::to_string(arg_[1]->regNum());
+                    //string dest = "F"+std::to_string(arg_[0]->regNum());
+                    string from = getReg(arg_[1]->regNum(), 1);
+                    string dest = getReg(arg_[0]->regNum(), 1);
+
+                    MoveCode* code = new MoveCode(EFSA::OperandName::MOVF, from, dest);
+                    codeList->addCode(code);
+
+                    if (arg_[1]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
+                        tempFloatVarRelease(arg_[1]->regNum());
+                }
+                else if (arg_[1]->regNum()!=-1 && arg_[1]->regIF()==0) {    //move int to float reg: MOVIF <intreg> <freg>
+                    //string from = "R"+std::to_string(arg_[1]->regNum());
+                    string from = getReg(arg_[1]->regNum(), 0);
+                    //string dest = "F"+std::to_string(arg_[0]->regNum());
+                    string dest = getReg(arg_[0]->regNum(), 1);
+                    MoveCode* code = new MoveCode(EFSA::OperandName::MOVIF, from, dest);
+                    codeList->addCode(code);
+
+                    if (arg_[1]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
+                        tempIntVarRelease(arg_[1]->regNum());
+                }
+                else if (arg_[1]->regNum()==-1) {   //move literal to register: MOVF <valueOrReg> <freg>
+                    ValueNode* vn = (ValueNode*)arg_[1];
+                    Type* type = vn->type();
+                    string from = "";
+                    if (type->tag()==Type::TypeTag::UINT || type->tag()==Type::TypeTag::INT || type->tag()==Type::TypeTag::SIGNED){
+                        from = std::to_string(vn->value()->ival()); //int, could add .
+                    }
+                    else if (type->tag()==Type::TypeTag::DOUBLE){
+                        from = std::to_string(vn->value()->dval()); 
+                    }
+                    //string dest = "F"+std::to_string(arg_[0]->regNum());
+                    string dest = getReg(arg_[0]->regNum(), 1);
+                    MoveCode* code = new MoveCode(EFSA::OperandName::MOVF, from, dest);
+                    codeList->addCode(code);
+                }
+            }
+         }
+         
     //EQ, NE, GT, GE
     else if (opCode()==OpNode::OpCode::EQ){
         string left="";
