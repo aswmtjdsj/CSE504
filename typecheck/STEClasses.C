@@ -384,24 +384,26 @@ EFSAlist* FunctionEntry::codeGen() {
 	}
     
     // pop stack to load AP to LV
-    for(auto ridx = local_var_reg_num_array.rbegin(); ridx != local_var_reg_num_array.rend(); ridx++) {
+    // right -> left : push, pop: left -> right 
+    for(auto idx = local_var_reg_num_array.begin(); idx != local_var_reg_num_array.end(); idx++) {
         // sub sp by 1 -> pop
         IntArithCode* sub_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::SUB, sp_reg_name, sp_reg_name, std::to_string(1));
         codeList->addCode(sub_code);
 
         // store value from stack to reg
-        string param_reg_name = getReg(ridx->first, ridx->second);
-        if(ridx->second == FLOAT_FLAG) {
+        string param_reg_name = getReg(idx->first, idx->second);
+        if(idx->second == FLOAT_FLAG) {
             MoveCode * ldfspp_param = new MoveCode(EFSA::OperandName::LDF, sp_reg_name, param_reg_name);
             codeList->addCode(ldfspp_param);
         }
-        else if(ridx->second == INT_FLAG) {
+        else if(idx->second == INT_FLAG) {
             MoveCode * ldispp_param = new MoveCode(EFSA::OperandName::LDI, sp_reg_name, param_reg_name);
             codeList->addCode(ldispp_param);
         }
     }
 
-    // push AP to stack
+    /*// push AP to stack
+    // right to left
     for(auto ridx = local_var_reg_num_array.rbegin(); ridx != local_var_reg_num_array.rend(); ridx++) {
         // add sp by 1 -> push
         IntArithCode* add_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::ADD, sp_reg_name, sp_reg_name, std::to_string(1));
@@ -417,7 +419,7 @@ EFSAlist* FunctionEntry::codeGen() {
             MoveCode * stiparam_spp = new MoveCode(EFSA::OperandName::STI, param_reg_name, sp_reg_name);
             codeList->addCode(stiparam_spp );
         }
-    }
+    }*/
 
     // compound statement code gen
     // inside:: return statement to pop return 
@@ -425,23 +427,24 @@ EFSAlist* FunctionEntry::codeGen() {
     codeList->addCodeList(body()->codeGen());
     codeList->addCode(new LabelCode("//BodyEnd"));
 
-    // pop stack to load AP to LV
-    for(auto ridx = local_var_reg_num_array.rbegin(); ridx != local_var_reg_num_array.rend(); ridx++) {
+    /*// pop stack to load AP to LV
+    // right -> left : push, pop: left -> right 
+    for(auto idx = local_var_reg_num_array.begin(); idx != local_var_reg_num_array.end(); idx++) {
         // sub sp by 1 -> pop
         IntArithCode* sub_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::SUB, sp_reg_name, sp_reg_name, std::to_string(1));
         codeList->addCode(sub_code);
 
         // store value from stack to reg
-        string param_reg_name = getReg(ridx->first, ridx->second);
-        if(ridx->second == FLOAT_FLAG) {
+        string param_reg_name = getReg(idx->first, idx->second);
+        if(idx->second == FLOAT_FLAG) {
             MoveCode * ldfspp_param = new MoveCode(EFSA::OperandName::LDF, sp_reg_name, param_reg_name);
             codeList->addCode(ldfspp_param);
         }
-        else if(ridx->second == INT_FLAG) {
+        else if(idx->second == INT_FLAG) {
             MoveCode * ldispp_param = new MoveCode(EFSA::OperandName::LDI, sp_reg_name, param_reg_name);
             codeList->addCode(ldispp_param);
         }
-    }
+    }*/
 
     // local var cannot be released
     /*//cout << "biubiu" << endl;
