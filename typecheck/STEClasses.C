@@ -235,6 +235,7 @@ EFSAlist* GlobalEntry::codeGen() {
 	
 	codeList->addCode(new LabelCode(GLOBAL_BEGIN, 1));
 
+
 	//Alloc reg for rule name		
 	vector<RuleNode*>::const_iterator iter = rules_.begin();
 	for (;iter!=rules_.end();++iter) {
@@ -251,6 +252,10 @@ EFSAlist* GlobalEntry::codeGen() {
 			(*iter)->ruleSkipLabel(l2);
 		}
 	}	
+
+	// Event match initialization
+	EventMatch em2(LABEL_PROG_EXIT);
+	codeList->addCodeList(em2.getInitializer() );
 	
 	// Variable Init
 	if (symTab()){
