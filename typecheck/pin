@@ -6,21 +6,23 @@ int f;
 event z(int b);
 
 int giu(int p) {
-    //return p * giu(2);
-    if(p > 1) {
-        return p;
+    if(p > 0) {
+        return p * giu(0);
     }
     return 1;
 }
 
-int biu(int a, int b) {
+/*int biu(int a, int b) {
     print "a: ";
     print a;
+    print "\n";
     return giu(a) * 3 + b;
-}
+}*/
 
 z(f) -> {
-    d = giu(10);
+    d = giu(2);
+    /*d = biu(1,1);
     print "result: ";
-    print d;
+    print d;*/
+    print "\n";
 }

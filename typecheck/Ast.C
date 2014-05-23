@@ -1412,6 +1412,29 @@ EFSAlist* ReturnStmtNode::codeGen() {
         }
     }
 
+    // pop jump back label, assume every func has return 
+
+    // sub sp by 1 -> pop
+    IntArithCode* sub_sp_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::SUB, sp_reg_name, sp_reg_name, std::to_string(1));
+    codeList->addCode(sub_sp_code);
+
+    // get new temp register
+    int temp_reg = EFSA::intRegAlloc();
+    //temp_reg_name = "R"+std::to_string(temp_reg);
+    string temp_reg_name = getReg(temp_reg, INT_FLAG);
+
+    MoveCode * ldispp_l = new MoveCode(EFSA::OperandName::LDI, sp_reg_name, temp_reg_name);
+    codeList->addCode(ldispp_l);
+
+    // jump to label ( function return address)
+    LabelCode* label_reg = new LabelCode(temp_reg_name);
+    JumpCode* jumpCode = new JumpCode(EFSA::OperandName::JMPI, NULL, label_reg);
+    codeList->addCode(jumpCode);
+    
+    // eliminate temp reg
+    EFSA::intRegFree(temp_reg);
+
+
     return codeList;
 }
 

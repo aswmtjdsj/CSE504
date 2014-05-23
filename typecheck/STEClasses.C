@@ -404,36 +404,16 @@ EFSAlist* FunctionEntry::codeGen() {
     codeList->addCode(new LabelCode("//BodyEnd"));
 
     // release local var
+    //cout << "biubiu" << endl;
     for(auto idx = local_var_reg_num_array.begin(); idx != local_var_reg_num_array.end(); idx++) {
-        if(idx->second == FLOAT_FLAG) {
+        //cout << "FUCKKK" << idx->first << endl;
+        /*if(idx->second == FLOAT_FLAG) {
             EFSA::floatRegFree(idx->first);
         }
         else if(idx->second == INT_FLAG) {
             EFSA::intRegFree(idx->first);
-        }
+        }*/
     }
-
-    // pop jump back label
-
-    // sub sp by 1 -> pop
-    IntArithCode* sub_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::SUB, sp_reg_name, sp_reg_name, std::to_string(1));
-    codeList->addCode(sub_code);
-
-    // get new temp register
-    int temp_reg = EFSA::intRegAlloc();
-    //temp_reg_name = "R"+std::to_string(temp_reg);
-    string temp_reg_name = getReg(temp_reg, INT_FLAG);
-
-    MoveCode * ldispp_l = new MoveCode(EFSA::OperandName::LDI, sp_reg_name, temp_reg_name);
-    codeList->addCode(ldispp_l);
-
-    // jump to label ( function return address)
-    LabelCode* label_reg = new LabelCode(temp_reg_name);
-    JumpCode* jumpCode = new JumpCode(EFSA::OperandName::JMPI, NULL, label_reg);
-    codeList->addCode(jumpCode);
-    
-    // eliminate temp reg
-    EFSA::intRegFree(temp_reg);
 
     return codeList;
 }
