@@ -224,14 +224,13 @@ main(int argc, char *argv[], char *envp[]) {
   ge->typeCheck();
   cout << endl;
   //ge->typePrint(cout, 0);
-  cout << endl;
   
   EFSAlist* codeList = ge->codeGen();
-  codeList->codePrint(cout);
+  //codeList->codePrint(cout);
 
   Optimizer* optimizer = new Optimizer();
   optimizer->codeOptimize(codeList->getCodeList());
-  //optimizer->printBasicBlock(cout);
+  optimizer->printBasicBlock(cout);
   
   }
 #endif
