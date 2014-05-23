@@ -1263,12 +1263,18 @@ void InCode::codePrint(ostream& os) {
 
 string PrintCode::parseEscape_(string str) {
     string strRes = "";
-    map<string, string> mapEscapeChar{{"\n", "\\n"}, {"\\", "\\\\"}};
+    map<string, string> mapEscapeChar{{"\n", "\\n"}, {"\\", "\\\\"}, 
+        {"\r", "\\r"}, {"\t", "\\t"}, {"\v", "\\v"}, {"\a", "\\a"}, 
+        {"\b", "\\b"}, {"\f", "\\f"}, {"\'", "\\\'"}, {"\"", "\\\""},
+        {"\?", "\\?"}};
     for (int i = 0; i < str.length(); i++) {
         if (mapEscapeChar.find(str.substr(i,1)) != mapEscapeChar.end()) {
             strRes = strRes + mapEscapeChar[str.substr(i,1)];
         }
     }
+
+    regex pattern8("\\\\[0-7]{3}");
+    regex_replace(strRes, pattern8, int(
     return strRes;
 }
 
