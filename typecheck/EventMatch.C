@@ -6,19 +6,36 @@
 //Generating main part of matching
 EFSAlist* EventMatch::getMatchCodeList(GlobalEntry *ge) {
 	elCodeList_ = new EFSAlist();
-	elCodeList_->addCode(new LabelCode("MatchBegin", 1));
+
+	// output error info
+	elCodeList_->addCode(new LabelCode(LABEL_EVENT_ERR_TOO_MANY, 1));	
+	printString_("Input:Line ");
+	printReg_(getReg(EVENT_INPUT_NUM_REG));
+	printString_(":Too many parameters input!\\n");
+
+	// match begin
+	elCodeList_->addCode(new JumpCode(EFSA::OperandName::JMP, nullptr,
+		new LabelCode(LABEL_EVENT_MATCH_BEGIN)));
+	elCodeList_->addCode(new LabelCode(LABEL_EVENT_MATCH_BEGIN, 1));
+
 	//IN R998
 	elCodeList_->addCode(new InCode(EFSA::OperandName::IN, getReg(EVENT_NAME_REG)));
 	elCodeList_->addCode(new MoveCode(EFSA::OperandName::MOVI, "0", getReg(EVENT_STATE_REG)));
-	printString_("Input Event: ");
-	printReg_(getReg(EVENT_NAME_REG));
 	
+	//count input
+	elCodeList_->addCode(new IntArithCode(IntArithCode::OperandNum::BINARY,
+		EFSA::OperandName::ADD, getReg(EVENT_INPUT_NUM_REG), 
+		getReg(EVENT_INPUT_NUM_REG), "1"));
+
 	//JMPC EQ R998 10 EXIT
 	IntRelationCode* ircpCond = new IntRelationCode(EFSA::OperandName::EQ,
 		getReg(EVENT_NAME_REG), EXIT_INPUT_ASCII);
 	LabelCode* lcpExitLabel = new LabelCode(strExitLabel());
 	elCodeList_->addCode(new JumpCode(EFSA::OperandName::JMPC, ircpCond, lcpExitLabel));
-
+#ifdef EVENT_DEBUG
+	printString_("Input Event: ");
+	printReg_(getReg(EVENT_NAME_REG));
+#endif
 	int iCnt = 0;
 	//jump to rules by event name
 	vector<RuleNode*> rules = ge->rules();
@@ -69,9 +86,13 @@ EFSAlist* EventMatch::getReadParamCodeList(RuleNode* pRuleNode) {
 
 	int iCurIReg = iIRegMin;
 	int iCurFReg = iFRegMin;
+#ifdef EVENT_DEBUG
 	printString_("(");
+#endif
 	for (auto it = ptrTypeVector->begin(); it != ptrTypeVector->end(); it++) {
+#ifdef EVENT_DEBUG
 		if (it != ptrTypeVector->begin()) printString_(", ");
+#endif
 		auto type = *it;
 		if (type->isInt(type->tag())) {
 			elCodeList_->addCode(new InCode(EFSA::OperandName::INI, 
@@ -92,7 +113,17 @@ EFSAlist* EventMatch::getReadParamCodeList(RuleNode* pRuleNode) {
 			break;
 		}
 	}
+#ifdef EVENT_DEBUG
 	printString_(")\\n");
+#endif
+	// if too many parameters input
+	elCodeList_->addCode(new InCode(EFSA::OperandName::INI, getReg(iCurIReg)));
+	ircpCond = new IntRelationCode(EFSA::OperandName::NE, getReg(iCurIReg),
+		EVENT_INPUT_NEXT_ASCII);
+	LabelCode* lcpErrTooMany = new LabelCode(LABEL_EVENT_ERR_TOO_MANY);
+	elCodeList_->addCode(new JumpCode(EFSA::OperandName::JMPC, ircpCond,
+		lcpErrTooMany));
+
 	return elCodeList_;
 }
 
@@ -111,4 +142,22 @@ void EventMatch::printReg_(string strReg) {
 void EventMatch::printString_(string str) {
 	string strTarget = "\"" + str + "\"";
 	elCodeList_->addCode(new PrintCode(EFSA::OperandName::PRTS, strTarget));
+}
+
+EFSAlist* EventMatch::getLineNumPrintCode(RuleNode* pRuleNode) {
+#ifdef EVENT_DEBUG
+	elCodeList_ = new EFSAlist();
+	printString_("Event in Line " + numToString(pRuleNode->line()) + " matched\\n");
+	return elCodeList_;
+#else
+	return nullptr;
+#endif
+}
+
+EFSAlist* EventMatch::getInitializer() {
+	elCodeList_ = new EFSAlist();
+	// initialize input count reg
+	elCodeList_->addCode(new MoveCode(EFSA::OperandName::MOVI, "0",
+		getReg(EVENT_INPUT_NUM_REG)));
+	return elCodeList_;
 }
