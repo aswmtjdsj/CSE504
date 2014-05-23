@@ -1489,8 +1489,14 @@ EFSAlist* OpNode::codeGen() {
                     if (arg_[1]->exprNodeType()==ExprNode::ExprNodeType::OP_NODE)
                         tempIntVarRelease(arg_[1]->regNum());
 
-                    IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, iOperandName, destReg, leftReg, rightReg);
-                    codeList->addCode(code);
+                    if (optFlag==0){
+                        MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, "0", destReg);
+                        codeList->addCode(code);
+                    }
+                    else{
+                        IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, iOperandName, destReg, leftReg, rightReg);
+                        codeList->addCode(code);
+                    }
                     regNum(destRegNum);
                     regIF(0);
                 }
@@ -1529,6 +1535,8 @@ EFSAlist* OpNode::codeGen() {
                             optFlag = 0;
                         else if (opCode()==OpNode::OpCode::MULT && rightReg=="0")
                             optFlag = 1;
+                        else if (opCode()==OpNode::OpCode::MULT && rightReg=="2")
+                            optFlag = 2;
                     }
                     else if (type->tag()==Type::TypeTag::DOUBLE){
                         rightReg = std::to_string(vn->value()->dval());
@@ -1546,6 +1554,10 @@ EFSAlist* OpNode::codeGen() {
                     else if (optFlag==1){
                             MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, "0", destReg);
                             codeList->addCode(code);
+                    }
+                    else if (optFlag==2){
+                            IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::ADD, destReg, leftReg, leftReg);
+                            codeList->addCode(code);  
                     }
                     else{
                             IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, iOperandName, destReg, leftReg, rightReg);
@@ -1593,6 +1605,8 @@ EFSAlist* OpNode::codeGen() {
                                 optFlag = 0;
                          else if (opCode()==OpNode::OpCode::MULT && leftReg=="0")
                                 optFlag = 1;
+                         else if (opCode()==OpNode::OpCode::MULT && leftReg=="2")
+                                optFlag = 2;
                     }
                     else if (type->tag()==Type::TypeTag::DOUBLE){
                         leftReg = std::to_string(vn->value()->dval());
@@ -1611,6 +1625,10 @@ EFSAlist* OpNode::codeGen() {
                     else if (optFlag==1){
                         MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, "0", destReg);
                         codeList->addCode(code);
+                    }
+                    else if (optFlag==2){
+                            IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::ADD, destReg, rightReg, rightReg);
+                            codeList->addCode(code);  
                     }
                     else{
                         IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, iOperandName, destReg, leftReg, rightReg);
@@ -1648,6 +1666,54 @@ EFSAlist* OpNode::codeGen() {
                 string rightReg = "";
                 string destReg = "";
 
+                ValueNode* vn1 = (ValueNode*)arg_[0];
+                Type* type1 = vn1->type();
+                bool flag1 = false;
+                if (type1->tag()==Type::TypeTag::DOUBLE){
+                    flag1 = true;
+                }
+                ValueNode* vn2 = (ValueNode*)arg_[1];
+                Type* type2 = vn2->type();
+                bool flag2 = false;
+                if (type2->tag()==Type::TypeTag::DOUBLE){
+                    flag2 = true;
+                }
+                if (flag1 || flag2){      //float
+                    double i = 0.0;
+                    double j = 0.0;
+                    if (flag1)
+                        i = vn1->value()->dval();
+                    else
+                        i = vn1->value()->ival();
+                    if (flag2)
+                        j = vn2->value()->dval();
+                    else
+                        j = vn2->value()->ival();
+                    double result = i + j;
+
+                    int r = tempFloatVarAlloc();
+                    regNum(r);
+                    destReg = getReg(r, 1);
+                    regIF(1);
+                    //FloatArithCode* code = new FloatArithCode(FloatArithCode::OperandNum::BINARY, fOperandName, destReg, leftReg, rightReg);
+                    MoveCode* code = new MoveCode(EFSA::OperandName::MOVF, std::to_string (result), destReg);
+                    codeList->addCode(code);
+                }
+                else{
+                    int i = vn1->value()->ival();
+                    int j = vn2->value()->ival();
+                    int result = i + j;
+
+                    int r = tempIntVarAlloc();
+                    regNum(r);
+                    //destReg = "R"+std::to_string(r);
+                    destReg = getReg(r, 0);
+                    regIF(0);
+                    //IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, iOperandName, destReg, leftReg, rightReg);
+                    MoveCode* code = new MoveCode(EFSA::OperandName::MOVI, std::to_string (result), destReg);
+                    codeList->addCode(code);
+                }
+                /*
                 ValueNode* vn = (ValueNode*)arg_[0];
                 Type* type = vn->type();
                 bool flag = false;
@@ -1685,6 +1751,7 @@ EFSAlist* OpNode::codeGen() {
                     IntArithCode* code = new IntArithCode(IntArithCode::OperandNum::BINARY, iOperandName, destReg, leftReg, rightReg);
                     codeList->addCode(code);
                 }
+                */
             }
         }
  

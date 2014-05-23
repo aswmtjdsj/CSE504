@@ -25,6 +25,7 @@ void Optimizer::generateBasicBlock(vector<EFSA*> codeList){
 	}
 }
 
+/*
 void Optimizer::algebraEquivalence(){
 	
 	for (auto iter=blockList_.begin(); iter!=blockList_.end(); iter++) {
@@ -45,12 +46,12 @@ void Optimizer::algebraEquivalence(){
 			}
 		}
 	}
-	
 }
+*/
 
 void Optimizer::codeOptimize(vector<EFSA*> codeList){
 	generateBasicBlock(codeList);
-  	//algebraEquivalence();
+  	duplicateMoveEliminate();
 }
 
 void Optimizer::printBasicBlock(ostream& os){
@@ -59,4 +60,8 @@ void Optimizer::printBasicBlock(ostream& os){
 		block->codePrint(os);
 		os<<endl;
 	}
+}
+
+void Optimizer::duplicateMoveEliminate(){
+	
 }
