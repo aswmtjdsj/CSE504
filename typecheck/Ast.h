@@ -887,19 +887,12 @@ class WhileNode: public StmtNode
     ExprNode* cond() {return cond_;}
     StmtNode* whileStmt() { return stmt_;};
 
-    //ExprNode* cond() {return cond_;}
-    //StmtNode* whileStmt() { return stmt_;};
-    //void addLoopInvStmt(vector<StmtNode*> *s) { loop_inv_stmt_ = s;}
-
     void print(ostream& os, int indent) const;
     EFSAlist* codeGen();
-    //const Type* typeCheck();
-   // void  typePrint(ostream& os, int indent) const;
 
   private:
     ExprNode *cond_;
     StmtNode *stmt_;
-    //vector<StmtNode*> *loop_inv_stmt_;
 
     WhileNode(const WhileNode&);
 };
