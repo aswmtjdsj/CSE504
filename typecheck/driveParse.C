@@ -222,8 +222,9 @@ main(int argc, char *argv[], char *envp[]) {
 	//cout << "Finished parsing, here is the AST\n";
   //ge->print(cout, 0);
   ge->typeCheck();
-  //cout << endl;
   //ge->typePrint(cout, 0);
+  //cout<<"type check finish"<<endl;
+  //cout << endl;
   
   EFSAlist* codeList = ge->codeGen();
   //codeList->codePrint(cout);
