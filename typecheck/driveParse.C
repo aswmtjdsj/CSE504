@@ -226,11 +226,11 @@ main(int argc, char *argv[], char *envp[]) {
   ge->typePrint(cout, 0);
   cout << endl;
   
-  //EFSAlist* codeList = ge->codeGen();
-  //codeList->codePrint(cout);
-  
-  //Optimizer* optimizer = new Optimizer();
-  //optimizer->codeOptimize(codeList->getCodeList());
+  EFSAlist* codeList = ge->codeGen();
+  codeList->codePrint(cout);
+
+  Optimizer* optimizer = new Optimizer();
+  optimizer->codeOptimize(codeList->getCodeList());
   //optimizer->printBasicBlock(cout);
   
   }

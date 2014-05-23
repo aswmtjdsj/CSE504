@@ -670,7 +670,7 @@ class EFSAlist{
    vector<EFSA*> getCodeList(){return codeList;};
    void dealDuplicateLabel();
    vector<EFSA*>* getCodeListPtr(){ return &codeList; };
-
+   void setCodeList(vector<EFSA*> list){codeList=list;};
 
  private:
    vector<EFSA*> codeList;
