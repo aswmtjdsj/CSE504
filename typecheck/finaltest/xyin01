@@ -1,0 +1,36 @@
+int d = 1;
+int e = 1;
+int f;
+
+event z(int b);
+
+int rec(int p) {
+    print "rec[p]: ";
+    print p;
+    print "\n";
+    if(p > 0) {
+        d = p - 1;
+        return p * rec(d);
+    }
+    return 1;
+}
+
+int order(int p) {
+    while(p >= 0) {
+        print "while[p]: ";
+        print p;
+        print "\n";
+        p = p - 1;
+    }
+    return 0;
+}
+
+z(f) -> {
+    print "rec(10): ";
+    print "\n";
+    d = rec(10);
+
+    print "while(10): ";
+    print "\n";
+    d = order(10);
+}

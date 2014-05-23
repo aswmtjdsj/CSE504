@@ -1,0 +1,21 @@
+int d = 1;
+int e = 1;
+int f;
+
+event z(int b);
+
+int order(int p) {
+    while(p >= 0) {
+        print "while[p]: ";
+        print p;
+        print "\n";
+        p = p - 1;
+    }
+    return 0;
+}
+
+z(f) -> {
+    print "while(10): ";
+    print "\n";
+    d = order(10);
+}
