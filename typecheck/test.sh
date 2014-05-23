@@ -1,6 +1,6 @@
 #/bin/sh
-./demo finaltest/in01 > ../in01.i
+./demo test1 > ../test1.i
 cd ..
 ./input_gen.py
-./easm in01.i
-./in01 < in01.in
+./easm test1.i
+./test1 < test1.in
