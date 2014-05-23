@@ -223,7 +223,7 @@ main(int argc, char *argv[], char *envp[]) {
   ge->print(cout, 0);
   ge->typeCheck();
   cout << endl;
-  ge->typePrint(cout, 0);
+  //ge->typePrint(cout, 0);
   cout << endl;
   
   EFSAlist* codeList = ge->codeGen();
