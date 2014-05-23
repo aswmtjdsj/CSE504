@@ -139,6 +139,7 @@ specification:
 ifc_decl_star                                     
 { 
     errMsg("Must contain at least one rule"); 
+    exit (1);
 }
 |ifc_decl_star rule_list                          
 {
@@ -158,6 +159,7 @@ ifc_decl_star:
 |ifc_decl_star error TOK_SEMICOLON                
 {
     errMsg("Syntax error, expecting a declaration");  
+    exit (1);
 }
 ;
 
@@ -173,6 +175,7 @@ rule
 |rule_list error TOK_SEMICOLON 
 {
     errMsg("Error, expecting a rule");
+    exit (1);
 }
 ;
 
@@ -190,11 +193,6 @@ event_pattern TOK_ARROW rule_body1
         }
     } else
         $$ = NULL;
-    /*stm.leaveScope();
-    GlobalEntry* gloen = (GlobalEntry*)stm.currentScope();
-    BlockEntry *t = new BlockEntry("Block", yylinenum, yycolumnno, yyfilename);
-    $$ = new RuleNode(t, $1, $3, yylinenum, yycolumnno, yyfilename);  
-    gloen->addRule($$);*/
 }
 |event_pattern TOK_ARROW rule_body1 TOK_SEMICOLON              
 {
@@ -209,15 +207,11 @@ event_pattern TOK_ARROW rule_body1
         }
     } else
         $$ = NULL;
-    /*stm.leaveScope();
-    GlobalEntry* gloen = (GlobalEntry*)stm.currentScope();
-    BlockEntry *t = new BlockEntry("Block", yylinenum, yycolumnno, yyfilename);
-    $$ = new RuleNode(t, $1, $3, yylinenum, yycolumnno, yyfilename); 
-    gloen->addRule($$);*/
 }      
 |event_pattern error rule_body1 
 {
     errMsg("Syntax error, skipping event pattern");
+    exit (1);
 }
 ;
 
@@ -254,6 +248,7 @@ TOK_CLASS TOK_IDENT
 |TOK_CLASS error TOK_SEMICOLON 
 {
     errMsg("Syntax error in class declaration: expecting class name");
+    exit (1);
 }
 ;
 
@@ -307,6 +302,7 @@ function_header formalparamlistpp funcbody
 |function_header error TOK_SEMICOLON
 {
     errMsg("Syntax error in formal parameter declaration");
+    exit (1);
 }
 ;
 
@@ -325,18 +321,22 @@ type vlist TOK_SEMICOLON
 |type vlist error TOK_SEMICOLON
 {
     errMsg("Error in variable declaration, may be a missing \",\" or identifier");
+    exit (1);
 }
 |type vlist TOK_COMMA error
 {
     errMsg("Error in variable declaration, may be a missing \",\" or identifier");
+    exit (1);
 }
 |type error TOK_SEMICOLON
 {
     errMsg("Error in variable declaration, may be a missing identifier");
+    exit (1);
 }
 |TOK_IDENT error TOK_SEMICOLON
 {
     errMsg("Error in variable declaration, may be a missing type name or identifier");
+    exit (1);
 }
 ;
 
@@ -512,6 +512,7 @@ stmt
 |stmt_plus error stmt 
 {
     errMsg("Syntax error while parsing a statement");
+    exit (1);
 }
 ;
 
@@ -527,14 +528,17 @@ TOK_IF expr stmt TOK_ELSE stmt
 | TOK_IF error stmt 
 {
     errMsg("Syntax error while parsing a statement");
+    exit (1);
 }
 | TOK_IF expr error stmt 
 {
     errMsg("Syntax error while parsing a statement");
+    exit (1);
 }
 | TOK_IF expr stmt TOK_ELSE error TOK_SEMICOLON 
 {
     errMsg("Syntax error in else statement");
+    exit (1);
 }
 ;
 
@@ -561,7 +565,18 @@ function_invocation:
 TOK_IDENT funcinvolistpp                          
 {
     SymTabEntry* fEntry = stm.lookUpInScope($1, SymTabEntry::Kind::GLOBAL_KIND);
-    $$ = new InvocationNode((const SymTabEntry*)fEntry, $2, yylinenum, yycolumnno, yyfilename);
+    SymTabEntry* fEntry1 = stm.currentScope();
+    if (fEntry != NULL)
+        $$ = new InvocationNode((const SymTabEntry*)fEntry, $2, yylinenum, yycolumnno, yyfilename);
+    else if (fEntry1 != NULL && fEntry1->name() == $1)
+    {
+        $$ = new InvocationNode(fEntry1, $2, yylinenum, yycolumnno, yyfilename);
+    }
+    else
+    {
+        errMsg("Not a function!");
+        exit (1);
+    }
 }
 ;
 
@@ -635,6 +650,7 @@ stmt_plus
 |variable_decl error 
 {
     errMsg("Syntax error, expecting a declaration");
+    exit (1);
 }
 ;
 
