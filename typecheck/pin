@@ -6,45 +6,26 @@ int f;
 event z(int b);
 
 int fac(int p) {
+    print "p: ";
+    print p;
+    print "\n";
     if(p > 0) {
         d = p - 1;
-        print "p: ";
-        print p;
-        print "\n";
         print "d: ";
         print d;
         print "\n";
-        e = p * fac(d)
+        e = fac(d);
         print "e: ";
         print e;
         print "\n";
-        return e;
-    }
-    print "daolema?";
-    print "\n";
-    return 1;
-}
-int giu(int p) {
-    if(p > 0) {
-        f = giu(0);
-        // f = 1;
-        return 2 * p * f;
+        return p * e;
     }
     return 1;
-}
-
-int biu(int a, int b) {
-    print "a: ";
-    print a;
-    print "\n";
-    return giu(a) + b;
 }
 
 z(f) -> {
-    // d = giu(2);
-    //d = biu(2,1);
     d = fac(10);
-    print "result: ";
+    print "fac(10): ";
     print d;
     print "\n";
 }
