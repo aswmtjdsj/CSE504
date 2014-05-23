@@ -1,4 +1,4 @@
-#!/bin/bash/python
+#!/usr/bin/python
 import sys, os
 import struct
 
