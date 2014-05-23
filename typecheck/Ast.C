@@ -1263,13 +1263,10 @@ void InCode::codePrint(ostream& os) {
 
 void PrintCode::codePrint(ostream &os) {
     string str;
-    if (reg_ == "" && str_ != "") {
+    if (reg_ == "") {
         str = str_;
-    } else if (reg_ != "" && str_ == "") {
-        str = reg_;
     } else {
-        cerr << "PrintCode::codePrint():Must specify a register name or constant string";
-        return;
+        str = reg_;
     }
 
     switch(name()) {
