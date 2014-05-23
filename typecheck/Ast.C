@@ -1275,12 +1275,18 @@ void InCode::codePrint(ostream& os) {
 
 string PrintCode::parseEscape_(string str) {
     string strRes = "";
-    map<string, string> mapEscapeChar{{"\n", "\\n"}, {"\\", "\\\\"}};
+    map<string, string> mapEscapeChar{{"\n", "\\n"}, {"\\", "\\\\"}, 
+        {"\r", "\\r"}, {"\t", "\\t"}, {"\v", "\\v"}, {"\a", "\\a"}, 
+        {"\b", "\\b"}, {"\f", "\\f"}, {"\'", "\\\'"}, {"\"", "\\\""},
+        {"\?", "\\?"}};
     for (int i = 0; i < str.length(); i++) {
         if (mapEscapeChar.find(str.substr(i,1)) != mapEscapeChar.end()) {
             strRes = strRes + mapEscapeChar[str.substr(i,1)];
+        } else {
+            strRes = strRes + str.substr(i, 1);
         }
     }
+
     return strRes;
 }
 
@@ -1372,15 +1378,72 @@ EFSAlist* ReturnStmtNode::codeGen() {
     codeList->addCode(sub_code);
 
     // store return value to stack
-    string ret_value_reg_name = getReg(expr_->regNum(), expr_->regIF());
-    if(expr_->regIF() == FLOAT_FLAG) {
-        MoveCode * stfr_sp = new MoveCode(EFSA::OperandName::STF, ret_value_reg_name, sp_reg_name);
-        codeList->addCode(stfr_sp);
+    // literal value
+    if(expr_->exprNodeType()==ExprNode::ExprNodeType::VALUE_NODE) {
+        if(Type::isFloat(expr_->type()->tag())) {
+            double literal_val = expr_->value()->dval();
+            string ret_double_name = std::to_string(literal_val);
+
+            // float literal to reg
+            int temp_reg = EFSA::floatRegAlloc();
+            string temp_reg_name = getReg(temp_reg, FLOAT_FLAG);
+            MoveCode * movfl_fr = new MoveCode(EFSA::OperandName::MOVF, ret_double_name, temp_reg_name);
+            codeList->addCode(movfl_fr);
+
+            // save reg to sp->mem
+            MoveCode * stf_sp = new MoveCode(EFSA::OperandName::STF, temp_reg_name, sp_reg_name);
+            codeList->addCode(stf_sp);
+            EFSA::floatRegFree(temp_reg);
+        }
+        else if(Type::isInt(expr_->type()->tag())) {
+            int literal_val = expr_->value()->ival();
+            string ret_int_name = std::to_string(literal_val);
+
+            // int literal to reg
+            int temp_reg = EFSA::intRegAlloc();
+            string temp_reg_name = getReg(temp_reg, INT_FLAG);
+            MoveCode * movil_ir = new MoveCode(EFSA::OperandName::MOVI, ret_int_name, temp_reg_name);
+            codeList->addCode(movil_ir);
+
+            MoveCode * sti_sp = new MoveCode(EFSA::OperandName::STI, temp_reg_name, sp_reg_name);
+            codeList->addCode(sti_sp);
+            EFSA::intRegFree(temp_reg);
+        }
     }
-    else if(expr_->regIF() == INT_FLAG) {
-        MoveCode * stir_sp = new MoveCode(EFSA::OperandName::STI, ret_value_reg_name, sp_reg_name);
-        codeList->addCode(stir_sp);
+    else { // expr
+        string ret_value_reg_name = getReg(expr_->regNum(), expr_->regIF());
+        if(expr_->regIF() == FLOAT_FLAG) {
+            MoveCode * stfr_sp = new MoveCode(EFSA::OperandName::STF, ret_value_reg_name, sp_reg_name);
+            codeList->addCode(stfr_sp);
+        }
+        else if(expr_->regIF() == INT_FLAG) {
+            MoveCode * stir_sp = new MoveCode(EFSA::OperandName::STI, ret_value_reg_name, sp_reg_name);
+            codeList->addCode(stir_sp);
+        }
     }
+
+    // pop jump back label, assume every func has return 
+
+    // sub sp by 1 -> pop
+    IntArithCode* sub_sp_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::SUB, sp_reg_name, sp_reg_name, std::to_string(1));
+    codeList->addCode(sub_sp_code);
+
+    // get new temp register
+    int temp_reg = EFSA::intRegAlloc();
+    //temp_reg_name = "R"+std::to_string(temp_reg);
+    string temp_reg_name = getReg(temp_reg, INT_FLAG);
+
+    MoveCode * ldispp_l = new MoveCode(EFSA::OperandName::LDI, sp_reg_name, temp_reg_name);
+    codeList->addCode(ldispp_l);
+
+    // jump to label ( function return address)
+    LabelCode* label_reg = new LabelCode(temp_reg_name);
+    JumpCode* jumpCode = new JumpCode(EFSA::OperandName::JMPI, NULL, label_reg);
+    codeList->addCode(jumpCode);
+    
+    // eliminate temp reg
+    EFSA::intRegFree(temp_reg);
+
 
     return codeList;
 }

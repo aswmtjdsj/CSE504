@@ -5,10 +5,24 @@ int f;
 
 event z(int b);
 
-int biu(int a, int b) {
-    return a + b;
+int giu(int p) {
+    if(p > 0) {
+        return p * giu(0);
+    }
+    return 1;
 }
 
+/*int biu(int a, int b) {
+    print "a: ";
+    print a;
+    print "\n";
+    return giu(a) * 3 + b;
+}*/
+
 z(f) -> {
-    d = biu(d, e);
+    d = giu(2);
+    /*d = biu(1,1);
+    print "result: ";
+    print d;*/
+    print "\n";
 }

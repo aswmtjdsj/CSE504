@@ -23,9 +23,9 @@ EFSAlist* EventMatch::getMatchCodeList(GlobalEntry *ge) {
 	elCodeList_->addCode(new MoveCode(EFSA::OperandName::MOVI, "0", getReg(EVENT_STATE_REG)));
 	
 	//count input
-	elCodeList_->addCode(new IntArithCode(IntArithCode::OperandNum::BINARY,
+/*	elCodeList_->addCode(new IntArithCode(IntArithCode::OperandNum::BINARY,
 		EFSA::OperandName::ADD, getReg(EVENT_INPUT_NUM_REG), 
-		getReg(EVENT_INPUT_NUM_REG), "1"));
+		getReg(EVENT_INPUT_NUM_REG), "1"));*/
 
 	//JMPC EQ R998 10 EXIT
 	IntRelationCode* ircpCond = new IntRelationCode(EFSA::OperandName::EQ,
@@ -114,7 +114,7 @@ EFSAlist* EventMatch::getReadParamCodeList(RuleNode* pRuleNode) {
 		}
 	}
 #ifdef EVENT_DEBUG
-	printString_(")\\n");
+	printString_(")\n");
 #endif
 	// if too many parameters input
 /*	elCodeList_->addCode(new InCode(EFSA::OperandName::INI, getReg(iCurIReg)));
@@ -147,7 +147,7 @@ void EventMatch::printString_(string str) {
 EFSAlist* EventMatch::getLineNumPrintCode(RuleNode* pRuleNode) {
 #ifdef EVENT_DEBUG
 	elCodeList_ = new EFSAlist();
-	printString_("Event in Line " + numToString(pRuleNode->line()) + " matched\\n");
+	printString_("Event in Line " + numToString(pRuleNode->line()) + " matched\n");
 	return elCodeList_;
 #else
 	return nullptr;
