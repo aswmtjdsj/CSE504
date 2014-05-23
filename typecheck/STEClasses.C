@@ -403,17 +403,17 @@ EFSAlist* FunctionEntry::codeGen() {
     codeList->addCodeList(body()->codeGen());
     codeList->addCode(new LabelCode("//BodyEnd"));
 
-    // release local var
-    //cout << "biubiu" << endl;
+    // local var cannot be released
+    /*//cout << "biubiu" << endl;
     for(auto idx = local_var_reg_num_array.begin(); idx != local_var_reg_num_array.end(); idx++) {
         //cout << "FUCKKK" << idx->first << endl;
-        /*if(idx->second == FLOAT_FLAG) {
+        if(idx->second == FLOAT_FLAG) {
             EFSA::floatRegFree(idx->first);
         }
         else if(idx->second == INT_FLAG) {
             EFSA::intRegFree(idx->first);
-        }*/
-    }
+        }
+    }*/
 
     return codeList;
 }
