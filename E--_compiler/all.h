@@ -26,7 +26,8 @@
 #include <limits>
 #include <ext/hash_map>
 #include <ext/slist>
-
+#include <unordered_map>
+#include <unordered_set>
 #include "Constants.h"
 
 using namespace std;

@@ -113,3 +113,115 @@ void Optimizer::duplicateMoveEliminate(){
 	}
 
 }
+void Optimizer::removeCSEInBlock() {
+   for (auto it = blockList_.begin(); it != blockList_.end(); it++) {
+       unordered_map<string, set<int>> umExpTable;
+       unordered_map<string, int> umDefTable;
+       map<int, int> mapAvailability;
+       map<int, string> mapDestName;
+       vector<EFSA*>* pCodeList = (*it)->getCodeListPtr();
+       string strArithLeft, strArithRight, strArithDest;
+       string strMoveFrom, strMoveDest;
+       EFSA::OperandName arithOpName;
+
+       int iOldLineNum = 0;
+       //scan in order
+       for (auto itc = pCodeList->begin(); itc != pCodeList->end(); itc++) {
+           int iLineNum = itc - pCodeList->begin();
+           auto opName = (*itc)->name();
+           switch ((*itc)->operatorType()) {
+           case EFSA::OperatorType::INT_ARITH:
+           {
+               strArithLeft = ((IntArithCode*)(*itc))->leftOperand();
+               strArithRight = ((IntArithCode*)(*itc))->rightOperand();
+               strArithDest = ((IntArithCode*)(*itc))->dest();
+               iOldLineNum = iLineNum;
+               arithOpName = opName;
+               break;
+           }
+           case EFSA::OperatorType::FLOAT_ARITH:
+           {
+               strArithLeft = ((FloatArithCode*)(*itc))->leftOperand();
+               strArithRight = ((FloatArithCode*)(*itc))->rightOperand();
+               strArithDest = ((FloatArithCode*)(*itc))->dest();
+               iOldLineNum = iLineNum;
+               arithOpName = opName;
+               break;
+           }
+           case EFSA::OperatorType::MOVE:
+               strMoveFrom = ((MoveCode*)(*itc))->from();
+               strMoveDest = ((MoveCode*)(*itc))->dest();
+               if (strMoveFrom == strArithDest && iLineNum == iOldLineNum + 1) {
+                   mapDestName[iLineNum] = strMoveDest;
+                   int iAvail = max(umDefTable[strArithLeft], umDefTable[strArithRight]);
+                   mapAvailability[iLineNum] = iAvail;
+                   umDefTable[strMoveDest] = iLineNum;
+                   string emkKey = makeExprTabKey_(arithOpName, strArithLeft, strArithRight, iAvail);
+                   umExpTable[emkKey].insert(iLineNum);
+               }
+               break;
+           default:
+               break;
+           }
+
+           
+
+       }
+
+       map<int, string> mapNewVarList;
+       for (auto itm = umExpTable.begin(); itm != umExpTable.end(); itm++) {
+           if (itm->second.size() > 1) {
+               for (auto its = itm->second.begin(); its != itm->second.end(); its++) {
+                   if (its == itm->second.begin()) continue;
+                   mapNewVarList[*its] = mapDestName[*itm->second.begin()];
+               }
+           }
+       }
+
+       for (auto itp = pCodeList->begin(); itp != pCodeList->end()-1; itp++) {
+           int pos = itp - pCodeList->begin();
+           if (mapNewVarList.find(pos + 1) == mapNewVarList.end()) continue;
+           switch((*itp)->operatorType()) {
+           case EFSA::OperatorType::FLOAT_ARITH:
+               (*itp) = new MoveCode(EFSA::OperandName::MOVI,
+                   getReg(mapNewVarList[pos + 1]), mapDestName[pos + 1]);
+                   *(itp+1) = nullptr;
+                   break;
+           case EFSA::OperatorType::INT_ARITH:
+               (*itp) = new MoveCode(EFSA::OperandName::MOVF,
+                   getReg(mapNewVarList[pos + 1]), mapDestName[pos + 1]);
+                   *(itp+1) = nullptr;
+                   break;
+           default:
+               break;
+           }
+           
+       }
+
+       bool bExistNull = true;
+       while(bExistNull) {
+           for (auto itp = pCodeList->begin(); itp != pCodeList->end(); itp++) {
+               if ((*itp) == nullptr) {
+                   pCodeList->erase(itp);
+                   break;
+               }
+           }
+           bExistNull = false;
+       }
+       /*map<int, int> mapLineToExpTab;
+       // convert map
+       for (auto itm = umExpTable.begin(); itm != umExpTable.end(); itm++) {
+           for (auto its = itm->second.begin(); its != itm->second.end(); its++) {
+               mapLineToExpTab[its] = itm->first;
+           }
+       }
+
+       vector<EFSA*> newCodeList;
+       //scan maps
+       for (auto itm = mapLineToExpTab.begin(); itm != mapLineToExpTab.end(); itm++) {
+           for (auto ite = umExpTable[*itm].begin(); ite !=umExpTable[*itm].end(); ite!) {
+               
+           }
+       }*/
+   }
+}
