@@ -1017,7 +1017,7 @@ int RuleNode::regAlloc() {
 
 void EFSAlist::dealDuplicateLabel(){    
     int markList[codeList.size()];
-    for (int i=0; i<codeList.size(); i++)
+    for (int i=0; (size_t)i<codeList.size(); i++)
         markList[i]=0;
     vector<EFSA*>::iterator iter=codeList.begin();
     while (iter!=codeList.end()){
@@ -1033,7 +1033,7 @@ void EFSAlist::dealDuplicateLabel(){
 
     iter = codeList.begin();
     int j =1;
-    for (int i=0; i<codeList.size(); i++){
+    for (int i=0; (size_t)i<codeList.size(); i++){
         if (markList[i]==1){
             codeList.insert (iter+i+j,1,new PrintCode(EFSA::OperandName::PRTS, ""));
             iter=codeList.begin();
@@ -1279,7 +1279,7 @@ string PrintCode::parseEscape_(string str) {
         {"\r", "\\r"}, {"\t", "\\t"}, {"\v", "\\v"}, {"\a", "\\a"}, 
         {"\b", "\\b"}, {"\f", "\\f"}, {"\'", "\\\'"}, {"\"", "\\\""},
         {"\?", "\\?"}};
-    for (int i = 0; i < str.length(); i++) {
+    for (int i = 0; (size_t)i < str.length(); i++) {
         if (mapEscapeChar.find(str.substr(i,1)) != mapEscapeChar.end()) {
             strRes = strRes + mapEscapeChar[str.substr(i,1)];
         } else {
