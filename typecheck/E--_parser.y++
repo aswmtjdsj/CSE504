@@ -561,7 +561,17 @@ function_invocation:
 TOK_IDENT funcinvolistpp                          
 {
     SymTabEntry* fEntry = stm.lookUpInScope($1, SymTabEntry::Kind::GLOBAL_KIND);
-    $$ = new InvocationNode((const SymTabEntry*)fEntry, $2, yylinenum, yycolumnno, yyfilename);
+    SymTabEntry* fEntry1 = stm.currentScope();
+    if (fEntry != NULL)
+        $$ = new InvocationNode((const SymTabEntry*)fEntry, $2, yylinenum, yycolumnno, yyfilename);
+    else if (fEntry1 != NULL && fEntry1->name() == $1)
+    {
+        $$ = new InvocationNode(fEntry1, $2, yylinenum, yycolumnno, yyfilename);
+    }
+    else
+    {
+        errMsg("Not a function!");
+    }
 }
 ;
 
