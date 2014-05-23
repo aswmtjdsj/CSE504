@@ -397,11 +397,47 @@ EFSAlist* FunctionEntry::codeGen() {
         }
     }
 
+    // push AP to stack
+    for(auto ridx = local_var_reg_num_array.rbegin(); ridx != local_var_reg_num_array.rend(); ridx++) {
+        // add sp by 1 -> push
+        IntArithCode* add_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::ADD, sp_reg_name, sp_reg_name, std::to_string(1));
+        codeList->addCode(add_code);
+
+        // store value from stack to reg
+        string param_reg_name = getReg(ridx->first, ridx->second);
+        if(ridx->second == FLOAT_FLAG) {
+            MoveCode * stfparam_spp = new MoveCode(EFSA::OperandName::STF, param_reg_name, sp_reg_name);
+            codeList->addCode(stfparam_spp );
+        }
+        else if(ridx->second == INT_FLAG) {
+            MoveCode * stiparam_spp = new MoveCode(EFSA::OperandName::STI, param_reg_name, sp_reg_name);
+            codeList->addCode(stiparam_spp );
+        }
+    }
+
     // compound statement code gen
     // inside:: return statement to pop return 
     codeList->addCode(new LabelCode("//BodyBegin"));
     codeList->addCodeList(body()->codeGen());
     codeList->addCode(new LabelCode("//BodyEnd"));
+
+    // pop stack to load AP to LV
+    for(auto ridx = local_var_reg_num_array.rbegin(); ridx != local_var_reg_num_array.rend(); ridx++) {
+        // sub sp by 1 -> pop
+        IntArithCode* sub_code = new IntArithCode(IntArithCode::OperandNum::BINARY, EFSA::OperandName::SUB, sp_reg_name, sp_reg_name, std::to_string(1));
+        codeList->addCode(sub_code);
+
+        // store value from stack to reg
+        string param_reg_name = getReg(ridx->first, ridx->second);
+        if(ridx->second == FLOAT_FLAG) {
+            MoveCode * ldfspp_param = new MoveCode(EFSA::OperandName::LDF, sp_reg_name, param_reg_name);
+            codeList->addCode(ldfspp_param);
+        }
+        else if(ridx->second == INT_FLAG) {
+            MoveCode * ldispp_param = new MoveCode(EFSA::OperandName::LDI, sp_reg_name, param_reg_name);
+            codeList->addCode(ldispp_param);
+        }
+    }
 
     // local var cannot be released
     /*//cout << "biubiu" << endl;
