@@ -1222,15 +1222,25 @@ void InCode::codePrint(ostream& os) {
 }
 
 void PrintCode::codePrint(ostream &os) {
+    string str;
+    if (reg_ == "" && str_ != "") {
+        str = str_;
+    } else if (reg_ != "" && str_ == "") {
+        str = reg_;
+    } else {
+        cerr << "PrintCode::codePrint():Must specify a register name or constant string";
+        return;
+    }
+
     switch(name()) {
         case EFSA::OperandName::PRTS:
-            os << "PRTS " << str_ << endl;
+            os << "PRTS " << str << endl;
             break;
         case EFSA::OperandName::PRTI:
-            os << "PRTI " << reg_ << endl;
+            os << "PRTI " << str << endl;
             break;
         case EFSA::OperandName::PRTF:
-            os << "PRTF " << reg_ << endl;
+            os << "PRTF " << str << endl;
             break;
         default:
             break;
