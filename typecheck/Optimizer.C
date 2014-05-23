@@ -90,8 +90,26 @@ void Optimizer::duplicateMoveEliminate(){
 				tempList.push_back(codeList->at(i));
 		}
 
+		// deal with MOV R R     from and dest are same
+		vector<EFSA*>::iterator iter2=tempList.begin();
+		while (iter2!=tempList.end()){
+			bool flag = false;
+			if ((*iter2)->operatorType()==EFSA::OperatorType::MOVE && ((*iter2)->name()==EFSA::OperandName::MOVI || (*iter2)->name()==EFSA::OperandName::MOVF)){
+				MoveCode* code = (MoveCode*)(*iter2);
+				if (code->from()==code->dest()){
+					tempList.erase(iter2);
+					flag = true;
+				}
+			}	
+			if (flag)
+				iter2 = tempList.begin();
+			else
+				iter2++;
+		}
+
 		 (*it)->setCodeList(tempList);
 		 //cout<<endl;
+
 	}
 
 }
