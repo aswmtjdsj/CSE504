@@ -6,15 +6,15 @@ int f;
 event z(int b);
 
 int func_b(int a) {
+    int c = 2*a;
     print "\nfucn_b(a) = \n";
     print "a * 3 if a > 2\n";
     print "a * 4 otherwise\n";
-    if(a > 2) {
-        return a * 3;
-    }
-    else {
-        return a * 4;
-    }
+    if(a > 2) 
+        if (c < 5)
+            {return a * 3;}
+        else {return a*5;}
+    else return a * 4;
 }
 
 int func_a(int p, int q) {
