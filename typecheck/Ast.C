@@ -1455,7 +1455,10 @@ EFSAlist* OpNode::codeGen() {
     EFSAlist* codeList = NULL;
     codeList = new EFSAlist();
     EFSAlist* temp1 = arg_[0]->codeGen();
-    EFSAlist* temp2 = arg_[1]->codeGen();
+    EFSAlist* temp2 = NULL;
+    if(arg_[1] != NULL) {
+        arg_[1]->codeGen();
+    }
     if (temp1!=NULL)
         codeList->addCodeList(temp1);
     if (temp2!=NULL)
@@ -1994,7 +1997,6 @@ EFSAlist* OpNode::codeGen() {
         codeList->addCode(code);
     }
     else if (opCode()==OpNode::OpCode::PRINT){
-        cout << "kiukiu" << endl;
         string target="";
         PrintCode* code = NULL;
         if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==INT_FLAG) // print int
@@ -2003,7 +2005,7 @@ EFSAlist* OpNode::codeGen() {
             target = getReg(arg_[0]->regNum(), INT_FLAG);
             code = new PrintCode(EFSA::OperandName::PRTI, "", target);
         }
-        else if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==FLOAT_FLAG) // print loat
+        else if (arg_[0]->regNum()!=-1 && arg_[0]->regIF()==FLOAT_FLAG) // print float
         {
             //left = "F"+std::to_string(arg_[0]->regNum());
             target = getReg(arg_[0]->regNum(), FLOAT_FLAG);
